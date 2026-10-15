@@ -1,0 +1,20 @@
+{
+  "name": "afterfire",
+  "version": "0.1.0",
+  "private": true,
+  "description": "烬土 AFTERFIRE — original real-time reconstruction strategy game",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && node scripts/serve.mjs",
+    "dev": "npm run start",
+    "test": "node scripts/test.mjs",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "balance": "node scripts/balance.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2020","module":"none","lib":["ES2022","DOM"],"strict":true,"noImplicitReturns":true,"noFallthroughCasesInSwitch":true,"outFile":"build/game.js","removeComments":false,"sourceMap":false},"files":["src/model.ts","src/world.ts","src/simulation.ts","src/render.ts","src/ui.ts","src/main.ts"]}

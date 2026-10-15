@@ -1,0 +1,29 @@
+name: Validate and build AFTERFIRE
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Verify the committed offline build
+        run: git diff --exit-code -- index.html
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: afterfire-offline
+          path: dist/index.html
+          if-no-files-found: error
