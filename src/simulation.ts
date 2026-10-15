@@ -12,7 +12,7 @@ namespace Afterfire {
     const d=s.districts[id],def=PROJECTS[kind];let discount=1;
     if(s.governor==='civil'&&['water','health','school','jobs','shelter'].includes(kind))discount=.85;
     if(s.governor==='engineer'&&kind==='road')discount=.75;
-    return Math.ceil(def.cost*(1+d.levels[kind]*.45)*(1+s.inflation/100)*discount);
+    return Math.ceil(def.cost*(1+d.levels[kind]*.45)*(1+s.inflation/100)*discount*campaignProjectFactor(s,kind));
   }
   export function projectAllowed(s:State,id:number,kind:ProjectKind):string {
     const d=s.districts[id];if(!d)return '无效地区';
@@ -22,7 +22,7 @@ namespace Afterfire {
     if(controlled(d))return '地区被武装控制，需先恢复安全';
     if(d.intel<25&&kind!=='survey')return '先进行地区调查，或派部队收集情报';
     if(d.levels[kind]>=PROJECTS[kind].max)return '已达到最高等级';
-    if(s.districts.filter(x=>x.project).length>=4+s.policies.logistics)return '工程队已满负荷；等待完工或升级后勤';
+    if(s.districts.filter(x=>x.project).length>=projectCapacity(s))return '工程队已满负荷；等待完工或升级后勤';
     if(s.money<projectCost(s,id,kind))return '资金不足';
     return '';
   }
@@ -48,7 +48,7 @@ namespace Afterfire {
     if(s.outcome!=='playing')return fail('行动已经结束');
     if(s.units.length>=7)return fail('最多部署 7 支部队');
     if(controlled(s.districts[s.hq])||s.districts[s.hq].hazard>0)return fail('总部不安全，无法招募');
-    const def=UNIT_DEFS[kind];const cost=def.cost;
+    const def=UNIT_DEFS[kind];const cost=recruitCost(s,kind);
     if(s.money<cost)return fail('资金不足');
     s.money-=cost;s.spentMilitary+=cost;
     const id=s.nextUnit++;s.units.push({id,name:`${kind==='coalition'?'联援':kind==='national'?'国民':'工兵'} ${String(id).padStart(2,'0')}`,kind,at:s.hq,path:[],leg:0,legTotal:0,hp:100,supply:100,training:Math.max(1,def.train-(kind==='national'?s.policies.training*2:0)),contract:kind==='coalition'?96:99999,stance:'protect',experience:0});
@@ -139,8 +139,9 @@ namespace Afterfire {
   }
   function monthly(s:State):void {
     const jobs=s.districts.reduce((a,d)=>a+(!controlled(d)&&d.hazard<=0?d.levels.jobs*.65:0),0);
-    const income=16+stableCount(s)*.65+jobs+(s.difficulty==='relaxed'?3:0);
-    const upkeep=s.units.reduce((a,u)=>a+UNIT_DEFS[u.kind].upkeep,0);
+    const cooperative=hasUpgrade(s,'cooperative')?s.districts.reduce((a,d)=>a+(d.supplied&&!controlled(d)&&d.terrain!=='city'?d.levels.jobs*.8:0),0):0;
+    const income=16+stableCount(s)*.65+jobs+cooperative+(s.difficulty==='relaxed'?3:0);
+    const upkeep=s.units.reduce((a,u)=>a+UNIT_DEFS[u.kind].upkeep*(s.campaign?.doctrine==='rebuild'?1.15:1),0);
     s.lastIncome=income;s.lastUpkeep=upkeep;
     s.money+=income-upkeep;
     if(s.money<0){s.reputation=clamp(s.reputation-4);s.money=0;addLog(s,'经费不足，军政服务中断，声望受损。','bad');}
@@ -162,7 +163,7 @@ namespace Afterfire {
         else {
           u.leg+=1;
           if(u.leg>=u.legTotal) {
-            u.at=u.path.shift()!;u.leg=0;d=s.districts[u.at];
+            u.at=u.path.shift()!;u.leg=s.campaign?Math.max(0,u.leg-u.legTotal):0;if(!u.path.length)u.leg=0;d=s.districts[u.at];
             if(u.path.length)u.legTotal=travelCost(s,d,s.districts[u.path[0]]);
             if(d.rebels>8){u.path=[];addLog(s,`${u.name}在${d.name}接敌，行军中止。`,'warn');}
           }
@@ -180,7 +181,7 @@ namespace Afterfire {
   function combatTick(s:State):void {
     for(const d of s.districts) {
       const local=s.units.filter(u=>active(u)&&u.at===d.id&&!u.path.length);
-      if(!local.length||d.rebels<.5||d.hazard>0)continue;
+      if(!local.length||d.rebels<.5||d.hazard>0||isTruce(s,d.id))continue;
       const adjacent=s.units.filter(u=>active(u)&&!u.path.length&&d.neighbors.includes(u.at)&&u.kind!=='engineer');
       const strength=(u:Unit)=>UNIT_DEFS[u.kind].power*(.4+.6*u.hp/100)*(.25+.75*u.supply/100)*(u.kind==='national'?1+s.policies.training*.22:1)*(u.stance==='protect'?.82:u.stance==='assault'?1.23:1)*(1+u.experience*.002);
       const attack=local.reduce((a,u)=>a+strength(u),0)+adjacent.reduce((a,u)=>a+strength(u)*.28,0);
@@ -192,7 +193,7 @@ namespace Afterfire {
       const risk=(reckless?.22:.025)*(d.terrain==='city'?1.4:1);
       if(rand(s)<risk){const n=Math.ceil((2+rand(s)*7)*(reckless?1.8:1));s.casualties+=n;d.support=clamp(d.support-(reckless?1.1:.3));d.unrest=clamp(d.unrest+(reckless?2.8:.5));s.reputation=clamp(s.reputation-n*.025);if(reckless)addLog(s,`${d.name}报告 ${n} 名居民伤亡；当地对作战方式的不满增加。`,'bad');}
       if(d.rebels<8&&d.rebels>1&&before>8&&s.week%3===0) {
-        const exits=d.neighbors.filter(n=>s.districts[n].hazard<=0&&!s.units.some(u=>active(u)&&u.at===n));
+        const exits=d.neighbors.filter(n=>s.districts[n].hazard<=0&&!isTruce(s,n)&&!s.units.some(u=>active(u)&&u.at===n));
         if(exits.length){const to=s.districts[exits.sort((a,b)=>s.districts[a].support-s.districts[b].support)[0]];to.rebels+=d.rebels*.7;d.rebels=0;}
       }
       if(d.rebels<.6){d.rebels=0;if(d.camp){d.camp=false;s.reputation=clamp(s.reputation+1.5);addLog(s,`${d.name}营地被解除。保持安全与服务，避免再次渗透。`,'good');}d.unrest=clamp(d.unrest-3);}
@@ -203,7 +204,7 @@ namespace Afterfire {
       const local=s.units.filter(u=>active(u)&&u.at===d.id&&!u.path.length);
       const engineer=local.some(u=>u.kind==='engineer');
       if(d.project&&d.hazard<=0&&!controlled(d)) {
-        const speed=(s.governor==='engineer'?1.3:1)*(1+s.policies.logistics*.2)*(1-s.corruption*.006)*(d.supplied?1:.22)*(engineer?1.7:1)*(1+d.levels.road*.12)*(d.terrain==='mountain'?.7:1)*(d.rebels>2?.4:1);
+        const speed=(hasUpgrade(s,'works')?1.15:1)*(hasUpgrade(s,'precision')?.93:1)*(s.governor==='engineer'?1.3:1)*(1+s.policies.logistics*.2)*(1-s.corruption*.006)*(d.supplied?1:.22)*(engineer?1.7:1)*(1+d.levels.road*.12)*(d.terrain==='mountain'?.7:1)*(d.rebels>2?.4:1);
         d.project.progress+=speed;
         if(d.project.progress>=d.project.total) {
           const kind=d.project.kind;d.levels[kind]++;d.project=null;s.completed++;
@@ -234,6 +235,7 @@ namespace Afterfire {
     const factor=difficulty(s)*(s.negotiating?Math.max(.4,1-s.peace/160):1);
     for(const d of s.districts) {
       if(d.hazard>0)continue;
+      if(isTruce(s,d.id))continue;
       const troops=s.units.some(u=>active(u)&&u.at===d.id&&!u.path.length);
       if(d.camp&&!troops) {
         const grow=(.7+d.unrest*.008)*factor*(1-s.policies.diplomacy*.14)-Math.max(0,d.support-56)*.045-d.levels.police*.2;
@@ -241,7 +243,7 @@ namespace Afterfire {
         if(d.rebels<.5&&d.support>62){d.camp=false;addLog(s,`${d.name}武装营地因复员与社区治理自行解散。`,'good');}
       } else if(d.rebels>0&&!troops) d.rebels=clamp(d.rebels+(.12*factor-d.levels.police*.28-Math.max(0,d.support-60)*.035),0,120);
       if(!troops&&d.rebels>26&&s.week%4===0) {
-        const options=d.neighbors.filter(n=>s.districts[n].hazard<=0&&!s.units.some(u=>active(u)&&u.at===n)&&s.districts[n].rebels<20&&s.districts[n].stability<100);
+        const options=d.neighbors.filter(n=>s.districts[n].hazard<=0&&!isTruce(s,n)&&!s.units.some(u=>active(u)&&u.at===n)&&s.districts[n].rebels<20&&s.districts[n].stability<100);
         if(options.length) {
           options.sort((a,b)=>(s.districts[a].support+s.districts[a].levels.police*16)-(s.districts[b].support+s.districts[b].levels.police*16));
           const target=s.districts[options[0]];const split=Math.min(14,d.rebels*.4);d.rebels-=split;target.rebels+=split;
@@ -250,7 +252,7 @@ namespace Afterfire {
       }
     }
     if(s.week%28===0&&s.districts.filter(d=>d.camp).length<3&&(!s.negotiating||s.peace<65)) {
-      const candidates=s.districts.filter(d=>d.terrain==='mountain'&&d.hazard<=0&&!d.camp&&d.support<52&&d.levels.police===0&&!s.units.some(u=>active(u)&&u.at===d.id));
+      const candidates=s.districts.filter(d=>d.terrain==='mountain'&&d.hazard<=0&&!isTruce(s,d.id)&&!d.camp&&d.support<52&&d.levels.police===0&&!s.units.some(u=>active(u)&&u.at===d.id));
       if(candidates.length&&rand(s)<.6*factor){const d=candidates[Math.floor(rand(s)*candidates.length)];d.camp=true;d.rebels+=7*factor;}
     }
   }
@@ -292,7 +294,7 @@ namespace Afterfire {
     const lost=held.length*.035+uncontrolledPop*.9+stagnation+(s.corruption>48?(s.corruption-48)*.006:0);
     s.reputation=clamp(s.reputation-lost+(stableShare(s)>30?.018:0));
     if(s.negotiating) {
-      const gain=(.13+Math.max(0,support(s)-42)*.026+stableShare(s)*.003+s.policies.diplomacy*.1-totalRebels(s)*.003)*(s.governor==='mediator'?1.35:1);
+      const gain=(.13+Math.max(0,support(s)-42)*.026+stableShare(s)*.003+s.policies.diplomacy*.1-totalRebels(s)*.003)*(s.governor==='mediator'?1.35:1)*(s.campaign?.doctrine==='accord'?1.25:1);
       s.peace=clamp(s.peace+gain);
     }
     const peaceWin=stableShare(s)>=70&&s.peace>=100&&totalRebels(s)<65;
@@ -311,7 +313,7 @@ namespace Afterfire {
     if(s.week===12)startInsurgency(s);
     hazardsTick(s);updateSupply(s);unitsTick(s);combatTick(s);
     s.units=s.units.filter(u=>{if(u.hp>0)return true;s.losses++;s.reputation=clamp(s.reputation-8);addLog(s,`${u.name}失去战斗力，已退出行动。`,'bad');return false;});
-    civilTick(s);enemyTick(s);updateSupply(s);
+    civilTick(s);enemyTick(s);updateSupply(s);campaignTick(s);
     if(s.week%4===0)monthly(s);outcomeTick(s);
     if(s.week>=s.nextEvent&&s.outcome==='playing'){s.event=eventFor(s);s.paused=true;}
   }
@@ -351,6 +353,6 @@ namespace Afterfire {
     s.history=Array.isArray(x.history)?x.history.slice(-110).filter(h=>['week','support','reputation','rebels','money','stable'].every(k=>finite((h as unknown as Record<string,number>)[k],0,1e8))):[];
     s.event=x.event?eventFor(s):null;s.paused=true;s.speed=1;
     if(!['playing','victory','defeat'].includes(x.outcome))throw new Error('结局数据损坏');s.outcome=x.outcome;s.endReason=typeof x.endReason==='string'?x.endReason.slice(0,240):'';
-    updateSupply(s);return s;
+    restoreCampaign(s,x.campaign);updateSupply(s);return s;
   }
 }

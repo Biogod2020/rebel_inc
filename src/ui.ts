@@ -1,5 +1,13 @@
 namespace Afterfire {
   const ICONS:Record<string,string>={
+    convoy:'<path d="M2 6h13v12H2Zm13 5h4l3 4v3h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
+    airlift:'<path d="m3 14 7-2V4l2-2 2 2v8l7 2v3l-7-1v4l2 1H8l2-1v-4l-7 1Z"/>',
+    box:'<path d="m3 7 9-4 9 4v12l-9 4-9-4Zm0 0 9 4 9-4m-9 4v12M7 5l10 4v5"/>',
+    chevron:'<path d="m8 5 7 7-7 7"/>',
+    plus:'<path d="M12 4v16M4 12h16"/>',
+    layers:'<path d="m2 8 10-5 10 5-10 5Zm0 5 10 5 10-5M2 18l10 5 10-5"/>',
+    book:'<path d="M3 4q5-2 9 1 4-3 9-1v16q-5-2-9 1-4-3-9-1Zm9 1v16"/>',
+    leaf:'<path d="M20 3C6 2 2 9 6 16c8 4 15-2 14-13ZM4 21l12-13"/>',
     map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Zm6-3v15m6-12v15"/>',
     water:'<path d="M12 2s-7 8-7 12a7 7 0 0 0 14 0c0-4-7-12-7-12Z"/><path d="M8 14a4 4 0 0 0 4 4"/>',
     health:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6Z"/>',
@@ -31,179 +39,294 @@ namespace Afterfire {
   export const icon=(name:string):string=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]||ICONS.map}</svg>`;
   export const escape=(s:string):string=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
   const meter=(v:number,cls=''):string=>`<div class="track ${cls}"><i style="width:${clamp(v)}%"></i></div>`;
-  const SAVE_KEY='afterfire-save-v1';
-  type Tab='district'|'policies'|'forces'|'situation';
+  const SAVE_KEY='afterfire-save-v2',LEGACY_KEY='afterfire-save-v1';
+  type Tab='district'|'policies'|'forces'|'situation'|'missions';
+  const DIFF_LABELS:Record<Difficulty,string>={relaxed:'宽松',standard:'标准',veteran:'严峻'};
+  const $=(id:string):HTMLElement=>document.getElementById(id)!;
+  const disabled=(reason:string):string=>reason?`disabled title="${escape(reason)}"`:'';
+  const STANCES:Record<Stance,string>={protect:'保护居民',balanced:'稳步推进',assault:'集中突击'};
+  const briefProject:Record<ProjectKind,string>={water:'饮水与灌溉，恢复基本生活',health:'基层医疗，减少灾害伤亡',school:'长期民心，削弱招募土壤',jobs:'恢复生计，并增加月度收入',road:'加快行军、运输和施工',police:'防止小股渗透，改善情报',shelter:'加速疏散与受灾家庭返乡',survey:'补全地区情报，解锁建设'};
+  function emblem(key:string):string {
+    // Small original line illustrations, sharing the same visual grammar as map markers.
+    const subject=key==='convoy'||key==='mobility'?'<path d="M54 67h48v21H54zm48 8h15l8 13h-23"/><circle cx="65" cy="92" r="5"/><circle cx="112" cy="92" r="5"/><path d="m22 101 43-66 55 0 33 66"/>':key==='peace'||key==='accord'||key==='compact'?'<path d="M89 110V55m0 24C48 77 44 35 44 35s45 0 45 44Zm0-14c0-34 47-40 47-40s2 36-47 40Z"/><path d="M61 117h57"/>':key==='volcano'||key==='prepared'?'<path d="m36 105 36-68h35l38 68H36Zm36-68 18 24 17-24M75 24l-6-12m29 12 8-12"/><path d="M48 112h83"/>':'<path d="m39 66 50-33 50 33M51 58v49h76V58M78 107V76h22v31M63 66h9m34 0h9"/><path d="M37 113h105"/>';
+    return `<svg class="emblem" viewBox="0 0 180 140" aria-hidden="true"><circle cx="90" cy="72" r="56" fill="none" stroke="currentColor" opacity=".12"/><circle cx="90" cy="72" r="42" fill="none" stroke="currentColor" opacity=".09"/><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">${subject}</g><circle cx="32" cy="39" r="2" fill="currentColor"/><path d="M145 107h12m-6-6v12" stroke="currentColor" opacity=".5"/></svg>`;
+  }
   export class Controller {
-    state:State;renderer:Renderer;tab:Tab='district';selected=24;unit:number|null=null;started=false;
-    modalKind:'menu'|'help'|'event'|'end'|null=null;sound=false;toastTimer=0;
-    menuScenario:Scenario='volcano';menuGovernor:Governor='civil';menuDiff:Difficulty='standard';menuSeed=58421;
-    private audio:AudioContext|null=null;private saveErrorShown=false;
-    constructor() {
+    state:State;renderer:Renderer;tab:Tab='district';selected=24;unit:number|null=null;started=false;panelOpen=false;
+    modalKind:'menu'|'help'|'event'|'end'|'draft'|null=null;sound=false;toastTimer=0;
+    menuScenario:Scenario='volcano';menuGovernor:Governor='civil';menuDiff:Difficulty='standard';menuSeed=58421;menuDoctrine:Doctrine='rebuild';
+    allProjects=false;allOperations=false;showLayers=false;showAdvanced=false;advisorOpen=true;
+    private audio:AudioContext|null=null;private saveErrorShown=false;private menuPreview='';private modalFocus:HTMLElement|null=null;
+    constructor(){
       this.state=newGame();
-      document.body.innerHTML=`<div id="app"><header class="topbar"><button class="brand" data-action="menu" title="主菜单" aria-label="打开主菜单"><svg class="brand-mark" viewBox="0 0 32 40" fill="none" aria-hidden="true"><path d="m3 32 10-24 5 12 4-7 7 19H3Z" stroke="currentColor" stroke-width="1.6"/><path d="M16 2v4m-8 29h18M13 27l4-8 4 8" stroke="currentColor" stroke-width="1.4"/></svg><div><strong>烬土</strong><span>AFTERFIRE</span></div></button><div class="metrics" id="metrics"></div><div class="clock"><div class="datebox" id="datebox"></div><div class="speeds" id="speeds"></div></div></header><div class="workspace"><nav class="rail" aria-label="行动面板"><button data-tab="district" title="地区建设 [B]">${icon('map')}<span>地区</span></button><button data-tab="policies" title="治理政策 [P]">${icon('people')}<span>治理</span></button><button data-tab="forces" title="部队部署 [U]">${icon('shield')}<span>部队</span></button><button data-tab="situation" title="全局态势 [I]">${icon('chart')}<span>态势</span></button><div class="spacer"></div><button class="utility" data-action="sound" title="音效开关" aria-label="音效开关" id="sound-button">${icon('mute')}</button><button class="utility" data-action="save" title="保存进度 [S]" aria-label="保存进度">${icon('save')}</button><button class="utility" data-action="help" title="行动手册 [?]" aria-label="行动手册">${icon('help')}</button></nav><main id="map-host"><div class="map-heading"><div class="eyebrow">RECONSTRUCTION COMMAND / 北境联省</div><h2 id="map-title">灰烬山脊</h2><div class="sub">HE LAN REGION · 民政与安全联合行动</div></div><div class="layer-buttons" id="layers" aria-label="地图图层"></div><div id="map-hover"></div><div id="map-notice"></div><div class="map-controls"><button data-action="zoom-in" title="放大" aria-label="放大地图">+</button><button data-action="zoom-out" title="缩小" aria-label="缩小地图">−</button><button data-action="fit" title="地图复位" aria-label="地图复位">${icon('fit')}</button></div><div id="unit-dock"></div><div class="objective-strip" id="objective"></div></main><aside id="panel" aria-label="行动控制面板"><div id="panel-content"></div></aside></div><footer class="footer"><span id="status"></span><span class="controls">空格 暂停 · 1/2/3 调速 · 单击部队→地区 调遣 · 滚轮 缩放</span><span class="seed" id="seed-label"></span></footer></div><div id="modal-layer"></div><div id="toast" role="status" aria-live="polite"></div><input type="file" id="file-input" accept=".json,application/json" aria-label="导入存档">`;
-      this.renderer=new Renderer(document.getElementById('map-host')!,this.state);
-      this.renderer.onSelect=id=>this.selectDistrict(id);this.renderer.onUnit=id=>this.selectUnit(id);
-      this.renderer.onHover=(id,x,y)=>this.hover(id,x,y);
-      document.addEventListener('click',e=>this.click(e));
-      document.addEventListener('keydown',e=>this.key(e));
-      document.getElementById('file-input')!.addEventListener('change',e=>this.importFile(e));
+      document.body.innerHTML=`<div id="app">
+        <main id="map-host"><div id="map-hover" role="tooltip"></div></main>
+        <header class="topbar">
+          <button class="brand" data-action="menu" aria-label="主菜单"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="m3 29 12-25 5 13 6-7 8 19H3Zm8-5 5-10 6 10"/></svg><div><strong>烬土</strong><span>AFTERFIRE</span></div></button>
+          <div id="metrics" class="metrics"></div><button class="icon-button menu-button" data-action="help" aria-label="手册与保存" title="手册与保存 [H]">${icon('book')}</button>
+        </header>
+        <section class="region-heading"><div class="eyebrow" id="region-subtitle"></div><h1 id="map-title"></h1><div class="region-line"></div></section>
+        <section id="advisor" class="advisor"></section><div id="alerts" class="alerts"></div>
+        <div class="map-tools"><div id="layers" class="layer-buttons"></div><button class="icon-button" data-action="layers" title="地图图层" aria-label="地图图层">${icon('layers')}</button><button class="icon-button" data-action="zoom-in" aria-label="放大地图">+</button><button class="icon-button" data-action="zoom-out" aria-label="缩小地图">−</button><button class="icon-button" data-action="fit" aria-label="地图复位">${icon('fit')}</button></div>
+        <aside id="panel" class="context-panel" aria-label="行动详情" hidden><div id="panel-content"></div></aside>
+        <div id="map-notice" class="map-notice"></div><div id="unit-dock" class="unit-dock"></div>
+        <nav class="command-dock" aria-label="行动指令"><button data-tab="missions">${icon('flag')}<span>委托</span><i id="mission-badge"></i></button><button data-tab="district">${icon('home')}<span>建设</span></button><button data-tab="forces">${icon('shield')}<span>部队</span></button><button data-tab="policies">${icon('leaf')}<span>施政</span><i id="draft-badge"></i></button><button data-tab="situation">${icon('chart')}<span>全局</span></button></nav>
+        <div class="time-control"><div id="datebox" class="datebox"></div><div id="speeds" class="speeds"></div></div>
+        <div id="status" class="status-line"></div><div class="key-hint">空格 暂停 <span>·</span> 选中部队后点击地图调遣</div>
+      </div><div id="modal-layer"></div><div id="toast" role="status" aria-live="polite"></div><input type="file" id="file-input" accept=".json,application/json" aria-label="导入存档">`;
+      this.renderer=new Renderer($('map-host'),this.state);this.renderer.onSelect=id=>this.selectDistrict(id);this.renderer.onUnit=id=>this.selectUnit(id);this.renderer.onHover=(id,x,y)=>this.hover(id,x,y);
+      document.addEventListener('click',e=>this.click(e));document.addEventListener('keydown',e=>this.key(e));
+      $('file-input').addEventListener('change',e=>void this.importFile(e));
       document.addEventListener('input',e=>{const t=e.target as HTMLInputElement;if(t.id==='seed-input')this.menuSeed=Number(t.value)>>>0;});
       document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.state.paused=true;this.save(false);this.refresh();}});
       this.refresh();this.showMenu();
     }
+    private put(id:string,html:string):void {const e=$(id);if(e.innerHTML!==html)e.innerHTML=html;}
     private hover(id:number,x:number,y:number):void {
-      const el=document.getElementById('map-hover')!;if(id<0||this.modalKind){el.style.display='none';return;}
-      const d=this.state.districts[id];el.innerHTML=`<strong>${escape(d.name)} <small class="muted">${TERRAIN[d.terrain]}</small></strong><span class="muted">人口 ${(d.population/10000).toFixed(1)} 万 · 民心 ${pct(d.support)}</span><br><span class="${d.supplied?'good':'bad'}">${d.supplied?'补给通畅':'补给受阻'}</span> · 情报 ${pct(d.intel)}${d.rebels>2&&d.intel>=35?`<br><span class="bad">武装活动 ${this.rebelLabel(d)}</span>`:''}`;el.style.display='block';el.style.left=Math.min(x+15,this.renderer.width-195)+'px';el.style.top=Math.max(8,Math.min(y+18,this.renderer.height-125))+'px';
+      const el=$('map-hover');if(id<0||this.modalKind){el.style.display='none';return;}const d=this.state.districts[id];
+      el.innerHTML=`<strong>${escape(d.name)} <small>${TERRAIN[d.terrain]}</small></strong><span>${(d.population/10000).toFixed(1)} 万居民 · 民心 ${pct(d.support)}</span><span class="${d.supplied?'good':'bad'}">${d.hazard?'熔岩封路':d.supplied?'补给通畅':'补给中断'}${d.intel<35?' · 情报不完整':d.rebels>2?' · 武装 '+this.rebelLabel(d):''}</span>`;
+      el.style.display='block';el.style.left=Math.min(x+18,this.renderer.width-220)+'px';el.style.top=Math.max(85,Math.min(y+16,this.renderer.height-180))+'px';
     }
-    private rebelLabel(d:District):string {return d.intel>=70?Math.round(d.rebels)+'':d.intel>=35?(d.rebels<12?'少量':d.rebels<28?'中等':'密集'):'情报不足';}
+    private rebelLabel(d:District):string {return d.intel>=70?String(round(d.rebels)):d.intel>=35?(d.rebels<12?'少量':d.rebels<28?'中等':'密集'):'未知';}
+    private heading(kicker:string,title:string,sub=''):string {return `<div class="sheet-header"><div><div class="eyebrow">${kicker}</div><h2>${title}</h2></div><button class="icon-button" data-action="dismiss" aria-label="收起面板">${icon('cross')}</button></div>${sub?`<p class="sheet-intro">${sub}</p>`:''}`;}
+    private openTab(tab:Tab):void {
+      if(tab!==this.tab){$('panel').scrollTop=0;this.allProjects=false;this.allOperations=false;}
+      this.tab=tab;this.panelOpen=true;if(tab!=='forces'){this.unit=null;this.renderer.selectedUnit=null;}this.renderer.selected=tab==='district'?this.selected:-1;this.refresh();
+    }
+    private dismiss():void {this.panelOpen=false;this.unit=null;this.renderer.selectedUnit=null;this.renderer.selected=-1;this.refresh();}
     selectDistrict(id:number):void {
-      if(this.modalKind)return;
-      if(this.selected!==id)document.getElementById('panel')!.scrollTop=0;
-      this.selected=id;this.renderer.selected=id;
-      if(this.unit!==null){const u=this.state.units.find(u=>u.id===this.unit);if(u&&active(u)){this.result(moveUnit(this.state,this.unit,id));this.tab='forces';}else this.tab='district';}
-      else this.tab='district';this.beep();this.refresh();
+      if(this.modalKind)return;if(id<0){this.dismiss();return;}
+      if(this.selected!==id){$('panel').scrollTop=0;this.allProjects=false;this.allOperations=false;}this.selected=id;this.renderer.selected=id;
+      if(this.unit!==null){const u=this.state.units.find(x=>x.id===this.unit);if(u&&active(u)){const r=moveUnit(this.state,this.unit,id);if(r.ok){this.panelOpen=false;this.renderer.selected=-1;this.unit=null;this.renderer.selectedUnit=null;}this.result(r);return;}}
+      this.panelOpen=true;this.tab='district';this.beep();this.refresh();
     }
     selectUnit(id:number):void {
       if(this.modalKind)return;
-      if(id<0||this.unit===id){this.unit=null;this.renderer.selectedUnit=null;this.refresh();return;}
-      const u=this.state.units.find(u=>u.id===id);if(!u)return;this.unit=id;this.renderer.selectedUnit=id;this.selected=u.at;this.renderer.selected=u.at;this.tab='forces';this.beep();this.refresh();
+      if(id<0||this.unit===id){this.unit=null;this.renderer.selectedUnit=null;this.panelOpen=false;this.renderer.selected=-1;this.refresh();return;}
+      const u=this.state.units.find(x=>x.id===id);if(!u)return;this.unit=id;this.renderer.selectedUnit=id;this.selected=u.at;this.renderer.selected=u.at;this.tab='forces';this.panelOpen=true;this.beep();this.refresh();
     }
-    result(r:Result):void {this.toast(r.message,!r.ok);this.beep(r.ok?440:170);this.refresh();}
-    toast(text:string,error=false):void {
-      const t=document.getElementById('toast')!;t.textContent=text;t.className='visible'+(error?' error':'');window.clearTimeout(this.toastTimer);this.toastTimer=window.setTimeout(()=>t.className='',3300);
-    }
-    private beep(freq=370):void {
-      if(!this.sound)return;try{this.audio??=new AudioContext();void this.audio.resume();const osc=this.audio.createOscillator(),gain=this.audio.createGain();osc.connect(gain);gain.connect(this.audio.destination);osc.type='sine';osc.frequency.setValueAtTime(freq,this.audio.currentTime);osc.frequency.exponentialRampToValueAtTime(freq*.68,this.audio.currentTime+.1);gain.gain.setValueAtTime(.035,this.audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,this.audio.currentTime+.13);osc.start();osc.stop(this.audio.currentTime+.14);}catch{this.sound=false;}
+    result(r:Result):void {this.toast(r.message,!r.ok);this.beep(r.ok?490:180);this.refresh();if(r.ok)this.save(false);}
+    toast(text:string,error=false):void {const t=$('toast');t.textContent=text;t.className='visible'+(error?' error':'');window.clearTimeout(this.toastTimer);this.toastTimer=window.setTimeout(()=>t.className='',3600);}
+    private beep(freq=340):void {
+      if(!this.sound)return;try{this.audio??=new AudioContext();void this.audio.resume();const o=this.audio.createOscillator(),g=this.audio.createGain();o.connect(g);g.connect(this.audio.destination);o.type='sine';o.frequency.setValueAtTime(freq,this.audio.currentTime);o.frequency.exponentialRampToValueAtTime(freq*.72,this.audio.currentTime+.13);g.gain.setValueAtTime(.027,this.audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,this.audio.currentTime+.16);o.start();o.stop(this.audio.currentTime+.17);}catch{this.sound=false;}
     }
     private click(e:MouseEvent):void {
       const b=(e.target as HTMLElement).closest<HTMLButtonElement>('button');if(!b||b.disabled)return;
-      if(b.dataset.tab){if(this.tab!==b.dataset.tab)document.getElementById('panel')!.scrollTop=0;this.tab=b.dataset.tab as Tab;this.unit=null;this.renderer.selectedUnit=null;this.refresh();return;}
+      if(this.modalKind&&!b.closest('#modal-layer'))return;
+      if(b.dataset.tab){const t=b.dataset.tab as Tab;if(this.panelOpen&&t===this.tab)this.dismiss();else this.openTab(t);return;}
       if(b.dataset.layer){this.renderer.layer=b.dataset.layer as Layer;this.refresh();return;}
       if(b.dataset.scenario){this.menuScenario=b.dataset.scenario as Scenario;this.menuSeed=SCENARIOS[this.menuScenario].seed;this.showMenu();return;}
+      if(b.dataset.doctrine){this.menuDoctrine=b.dataset.doctrine as Doctrine;this.showMenu();return;}
       if(b.dataset.governor){this.menuGovernor=b.dataset.governor as Governor;this.showMenu();return;}
       if(b.dataset.difficulty){this.menuDiff=b.dataset.difficulty as Difficulty;this.showMenu();return;}
       if(b.dataset.project){this.result(buildProject(this.state,this.selected,b.dataset.project as ProjectKind));return;}
       if(b.dataset.policy){this.result(buyPolicy(this.state,b.dataset.policy as PolicyKind));return;}
       if(b.dataset.recruit){this.result(recruit(this.state,b.dataset.recruit as UnitKind));return;}
       if(b.dataset.unit){this.selectUnit(Number(b.dataset.unit));return;}
-      if(b.dataset.stance){const u=this.state.units.find(u=>u.id===Number(b.dataset.id));if(u)u.stance=b.dataset.stance as Stance;this.refresh();return;}
+      if(b.dataset.goto){this.unit=null;this.renderer.selectedUnit=null;this.selected=Number(b.dataset.goto);this.openTab('district');return;}
+      if(b.dataset.operation){this.result(launchOperation(this.state,this.selected,b.dataset.operation as OperationKind));return;}
+      if(b.dataset.reroute){this.result(rerouteMission(this.state,Number(b.dataset.reroute)));return;}
+      if(b.dataset.cancelMission){this.result(cancelOperation(this.state,Number(b.dataset.cancelMission)));return;}
+      if(b.dataset.contract){const o=this.state.campaign?.contracts.find(x=>x.id===Number(b.dataset.contract));const r=acceptContract(this.state,Number(b.dataset.contract));if(r.ok&&o){this.selected=o.target;this.tab='district';this.panelOpen=true;this.renderer.selected=o.target;}this.result(r);return;}
+      if(b.dataset.upgrade){const r=chooseUpgrade(this.state,b.dataset.upgrade as UpgradeId);if(r.ok)this.closeModal();this.result(r);return;}
+      if(b.dataset.stance){const u=this.state.units.find(x=>x.id===Number(b.dataset.id));if(u){u.stance=b.dataset.stance as Stance;if(u.stance==='assault'&&isTruce(this.state,u.at)){delete this.state.campaign!.truces[String(u.at)];addLog(this.state,'主动突击结束了当地停火。','warn');}}this.refresh();return;}
       if(b.dataset.extend){this.result(extendContract(this.state,Number(b.dataset.extend)));return;}
       if(b.dataset.halt){this.result(haltUnit(this.state,Number(b.dataset.halt)));return;}
-      if(b.dataset.choice){const r=chooseEvent(this.state,Number(b.dataset.choice));if(r.ok)this.closeModal();this.result(r);return;}
+      if(b.dataset.choice){const r=chooseEvent(this.state,Number(b.dataset.choice));if(r.ok){this.closeModal();this.state.paused=true;}this.result(r);return;}
       if(b.dataset.speed){this.state.speed=Number(b.dataset.speed);this.state.paused=false;this.refresh();return;}
       switch(b.dataset.action){
-        case 'menu':this.showMenu();break;
-        case 'start':this.start();break;
-        case 'resume':this.closeModal();this.refresh();break;
-        case 'continue':this.load();break;
+        case 'menu':this.showMenu();break;case 'start':this.start();break;case 'resume':this.closeModal();this.renderer.replace(this.state);this.refresh();break;case 'continue':this.load();break;
         case 'pause':if(!this.state.event&&this.state.outcome==='playing'){this.state.paused=!this.state.paused;this.refresh();}break;
         case 'tick':if(!this.state.event&&this.state.outcome==='playing'){this.state.paused=true;this.tick();}break;
-        case 'help':this.showHelp();break;
-        case 'close':this.closeModal();this.refresh();break;
-        case 'save':this.save(true);break;
-        case 'export':this.exportSave();break;
-        case 'import':document.getElementById('file-input')!.click();break;
-        case 'sound':this.sound=!this.sound;this.beep();this.refresh();break;
-        case 'peace':this.result(startPeace(this.state));break;
-        case 'evacuate':this.result(evacuate(this.state,this.selected));break;
-        case 'relief':this.result(relief(this.state,this.selected));break;
-        case 'cancel-unit':this.unit=null;this.renderer.selectedUnit=null;this.tab='district';this.refresh();break;
-        case 'zoom-in':this.renderer.setZoom(this.renderer.zoom*1.2);break;
-        case 'zoom-out':this.renderer.setZoom(this.renderer.zoom/1.2);break;
-        case 'fit':this.renderer.fit();break;
-        case 'show-end':this.showEnd();break;
+        case 'help':this.showHelp();break;case 'close':if(this.modalKind!=='event'){this.closeModal();this.refresh();}break;
+        case 'dismiss':this.dismiss();break;case 'save':this.save(true);break;case 'export':this.exportSave();break;case 'import':$('file-input').click();break;
+        case 'sound':this.sound=!this.sound;this.beep();this.showHelp();break;
+        case 'peace':this.result(startPeace(this.state));break;case 'evacuate':this.result(evacuate(this.state,this.selected));break;case 'relief':this.result(relief(this.state,this.selected));break;
+        case 'zoom-in':this.renderer.setZoom(this.renderer.zoom*1.18);break;case 'zoom-out':this.renderer.setZoom(this.renderer.zoom/1.18);break;case 'fit':this.renderer.fit();break;
+        case 'all-projects':this.allProjects=!this.allProjects;this.refresh();break;case 'all-operations':this.allOperations=!this.allOperations;this.refresh();break;
+        case 'layers':this.showLayers=!this.showLayers;this.refresh();break;case 'advanced':this.showAdvanced=!this.showAdvanced;this.showMenu();break;
+        case 'draft':this.showDraft();break;case 'advisor':this.advisorOpen=!this.advisorOpen;this.refresh();break;
+        case 'show-end':this.showEnd();break;case 'next-action':this.nextAction();break;
       }
     }
     private key(e:KeyboardEvent):void {
       if((e.target as HTMLElement).matches('input,textarea,select'))return;
-      if(e.key==='Escape'){if(this.modalKind==='help'||this.modalKind==='menu'&&this.started||this.modalKind==='end'){this.closeModal();this.refresh();}else {this.unit=null;this.renderer.selectedUnit=null;this.refresh();}return;}
+      if(this.modalKind&&e.key==='Tab'){
+        const items=Array.from(document.querySelectorAll<HTMLElement>('#modal-layer button:not(:disabled),#modal-layer input')).filter(el=>el.offsetParent!==null);
+        const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}return;
+      }
+      if(e.key==='Escape'){
+        if(this.modalKind==='event')return;
+        if(this.modalKind==='menu'&&!this.started)return;
+        if(this.modalKind){const wasMenu=this.modalKind==='menu';this.closeModal();if(wasMenu)this.renderer.replace(this.state);this.refresh();}else this.dismiss();return;
+      }
       if(this.modalKind)return;
       if(e.code==='Space'){e.preventDefault();if(this.state.outcome==='playing')this.state.paused=!this.state.paused;this.refresh();return;}
       if(['1','2','3'].includes(e.key)){this.state.speed=[1,2,4][Number(e.key)-1];this.state.paused=false;this.refresh();return;}
       if(e.key==='.'||e.key==='。'){this.state.paused=true;this.tick();return;}
-      const tabs:Record<string,Tab>={b:'district',p:'policies',u:'forces',i:'situation'};
-      if(tabs[e.key.toLowerCase()]){this.tab=tabs[e.key.toLowerCase()];this.unit=null;this.renderer.selectedUnit=null;this.refresh();}
-      if(e.key.toLowerCase()==='s'&&!e.ctrlKey&&!e.metaKey)this.save(true);
-      if(e.key==='?'||e.key.toLowerCase()==='h')this.showHelp();
-      if(e.key==='0')this.renderer.fit();
+      const tabs:Record<string,Tab>={b:'district',p:'policies',u:'forces',i:'situation',m:'missions'};
+      if(tabs[e.key.toLowerCase()])this.openTab(tabs[e.key.toLowerCase()]);
+      if(e.key.toLowerCase()==='s'&&!e.ctrlKey&&!e.metaKey)this.save(true);if(e.key==='?'||e.key.toLowerCase()==='h')this.showHelp();if(e.key==='0')this.renderer.fit();
     }
     start():void {
-      this.state=newGame(this.menuScenario,this.menuGovernor,this.menuDiff,this.menuSeed);this.started=true;this.tab='district';this.selected=24;this.unit=null;this.renderer.replace(this.state);this.closeModal();this.refresh();this.toast('行动已暂停。先查看地区诉求、下达建设和招募命令，再按空格推进。');this.save(false);
+      this.state=newGame(this.menuScenario,this.menuGovernor,this.menuDiff,this.menuSeed);initCampaign(this.state,this.menuDoctrine);this.started=true;this.panelOpen=false;this.tab='district';this.selected=24;this.unit=null;this.allProjects=false;this.allOperations=false;this.renderer.replace(this.state);this.closeModal();this.refresh();this.save(false);
     }
-    tick():void {
-      if(!this.started)return;step(this.state);if(this.state.week%4===0)this.save(false);this.refresh();
+    tick():void {if(!this.started)return;step(this.state);if(this.state.week%4===0)this.save(false);this.refresh();}
+    private nextAction():void {
+      const s=this.state,d=s.districts.find(x=>x.warning&&!x.evacuating);
+      if(d){this.selected=d.id;this.openTab('district');return;}
+      if(!s.completed&&!s.districts.some(x=>x.project)){const target=s.districts.filter(x=>['city','town'].includes(x.terrain)&&!x.levels[x.demand]).sort((a,b)=>b.population-a.population)[0]??s.districts[s.hq];this.selected=target.id;this.openTab('district');return;}
+      if(s.units.length===0){this.openTab('forces');return;}
+      if(s.campaign?.draft.length){this.showDraft();return;}
+      this.openTab('missions');
     }
     refresh():void {
-      const s=this.state;
+      const s=this.state,c=s.campaign;
       if(this.unit!==null&&!s.units.some(u=>u.id===this.unit)){this.unit=null;this.renderer.selectedUnit=null;}
-      const metrics=[{label:'可用资金',value:'$'+Math.floor(s.money),delta:`+${(s.lastIncome-s.lastUpkeep).toFixed(1)}/月`,icon:'money',cls:'gold'}, {label:'行动声望',value:Math.ceil(s.reputation).toString(),delta:'/ 100',icon:'flag',cls:s.reputation<30?'bad':''},{label:'人口民心',value:pct(support(s)),delta:'加权',icon:'people',cls:''},{label:'稳定人口',value:pct(stableShare(s)),delta:'/ 70%',icon:'peace',cls:'good'}];
-      document.getElementById('metrics')!.innerHTML=metrics.map(m=>`<div class="metric" title="${m.label}${m.label==='可用资金'?'：每 4 周入账，已扣除部队维护':m.label==='人口民心'?'：按人口加权，不等同于稳定人口':''}"><label>${icon(m.icon)}${m.label}</label><span class="value ${m.cls}">${m.value}</span><span class="delta">${m.delta}</span></div>`).join('');
-      document.getElementById('datebox')!.innerHTML=`W${String(s.week).padStart(3,'0')}<small>${s.rain?'RAIN / 雨季':'FIELD OPERATION'}</small>`;
-      document.getElementById('speeds')!.innerHTML=`<button class="pause ${s.paused?'active':''}" data-action="pause" aria-label="${s.paused?'继续':'暂停'}" title="空格暂停 / 继续">${s.paused?'▶':'Ⅱ'}</button>${[1,2,4].map(n=>`<button data-speed="${n}" class="${s.speed===n&&!s.paused?'active':''}" aria-label="${n}倍速">${n}×</button>`).join('')}<button data-action="tick" title="推进 1 周 [.]" aria-label="推进一周">↦</button>`;
-      document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===this.tab));
-      document.getElementById('layers')!.innerHTML=([['terrain','地形'],['support','民心'],['supply','补给'],['intel','情报']] as [Layer,string][]).map(([key,label])=>`<button data-layer="${key}" class="${this.renderer.layer===key?'active':''}">${label}</button>`).join('');
-      document.getElementById('map-title')!.textContent=SCENARIOS[s.scenario].name;
-      document.getElementById('objective')!.innerHTML=`<div class="mission-label">MISSION<br><span class="gold">和平重建</span></div><div class="mission-text">${s.outcome==='playing'?(s.negotiating?'维持安全与民生，让和平协议获得持续支持。':'稳定 70% 人口，推动和谈；占领不等于和平。'):(s.outcome==='victory'?'重建行动达成目标。':'行动授权已结束。')}${s.peaceHold>0?`<br><span class="gold">巩固期 ${s.peaceHold} / 8 周</span>`:''}</div><div class="mini-meters"><div class="mini-meter"><label><span>稳定人口</span><b>${Math.round(stableShare(s))}%</b></label>${meter(stableShare(s)/.7)}</div><div class="mini-meter"><label><span>和平进程</span><b>${Math.round(s.peace)}%</b></label>${meter(s.peace,'gold')}</div></div>`;
-      document.getElementById('unit-dock')!.innerHTML=s.units.map(u=>`<button class="dock-unit ${u.id===this.unit?'selected':''}" data-unit="${u.id}" title="${u.name} · ${s.districts[u.at].name} · 补给 ${round(u.supply)}%">${icon(u.kind==='engineer'?'wrench':'shield')}<span class="name">${u.name}</span>${meter(u.hp,u.hp<35?'red':'')}<span class="sub">${u.training>0?'训练 '+u.training+'周':u.path.length?'行军中':s.districts[u.at].rebels>1?'交战中':'待命'}</span></button>`).join('');
-      const notice=document.getElementById('map-notice')!;notice.className=this.unit!==null?'show':'';notice.textContent=this.unit!==null?'已选择部队：点击目的地调遣 · 再次点击部队或右键取消':'';
-      document.getElementById('status')!.innerHTML=`<span class="live-dot" style="${s.paused?'background:#d1be8b':''}"></span>${s.outcome!=='playing'?'行动结束':s.event?'等待决策':s.paused?'已暂停 · 可自由下达命令':`正在推进 · ${s.speed}×`} <span class="muted"> / ${s.districts.filter(d=>d.project).length} 项工程在建</span>`;
-      document.getElementById('seed-label')!.textContent=`SEED ${s.seed} · BUILD 0.1.0`;
-      document.getElementById('sound-button')!.innerHTML=icon(this.sound?'sound':'mute');
-      const panel=document.getElementById('panel')!,scroll=panel.scrollTop;
-      document.getElementById('panel-content')!.innerHTML=this.tab==='district'?this.districtPanel():this.tab==='policies'?this.policyPanel():this.tab==='forces'?this.forcePanel():this.situationPanel();panel.scrollTop=scroll;
-      if(s.event&&this.modalKind!=='event')this.showEvent();
-      if(s.outcome!=='playing'&&!this.modalKind)this.showEnd();
+      const net=s.lastIncome-s.lastUpkeep;
+      this.put('metrics',`<div class="metric money" title="每四周入账，已扣除部队维护">${icon('money')}<div><label>重建资金</label><b>$${Math.floor(s.money)}</b><small>${net>=0?'+':''}${net.toFixed(1)}/月</small></div></div><div class="metric" title="行动授权；归零时失败">${icon('flag')}<div><label>行动声望</label><b class="${s.reputation<35?'bad':''}">${Math.ceil(s.reputation)}</b><small>/100</small></div></div><button class="metric metric-button" data-tab="situation" title="稳定的人口比例；点击查看胜利条件">${icon('leaf')}<div><label>稳定人口</label><b>${pct(stableShare(s))}</b><small>/70%</small></div></button>`);
+      this.put('datebox',`<b>第 ${String(s.week).padStart(2,'0')} 周</b><small>${s.rain?'雨季':s.week<12?'重建初期':s.negotiating?'和平进程':'区域行动'}</small>`);
+      this.put('speeds',`<button class="play-toggle ${s.paused?'paused':''}" data-action="pause" aria-label="${s.paused?'继续':'暂停'}">${icon(s.paused?'play':'pause')}</button>${[1,2,4].map(n=>`<button data-speed="${n}" class="${s.speed===n?'active':''}" aria-label="${n}倍速">${n}×</button>`).join('')}<button class="step-button" data-action="tick" aria-label="推进一周" title="推进一周 [.]">↦</button>`);
+      this.put('region-subtitle',`${SCENARIOS[s.scenario].subtitle} <span>·</span> ${DIFF_LABELS[s.difficulty]}`);$('map-title').textContent=SCENARIOS[s.scenario].name;
+      this.put('layers',([['terrain','自然'],['support','民心'],['supply','补给'],['intel','情报']] as [Layer,string][]).map(([key,name])=>`<button data-layer="${key}" class="${this.renderer.layer===key?'active':''}">${name}</button>`).join(''));$('layers').classList.toggle('expanded',this.showLayers);
+      this.renderAdvisor();
+      const warning=s.districts.filter(d=>d.warning),activeMissions=c?.missions.filter(m=>m.status==='active')??[];
+      this.put('alerts',`${warning.length?`<button class="alert warning" data-goto="${(warning.find(d=>!d.evacuating)??warning[0]).id}">${icon('volcano')}<span>火山预警 <b>${s.eruptionAt-s.week} 周</b><small>${warning.filter(d=>d.evacuation>=.9).length}/${warning.length} 地区基本撤离</small></span>${icon('chevron')}</button>`:''}${c?.draft.length?`<button class="alert new-draft" data-action="draft">${icon('leaf')}<span>新的施政授权<small>三选一，改变这一局的路线</small></span>${icon('chevron')}</button>`:''}${activeMissions.some(m=>m.stalled)?`<button class="alert warning" data-tab="missions">${icon('convoy')}<span>外勤行动受阻<small>查看路线，恢复前方安全</small></span>${icon('chevron')}</button>`:''}`);
+      this.put('unit-dock',s.units.map(u=>`<button class="unit-chip ${this.unit===u.id?'selected':''} ${u.hp<30?'danger':''}" data-unit="${u.id}" title="${u.name} · ${s.districts[u.at].name} · 战备 ${pct(u.hp)} · 补给 ${pct(u.supply)}">${icon(u.kind==='engineer'?'wrench':'shield')}<span>${u.name}<small>${u.training?'训练 '+u.training+'周':u.path.length?'行军中':s.districts[u.at].rebels>1?'接敌':'待命'}</small></span><i style="--hp:${u.hp}%"></i></button>`).join(''));
+      this.put('map-notice',this.unit!==null?`${icon('arrow')} 点击地图下达行军命令 <span>Esc 取消</span>`:'');$('map-notice').classList.toggle('visible',this.unit!==null);
+      this.put('status',`<i class="${s.paused?'paused':''}"></i>${s.outcome!=='playing'?'行动结束':s.paused?'已暂停':'正在推进'}${s.districts.some(d=>d.project)?`<span>· ${s.districts.filter(d=>d.project).length} 项工程施工中</span>`:''}`);
+      $('mission-badge').classList.toggle('on',!!c?.contracts.some(o=>o.status==='offer'));$('draft-badge').classList.toggle('on',!!c?.draft.length);
+      document.querySelectorAll<HTMLButtonElement>('.command-dock [data-tab]').forEach(b=>{b.classList.toggle('active',this.panelOpen&&b.dataset.tab===this.tab);b.setAttribute('aria-expanded',String(this.panelOpen&&b.dataset.tab===this.tab));});
+      const panel=$('panel'),scroll=panel.scrollTop;panel.hidden=!this.panelOpen;$('app').classList.toggle('panel-open',this.panelOpen);
+      this.renderer.panelInset=this.panelOpen?350:0;
+      if(this.panelOpen){this.put('panel-content',this.tab==='district'?this.districtPanel():this.tab==='policies'?this.policyPanel():this.tab==='forces'?this.forcePanel():this.tab==='missions'?this.missionPanel():this.situationPanel());panel.scrollTop=scroll;}
+      if(s.event&&this.modalKind!=='event')this.showEvent();if(s.outcome!=='playing'&&!this.modalKind)this.showEnd();
+    }
+    private renderAdvisor():void {
+      const s=this.state,o=s.campaign?.contracts.find(o=>o.status==='active');
+      let title='从一份小小的承诺开始',body='选择一项地方委托。完成后，获得额外的重建预算。',label='选择委托';
+      if(!s.completed&&!s.districts.some(d=>d.project)){title='先让生活重新开始';body='点击人口中心，回应当地最急迫的一项诉求。';label='查看建议地区';}
+      else if(!s.units.length){title='为重建留一支预备队';body='武装将在第 12 周出现。趁现在完成训练。';label='建立机动预备队';}
+      else if(o){title=o.title;body=`${o.brief}`;label='查看当前承诺';}
+      else if(s.campaign?.draft.length){title='选择一条不同的路';body='一项新的施政授权已经到达。选取后会持续整局。';label='选择施政授权';}
+      if(s.districts.some(d=>d.warning&&!d.evacuating)){title='先让危险区的人离开';body='指派疏散与工程支援，不必等到火山喷发。';label='前往预警地区';}
+      this.put('advisor',`<button class="advisor-heading" data-action="advisor" aria-expanded="${this.advisorOpen}"><span class="eyebrow">${o?'当前承诺':'下一步'}</span><span>${this.advisorOpen?'−':'+'}</span></button>${this.advisorOpen?`<h3>${escape(title)}</h3><p>${escape(body)}</p>${o?`<div class="between small"><span>第 ${o.deadline} 周前</span><b>${pct(Math.min(100,contractProgress(s,o)))}</b></div>${meter(contractProgress(s,o))}`:''}<button class="text-action" ${o&&!s.districts.some(d=>d.warning&&!d.evacuating)?'data-tab="missions"':'data-action="next-action"'}>${label} ${icon('arrow')}</button>`:''}`);
+    }
+    private projectButton(d:District,kind:ProjectKind,featured=false):string {
+      const s=this.state,def=PROJECTS[kind],reason=projectAllowed(s,d.id,kind),cost=projectCost(s,d.id,kind);
+      return `<button class="project-action ${featured?'featured':''}" data-project="${kind}" ${disabled(reason)}><span class="action-icon">${icon(def.icon)}</span><span class="action-copy"><b>${def.name}${featured?'<em>当地急需</em>':''}</b><small>${reason||briefProject[kind]}</small></span><span class="action-price">$${cost}<small>${def.weeks}周起</small></span></button>`;
     }
     private districtPanel():string {
       const s=this.state,d=s.districts[this.selected],p=d.project;
-      const status=d.hazard>0?'灾害封闭':controlled(d)?'武装控制':d.stability>=100?'已稳定':d.rebels>1?'存在冲突':'建设中';
-      return `<div class="panel-kicker"><span>DISTRICT ${String(d.id+1).padStart(2,'0')}</span><span>${TERRAIN[d.terrain]} / ${status}</span></div><h2 class="panel-title">${d.name}</h2><p class="panel-sub">${(d.population/10000).toFixed(2)} 万居民 · ${d.id===s.hq?'行动总部':'河岚重建区域'}<br>情报覆盖 ${round(d.intel)}% · 武装${d.intel>=35?'规模 '+this.rebelLabel(d):'信息不完整'}</p><div class="stats-pair"><div class="stat-card"><label>当地民心</label><strong>${pct(d.support)}</strong>${meter(d.support)}</div><div class="stat-card"><label>稳定进度</label><strong>${pct(d.stability)}</strong>${meter(d.stability,'gold')}</div></div><div class="status-line"><span class="badge ${d.supplied?'':'red'}">${d.supplied?'补给已连接':'补给中断'}</span>${d.rebels>2&&d.intel>=35?'<span class="badge red">武装活动</span>':''}<span class="badge">公路 Lv.${d.levels.road}</span></div>${d.warning?`<div class="hazard-box"><h3>${icon('volcano')} 火山预警 · ${s.eruptionAt-s.week} 周</h3><p>疏散完成 ${pct(d.evacuation*100)}。工兵、道路和安置设施可加快转移。</p>${meter(d.evacuation*100,'gold')}<button class="wide" style="margin-top:11px" data-action="evacuate" ${d.evacuating||s.money<evacuateCost(s,d.id)?'disabled':''}>${d.evacuating?'疏散正在进行':'组织疏散 · $'+evacuateCost(s,d.id)}</button></div>`:''}${d.displaced>0?`<div class="hazard-box"><h3>居民等待安置 · ${round(d.displaced).toLocaleString()} 人</h3><p>避难设施、就业项目与工兵可以加快返乡，减少承接地区的压力。</p><button data-action="relief" class="wide" ${s.money<6?'disabled':''}>应急安置 · $6</button></div>`:''}<div class="demand">${d.levels[d.demand]>0?'首要诉求已回应':'首要诉求'}：<strong>${PROJECTS[d.demand].name}</strong><small>${d.levels[d.demand]>0?'继续完善服务，并保持地区安全。':'优先完成，可以更快改善当地民心。'}</small></div>${p?`<div class="construction"><div class="between"><b>${PROJECTS[p.kind].name}</b><span class="gold mono">${pct(p.progress/p.total*100)}</span></div>${meter(p.progress/p.total*100,'gold')}<small>${controlled(d)?'武装占领，施工暂停':!d.supplied?'补给中断，施工严重减速':`基础剩余约 ${Math.ceil(p.total-p.progress)} 周，受地形和后勤修正`}</small></div>`:''}<h3 class="section-title">地方建设 <small>${s.districts.filter(d=>d.project).length} / ${4+s.policies.logistics} 工程队</small></h3><div class="project-grid">${(Object.keys(PROJECTS) as ProjectKind[]).map(kind=>{const def=PROJECTS[kind],reason=projectAllowed(s,d.id,kind),max=d.levels[kind]>=def.max;return `<button class="project-card ${d.demand===kind&&!d.levels[kind]?'urgent':''} ${max?'maxed':''}" data-project="${kind}" ${reason?'disabled':''} title="${escape(def.desc+(reason?'\n'+reason:''))}"><span class="cost">${max?'✓':'$'+projectCost(s,d.id,kind)}</span>${icon(def.icon)}<strong>${def.name}</strong><span class="level">${max?'已完成最高等级':`LV ${d.levels[kind]} → ${d.levels[kind]+1} · ${def.weeks}周`}</span></button>`;}).join('')}</div><div class="divider"></div><p class="panel-sub">民心超过 53%、武装基本清除且补给连通时，地区开始积累稳定。民心增长不等于立即稳定。</p>`;
+      const state=d.hazard?'灾害封闭':controlled(d)?'武装控制':d.stability>=100?'生活已稳定':d.rebels>1&&d.intel>=35?'出现武装':'重建中';
+      let kinds:ProjectKind[]=d.intel<25?['survey',d.demand,'road']:[d.demand,...(d.warning?['shelter','road']:d.rebels>2?['police','road']:['road','jobs']) as ProjectKind[]];
+      kinds=[...new Set(kinds)].filter(k=>d.levels[k]<PROJECTS[k].max);if(kinds.length<3)for(const k of ['health','school','water'] as ProjectKind[])if(!kinds.includes(k)&&d.levels[k]<PROJECTS[k].max)kinds.push(k);kinds=kinds.slice(0,3);
+      const ops:OperationKind[]=this.allOperations?['recon','convoy','mediate','airlift']:d.warning?['airlift','convoy']:d.intel<40?['recon','convoy']:['convoy','mediate'];
+      return this.heading(`地区 ${String(d.id+1).padStart(2,'0')} · ${TERRAIN[d.terrain]}`,d.name,`${(d.population/10000).toFixed(1)} 万居民 · ${d.id===s.hq?'行动总部':state}`)+`
+        <div class="local-stats"><div><small>当地民心</small><b>${pct(d.support)}</b></div><div><small>稳定进度</small><b>${pct(d.stability)}</b></div><div><small>补给状态</small><b class="word ${d.supplied?'good':'bad'}">${d.supplied?'通畅':'受阻'}</b></div></div>
+        ${d.warning?`<div class="hazard-card"><div class="between"><b>${icon('volcano')} 距离喷发 ${s.eruptionAt-s.week} 周</b><span>${pct(d.evacuation*100)}</span></div>${meter(d.evacuation*100,'gold')}<button class="primary wide" data-action="evacuate" ${disabled(d.evacuating?'疏散正在进行':s.money<evacuateCost(s,d.id)?'资金不足':'')}>${d.evacuating?'疏散正在进行':'组织居民疏散 · $'+evacuateCost(s,d.id)}</button></div>`:''}
+        ${d.displaced>0?`<div class="notice-card"><b>${round(d.displaced).toLocaleString()} 人等待安置</b><button data-action="relief" ${disabled(s.money<6?'资金不足':'')}>应急安置 · $6</button></div>`:''}
+        ${isTruce(s,d.id)?`<div class="quiet-note good">地方停火还剩 ${s.campaign!.truces[d.id]-s.week} 周。</div>`:''}
+        <div class="section-label"><h3>${p?'工程正在落地':'先做最需要的一件事'}</h3><span>${s.districts.filter(x=>x.project).length}/${projectCapacity(s)} 工程队</span></div>
+        ${p?`<div class="construction-card">${icon(PROJECTS[p.kind].icon)}<div><b>${PROJECTS[p.kind].name}</b><small>${controlled(d)?'等待恢复安全':!d.supplied?'补给受阻，施工减速':'施工中 · '+pct(p.progress/p.total*100)}</small>${meter(p.progress/p.total*100)}</div></div>`:kinds.map(k=>this.projectButton(d,k,k===d.demand&&!d.levels[k])).join('')}
+        <button class="disclosure" data-action="all-projects" aria-expanded="${this.allProjects}">${this.allProjects?'收起完整工程目录':'查看全部 8 类工程'} <span>${this.allProjects?'−':'+'}</span></button>
+        ${this.allProjects?`<div class="all-projects">${(Object.keys(PROJECTS) as ProjectKind[]).filter(k=>p||!kinds.includes(k)).map(k=>this.projectButton(d,k)).join('')}</div>`:''}
+        <div class="section-label"><h3>不只有建设</h3><button class="inline-link" data-action="all-operations">${this.allOperations?'收起':'全部行动'}</button></div>
+        <div class="operations-grid">${ops.map(k=>{const def=OPERATIONS[k],reason=operationAllowed(s,d.id,k);return `<button class="operation-card" data-operation="${k}" ${disabled(reason)} title="${escape(reason||def.desc)}">${icon(def.icon)}<b>${def.name}</b><span>$${operationCost(s,k)} <small>${k==='convoy'?'按路程':def.weeks+'周'}</small></span><small>${reason|| (k==='convoy'?'车队需要安全路线':k==='mediate'?'减少武装，不靠进攻':k==='recon'?'揭示本区和邻区情报':'绕过地面道路')}</small></button>`;}).join('')}</div>
+        <div class="district-foot">情报 ${pct(d.intel)} <span>·</span> 武装 ${this.rebelLabel(d)} <span>·</span> 道路 ${d.levels.road} 级</div>`;
     }
     private policyPanel():string {
-      const s=this.state;return `<div class="panel-kicker"><span>CIVIL ADMINISTRATION</span><span>省级治理</span></div><h2 class="panel-title">治理与重建</h2><p class="panel-sub">制度决定资金能否真正变成服务。短期支出与长期能力，需要一起考虑。</p><div class="stats-pair"><div class="stat-card"><label>腐败损耗</label><strong class="${s.corruption>35?'bad':'gold'}">${pct(s.corruption)}</strong>${meter(s.corruption,'red')}</div><div class="stat-card"><label>采购通胀</label><strong>${pct(s.inflation)}</strong>${meter(s.inflation,'gold')}</div></div>${(Object.keys(POLICIES) as PolicyKind[]).map(kind=>{const p=POLICIES[kind],cost=policyCost(s,kind),max=s.policies[kind]>=p.max;return `<div class="policy-card"><div class="row">${icon(p.icon)}<div style="flex:1"><h3>${p.name}</h3></div><div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<s.policies[kind]?'on':''}"></i>`).join('')}</div></div><p>${p.desc}</p><button class="wide" data-policy="${kind}" ${max||s.money<cost||kind==='forecast'&&s.scenario!=='volcano'?'disabled':''}>${max?'制度已完善':kind==='forecast'&&s.scenario!=='volcano'?'本地区无需火山监测':`升级至 Lv.${s.policies[kind]+1} · $${cost}`}</button></div>`;}).join('')}<p class="panel-sub">连续投入会短暂抬高采购成本；暂停不会让通胀下降，需要推进时间。</p>`;
-    }
-    private unitCard(u:Unit):string {
-      const s=this.state;return `<div class="unit-card ${this.unit===u.id?'selected':''}"><button class="select-unit" data-unit="${u.id}"><h3>${icon(u.kind==='engineer'?'wrench':'shield')} ${u.name}</h3><span class="badge">${u.training>0?'训练中':u.path.length?'行军中':'可调遣'}</span></button><div class="location">${s.districts[u.at].name}${u.path.length?' → '+s.districts[u.path[u.path.length-1]].name:''} ${u.training>0?' · 剩余 '+u.training+' 周':''}</div><div class="unit-bars"><div><label><span>战备</span><b>${round(u.hp)}%</b></label>${meter(u.hp,u.hp<35?'red':'')}</div><div><label><span>补给</span><b>${round(u.supply)}%</b></label>${meter(u.supply,u.supply<30?'red':'gold')}</div></div><div class="stances">${([['protect','保护居民'],['balanced','均衡'],['assault','强攻']] as [Stance,string][]).map(([k,label])=>`<button data-stance="${k}" data-id="${u.id}" class="${u.stance===k?'active':''}" title="${k==='protect'?'较慢作战，显著降低居民伤亡风险':k==='assault'?'更快作战，但居民伤亡风险和不满显著增加':'平衡作战效率与风险'}">${label}</button>`).join('')}</div><div class="foot"><span>${u.kind==='coalition'?`驻留剩余 ${u.contract} 周`:`维护 $${UNIT_DEFS[u.kind].upkeep.toFixed(2)} / 月`}</span>${u.kind==='coalition'?`<button data-extend="${u.id}" ${s.money<11||u.contract>70?'disabled':''}>延期 $11</button>`:u.path.length?`<button data-halt="${u.id}">下一站停止</button>`:''}</div>${u.kind==='coalition'&&u.path.length?`<button class="wide" style="margin-top:8px;font-size:10px" data-halt="${u.id}">到下一站后停止行军</button>`:''}</div>`;
+      const s=this.state,c=s.campaign!,doctrine=DOCTRINES[c.doctrine];
+      const notes:Record<PolicyKind,string>={audit:'持续降低腐败与工程浪费',outreach:'全区民心与情报逐步增长',logistics:'多一支工程队，施工 +20%',training:'国民军战力 +22%，训练更快',diplomacy:'减少招募，解锁正式和谈',forecast:'预警提前 8 周，疏散更快'};
+      return this.heading('治理路线',doctrine.name,doctrine.desc)+`<div class="tradeoff">${icon('flag')} ${doctrine.tradeoff}</div>
+        ${c.draft.length?`<button class="draft-invitation" data-action="draft">${icon('leaf')}<div><b>一项新的施政授权</b><small>三选一 · 只影响本局</small></div>${icon('arrow')}</button>`:''}
+        ${c.upgrades.length?`<div class="selected-perks">${c.upgrades.map(k=>`<span title="${escape(UPGRADES[k].desc)}">${icon(UPGRADES[k].icon)}${UPGRADES[k].name}</span>`).join('')}</div>`:''}
+        <div class="section-label"><h3>把预算变成长期能力</h3></div><div class="policy-list">${(Object.keys(POLICIES) as PolicyKind[]).filter(k=>k!=='forecast'||s.scenario==='volcano').map(k=>{const p=POLICIES[k],cost=policyCost(s,k),max=s.policies[k]>=p.max;return `<button class="policy-action" data-policy="${k}" ${disabled(max?'已满级':s.money<cost?'资金不足':'')}><span class="action-icon">${icon(p.icon)}</span><span class="action-copy"><b>${p.name}</b><small>${notes[k]}</small><span class="level-pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<s.policies[k]?'filled':''}"></i>`).join('')}</span></span><b class="action-price">${max?'已完成':'$'+cost}</b></button>`;}).join('')}</div>
+        <div class="quiet-note">通胀 ${pct(s.inflation)} · 腐败 ${pct(s.corruption)}<br>授权在第 16、56、104 周到达。可以暂缓选择，等局势更明朗。</div>`;
     }
     private forcePanel():string {
-      const s=this.state;return `<div class="panel-kicker"><span>SECURITY & LOGISTICS</span><span>${s.units.length} / 7 支部队</span></div><h2 class="panel-title">部队与补给</h2><p class="panel-sub">先选部队，再点击地图上的目的地。相邻部队提供火力支援；战区会中止穿越行军。</p>${this.unit!==null?'<button class="wide" data-action="cancel-unit" style="margin-bottom:14px;font-size:11px">取消调遣选择，返回地区建设</button>':''}${s.units.length?s.units.map(u=>this.unitCard(u)).join(''):'<div class="empty">尚未部署部队。联合支援队能快速投入，国民军适合持久驻守。</div>'}<h3 class="section-title">训练与部署 <small>月维护 $${s.units.reduce((a,u)=>a+UNIT_DEFS[u.kind].upkeep,0).toFixed(1)}</small></h3>${(Object.keys(UNIT_DEFS) as UnitKind[]).map(kind=>{const d=UNIT_DEFS[kind];return `<div class="recruit-card"><div class="row">${icon(kind==='engineer'?'wrench':'shield')}<h3>${d.name}</h3></div><p>${d.desc}</p><div class="between"><small class="muted">基础训练 ${d.train} 周</small><button data-recruit="${kind}" ${s.money<d.cost||s.units.length>=7?'disabled':''}>招募 · $${d.cost}</button></div></div>`;}).join('')}<p class="panel-sub">部队只能沿实际路线移动。低补给部队伤害下降；在安全且补给连通的地区待命可以恢复战备。</p>`;
+      const s=this.state,u=s.units.find(u=>u.id===this.unit);
+      return this.heading('安全与支援',u?u.name:'把安全送到前线',u?`${s.districts[u.at].name} · ${u.training?'训练还需 '+u.training+' 周':u.path.length?'正在行军':'等待你的命令'}`:'选择部队，再点击目的地区域。道路与相邻支援决定行动效率。')+
+      (u?`<div class="unit-detail"><div class="unit-sigil">${icon(u.kind==='engineer'?'wrench':'shield')}</div><div class="unit-bars"><label>战备 <b>${pct(u.hp)}</b></label>${meter(u.hp)}<label>补给 <b>${pct(u.supply)}</b></label>${meter(u.supply,'blue')}</div></div><div class="segmented stances">${(Object.keys(STANCES) as Stance[]).map(k=>`<button data-stance="${k}" data-id="${u.id}" class="${u.stance===k?'active':''}">${STANCES[k]}</button>`).join('')}</div><p class="quiet-note">${u.stance==='protect'?'优先保护居民，战力略低，居民伤亡风险更小。':u.stance==='balanced'?'在效率与居民风险之间维持平衡。':'突击提高战力，也提高居民伤亡风险；会结束所在地停火。'}</p>${u.path.length?`<button class="wide" data-halt="${u.id}">到下一地区后停止行军</button>`:u.training?'':'<div class="move-instruction">点击地图上的目的地，预览路线后出发。</div>'}${u.kind==='coalition'?`<div class="contract-line"><span>驻留剩余 ${u.contract} 周</span><button data-extend="${u.id}" ${disabled(u.contract>70?'合同尚有充足时间':s.money<11?'资金不足':'')}>延期 · $11</button></div>`:''}<div class="divider"></div>`:'')+
+      `${s.units.length?`<div class="roster">${s.units.map(x=>`<button class="roster-row ${x.id===this.unit?'active':''}" data-unit="${x.id}">${icon(x.kind==='engineer'?'wrench':'shield')}<span><b>${x.name}</b><small>${s.districts[x.at].name} · ${x.training?'训练中':x.path.length?'行军中':'待命'}</small></span><span class="hp">${pct(x.hp)}</span>${icon('chevron')}</button>`).join('')}</div>`:''}
+        <div class="section-label"><h3>增派支援</h3><span>${s.units.length}/7 支部队</span></div><div class="recruits">${(Object.keys(UNIT_DEFS) as UnitKind[]).map(k=>{const def=UNIT_DEFS[k],cost=recruitCost(s,k);return `<div class="recruit-card"><div>${icon(k==='engineer'?'wrench':'shield')}<b>${def.name}</b><small>${k==='coalition'?'2周训练 · 96周合同':k==='national'?'长期驻守 · 训练较慢':'施工与疏散 · 战力弱'}</small></div><button data-recruit="${k}" ${disabled(s.units.length>=7?'部署已满':s.money<cost?'资金不足':'')}>$${cost} ${icon('plus')}</button></div>`;}).join('')}</div>`;
+    }
+    private missionPanel():string {
+      const s=this.state,c=s.campaign!,orders=c.contracts.filter(o=>o.status==='offer'||o.status==='active'),missions=c.missions.filter(m=>m.status==='active');
+      return this.heading('地方委托','一次，只承诺一件事','从三项委托中接受一项。兑现获得预算，失约扣除 2 点声望；不是必做的胜利条件。')+
+        `${orders.map(o=>`<article class="order-card ${o.status==='active'?'accepted':''}"><div class="between"><span class="eyebrow">${o.status==='active'?'进行中':'可选委托'}</span><b class="gold">+$${o.reward}</b></div><h3>${escape(o.title)}</h3><p>${escape(o.brief)}</p>${o.status==='active'?`${meter(contractProgress(s,o))}<div class="between small"><span>截止第 ${o.deadline} 周</span><b>${pct(Math.min(100,contractProgress(s,o)))}</b></div><button class="wide" data-goto="${o.target}">前往目标地区 ${icon('arrow')}</button>`:`<div class="between small"><span>${o.kind==='shelter'?'截止第 '+o.deadline+' 周':o.deadline+' 周内完成'}</span><button data-contract="${o.id}">接受承诺 ${icon('arrow')}</button></div>`}</article>`).join('')||`<div class="empty-state">${icon('flag')}<h3>下一份委托正在路上</h3><p>已兑现 ${c.completedOrders} 份承诺。${c.nextOffer<99999?`第 ${c.nextOffer} 周会有新的选择。`:''}</p></div>`}
+        <div class="section-label"><h3>在路上的人</h3><span>${missions.length}/2 外勤组</span></div>
+        ${missions.map(m=>`<article class="mission-row"><div class="mission-icon ${m.stalled?'blocked':''}">${icon(OPERATIONS[m.kind].icon)}</div><div><b>${OPERATIONS[m.kind].name} → ${s.districts[m.target].name}</b><small class="${m.stalled?'bad':''}">${m.stalled?`受阻 ${m.stalled} 周 · 等待道路恢复`:`预计还需 ${missionETA(s,m)} 周`}${m.kind==='convoy'?' · 物资 '+pct(m.cargo):''}</small><div class="mini-actions"><button data-goto="${m.at}">定位</button>${m.kind==='convoy'&&m.path.length?`<button data-reroute="${m.id}">寻找改道</button>`:''}<button data-cancel-mission="${m.id}">撤回 · 退30%</button></div></div></article>`).join('')||'<p class="quiet-note">点击地图上的地区，可以派出侦察、运输、调解或空运任务。</p>'}
+        <div class="quiet-note">本局交付 ${c.deliveries} 次援助 · 完成 ${c.mediations} 次调解</div>`;
     }
     private chart():string {
-      const h=this.state.history;if(h.length<2)return '<p class="panel-sub">每 4 周生成一份态势快照。</p>';
-      const points=(key:'reputation'|'stable')=>h.map((v,i)=>`${10+i/(h.length-1)*252},${90-v[key]*.8}`).join(' ');
-      return `<svg viewBox="0 0 280 105" class="situation-chart" aria-label="声望与稳定人口趋势"><path d="M10 10H266M10 50H266M10 90H266" stroke="#476047" stroke-width=".5" stroke-dasharray="3 4" fill="none"/><polyline points="${points('reputation')}" fill="none" stroke="#b9d9b8" stroke-width="1.7"/><polyline points="${points('stable')}" fill="none" stroke="#e4c389" stroke-width="1.7"/><text x="10" y="103" fill="#94aa8b" font-size="8">W${h[0].week}</text><text x="237" y="103" fill="#94aa8b" font-size="8">W${h[h.length-1].week}</text></svg><div class="chart-legend"><span>行动声望</span><span>稳定人口</span></div>`;
+      const h=this.state.history;if(h.length<2)return '<p class="quiet-note">每 4 周记录一次地区变化。</p>';
+      const points=(key:'reputation'|'stable')=>h.map((v,i)=>`${10+i/(h.length-1)*260},${104-v[key]*.9}`).join(' ');
+      return `<svg viewBox="0 0 280 126" class="situation-chart" role="img" aria-label="声望与稳定人口趋势"><path d="M10 14H270M10 59H270M10 104H270" stroke="currentColor" opacity=".12" stroke-dasharray="3 5"/><polyline points="${points('reputation')}" fill="none" stroke="#85ada6" stroke-width="1.6"/><polyline points="${points('stable')}" fill="none" stroke="#dcb472" stroke-width="2"/><text x="10" y="121">W${h[0].week}</text><text x="245" y="121">W${h[h.length-1].week}</text></svg><div class="chart-legend"><span>— 行动声望</span><span>— 稳定人口</span></div>`;
     }
     private situationPanel():string {
-      const s=this.state,visible=s.districts.filter(d=>d.rebels>2&&d.intel>=35).length;
-      return `<div class="panel-kicker"><span>STRATEGIC PICTURE</span><span>W${s.week} / 360</span></div><h2 class="panel-title">通往和平</h2><p class="panel-sub">一个可以自行运转的社会，才是行动的终点。</p>${this.chart()}<h3 class="section-title">和平重建目标</h3>${[[stableShare(s)>=70,`稳定至少 70% 人口`,`${stableCount(s)} / 35 地区稳定 · 当前 ${pct(stableShare(s))}`],[s.peace>=100,'和平进程达到 100%',s.negotiating?`谈判中 · 当前 ${pct(s.peace)}`:'第 48 周后，民心 ≥48%，升级调解与复员后可启动'],[s.peaceHold>=8,'安全条件下巩固 8 周',`武装规模需低于 65（情报可能不完整）；巩固 ${s.peaceHold} / 8 周`]].map(([done,title,detail])=>`<div class="goal ${done?'done':''}"><span class="check">${done?'✓':''}</span><div>${title}<small>${detail}</small></div>`).join('')}<button class="wide ${s.negotiating?'':'primary'}" data-action="peace" ${s.negotiating?'disabled':''}>${s.negotiating?'和谈进行中 · '+pct(s.peace):'启动和谈 · $12'}</button><p class="panel-sub" style="margin-top:13px;font-size:10px">另一条道路：稳定至少 85% 人口、武装规模低于 5，同样巩固 8 周。第 360 周授权期结束。</p><div class="divider"></div><div class="between"><span class="muted">可见冲突地区</span><span class="bad mono">${visible}</span></div><div class="between" style="margin-top:10px"><span class="muted">居民累计伤亡</span><span class="mono">${s.casualties.toLocaleString()}</span></div><div class="between" style="margin-top:10px"><span class="muted">提前疏散人次</span><span class="mono good">${s.rescued.toLocaleString()}</span></div><h3 class="section-title">行动日志 <small>最新 22 条</small></h3><ul class="log-list">${s.logs.slice(0,22).map(l=>`<li class="${l.type}"><time>W${String(l.week).padStart(3,'0')}</time><p>${escape(l.text)}</p></li>`).join('')}</ul>`;
+      const s=this.state,goals=[[stableShare(s)>=70,'让 70% 人口生活稳定',`${pct(stableShare(s))} / 70%`],[s.peace>=100,'让和平协议获得支持',`${pct(s.peace)} / 100%`],[s.peaceHold>=8,'在安全条件下巩固 8 周',`${s.peaceHold} / 8 周`]];
+      return this.heading('行动全局','不是占领，而是留下生活','城市安全、基本服务和地方认同共同决定结局。')+
+        `<div class="goals">${goals.map(([yes,t,v])=>`<div class="goal ${yes?'done':''}"><i>${yes?'✓':''}</i><div><b>${t}</b><small>${v}</small></div></div>`).join('')}</div>
+        <button class="primary wide" data-action="peace" ${disabled(s.negotiating?'和谈已启动':s.week<48?'第 48 周后开启正式和谈':s.policies.diplomacy<1?'先升级调解与复员':support(s)<48?'人口民心需达到48%':totalRebels(s)>180?'武装规模过大':s.money<12?'资金不足':'')}>${s.negotiating?'和平进程 · '+pct(s.peace):'启动正式和谈 · $12'}</button>
+        <p class="quiet-note">第 48 周后，民心 ≥48%、至少一级调解与复员、武装总规模 &lt;180 时可开启。胜利还需总武装 &lt;65。另一条路线：稳定 ≥85% 人口、总武装 &lt;5，同样巩固 8 周。</p>${this.chart()}
+        <div class="local-stats"><div><small>全区民心</small><b>${pct(support(s))}</b></div><div><small>提前疏散人次</small><b>${s.rescued.toLocaleString()}</b></div><div><small>居民伤亡</small><b>${s.casualties}</b></div></div>
+        <div class="section-label"><h3>最近发生的事</h3><span>第 ${s.week}/360 周</span></div><div class="log-list">${s.logs.slice(0,12).map(l=>`<div class="log ${l.type}"><time>${String(l.week).padStart(2,'0')}</time><p>${escape(l.text)}</p></div>`).join('')}</div>`;
     }
-    private setModal(html:string,kind:Controller['modalKind'],menu=false):void {
-      this.modalKind=kind;this.state.paused=true;document.getElementById('modal-layer')!.innerHTML=`<div class="overlay ${menu?'menu-overlay':''}" role="dialog" aria-modal="true" aria-label="${kind==='menu'?'行动配置':kind==='event'?'事件决策':kind==='end'?'行动结算':'行动手册'}">${html}</div>`;document.getElementById('app')!.classList.toggle('menu-open',menu);document.getElementById('map-hover')!.style.display='none';
+    private setModal(html:string,kind:Controller['modalKind']):void {
+      if(!this.modalKind)this.modalFocus=document.activeElement as HTMLElement;
+      this.modalKind=kind;this.state.paused=true;$('modal-layer').innerHTML=`<div class="overlay ${kind==='menu'?'menu-overlay':''}" role="dialog" aria-modal="true" aria-label="${kind==='menu'?'开始新的重建行动':kind==='draft'?'选择施政授权':kind==='event'?'事件决策':kind==='end'?'行动结算':'手册与保存'}">${html}</div>`;
+      $('app').classList.toggle('menu-open',kind==='menu');$('app').setAttribute('inert','');$('map-hover').style.display='none';
+      const focus=document.querySelector<HTMLElement>('#modal-layer [data-action="start"]')??document.querySelector<HTMLElement>('#modal-layer button:not(:disabled)');focus?.focus({preventScroll:true});
     }
-    closeModal():void {document.getElementById('modal-layer')!.innerHTML='';document.getElementById('app')!.classList.remove('menu-open');this.modalKind=null;}
+    closeModal():void {
+      $('modal-layer').innerHTML='';$('app').classList.remove('menu-open');$('app').removeAttribute('inert');this.modalKind=null;
+      if(this.modalFocus?.isConnected)this.modalFocus.focus({preventScroll:true});this.modalFocus=null;
+    }
     showMenu():void {
-      let saved=false;try{saved=!!localStorage.getItem(SAVE_KEY);}catch{/* Private/file browsing may disallow persistence. */}
-      this.setModal(`<section class="launch"><div class="launch-brand"><div class="eyebrow">A RECONSTRUCTION STRATEGY GAME</div><h1>烬土</h1><div class="english">AFTERFIRE</div><p class="tagline">秩序不是占领。<br>和平需要建设。</p><p class="intro">在战火与灰烬之间，重建一个地区。<br>让补给越过山岭，让生活先于承诺抵达。<br>你赢得的，应该是人们愿意留下的未来。</p><div class="version">ORIGINAL STRATEGY · v0.1.0<br><br>程序绘制地图 · 离线运行 · 无外部素材</div></div><div class="launch-config"><div class="eyebrow">OPERATION BRIEF / 行动简报</div><div class="scenario-options">${(Object.keys(SCENARIOS) as Scenario[]).map(key=>`<button class="scenario-option ${this.menuScenario===key?'active':''}" data-scenario="${key}">${icon(key==='volcano'?'volcano':key==='corridor'?'road':'map')}<div><strong>${SCENARIOS[key].name}</strong><small>${SCENARIOS[key].subtitle}</small></div></button>`).join('')}</div><p class="briefing">${SCENARIOS[this.menuScenario].brief}</p><label>治理者</label><div class="segmented">${(Object.keys(GOVERNORS) as Governor[]).map(k=>`<button data-governor="${k}" class="${this.menuGovernor===k?'active':''}">${GOVERNORS[k].name}</button>`).join('')}</div><p class="governor-detail">${GOVERNORS[this.menuGovernor].desc}</p><label>行动强度</label><div class="segmented">${([['relaxed','宽松'],['standard','标准'],['veteran','严峻']] as [Difficulty,string][]).map(([k,n])=>`<button data-difficulty="${k}" class="${this.menuDiff===k?'active':''}">${n}</button>`).join('')}</div><div class="seed-row"><label for="seed-input">地图种子</label><input id="seed-input" type="number" min="0" max="4294967295" value="${this.menuSeed}"/><span>相同种子可以复盘</span></div><button class="primary launch-button" data-action="start">开始行动 ${icon('arrow')}</button>${this.started?'<button class="continue-button" data-action="resume">返回当前行动（暂停）</button>':saved?'<button class="continue-button" data-action="continue">继续上次保存的行动</button>':''}<div class="start-note">建议首次选择「河谷重建 / 宽松」<br>新行动会覆盖自动存档；可先在手册中导出旧存档。</div></div></section>`,'menu',true);
+      let saved=false;try{saved=!!(localStorage.getItem(SAVE_KEY)||localStorage.getItem(LEGACY_KEY));}catch{/* file/private browsing may not persist. */}
+      const previewKey=this.menuScenario+this.menuSeed;
+      if(previewKey!==this.menuPreview||this.renderer.state===this.state){this.renderer.replace(newGame(this.menuScenario,this.menuGovernor,this.menuDiff,this.menuSeed));this.menuPreview=previewKey;}
+      const d=DOCTRINES[this.menuDoctrine];
+      this.setModal(`<section class="launch">
+        <div class="launch-wordmark"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="m3 29 12-25 5 13 6-7 8 19H3Z"/></svg> 烬土 <span>AFTERFIRE</span></div>
+        <div class="launch-story"><div class="eyebrow">重建策略 · SECOND EDITION</div><h1>让生活，<br>先于承诺抵达。</h1><p>修复一条道路，兑现一份承诺。<br>在冲突与灰烬之间，选择你自己的重建之路。</p></div>
+        <div class="launch-location"><span class="eyebrow">${this.menuScenario==='volcano'?'02':this.menuScenario==='valley'?'01':'03'} / 河岚联省</span><strong>${SCENARIOS[this.menuScenario].name}</strong><small>程序生成地形 · 每一条路都可以抵达</small></div>
+        <div class="launch-config">
+          <div class="config-top"><span class="eyebrow">选择你的下一场行动</span><button class="inline-link" data-action="advanced">${this.showAdvanced?'收起设置':'难度与高级设置'} ${icon('chevron')}</button></div>
+          <div class="scenario-options">${(Object.keys(SCENARIOS) as Scenario[]).map((k,i)=>`<button class="scenario-option ${this.menuScenario===k?'active':''}" data-scenario="${k}"><span class="scenario-number">0${i+1}</span><div>${icon(k==='volcano'?'volcano':k==='corridor'?'convoy':'home')}<strong>${SCENARIOS[k].name}</strong><small>${k==='valley'?'恢复民生，连接乡村':k==='volcano'?'守住城市，也救下居民':'保护车队，打通生命线'}</small></div><span class="scenario-check">${this.menuScenario===k?'✓':''}</span></button>`).join('')}</div>
+          <div class="route-row"><span class="route-label">重建路线</span><div class="route-choices">${(Object.keys(DOCTRINES) as Doctrine[]).map(k=>`<button data-doctrine="${k}" class="${k===this.menuDoctrine?'active':''}">${icon(DOCTRINES[k].icon)}${DOCTRINES[k].name}</button>`).join('')}</div></div>
+          <div class="route-description"><span>${d.desc}</span><small>代价：${d.tradeoff}</small></div>
+          ${this.showAdvanced?`<div class="advanced-config"><div><label>行动强度</label><div class="segmented">${(Object.keys(DIFF_LABELS) as Difficulty[]).map(k=>`<button data-difficulty="${k}" class="${this.menuDiff===k?'active':''}">${DIFF_LABELS[k]}</button>`).join('')}</div></div><div><label>治理者</label><div class="segmented">${(Object.keys(GOVERNORS) as Governor[]).map(k=>`<button data-governor="${k}" title="${escape(GOVERNORS[k].desc)}" class="${this.menuGovernor===k?'active':''}">${GOVERNORS[k].name}</button>`).join('')}</div></div><label class="seed-control">地图种子<input type="number" min="0" max="4294967295" id="seed-input" value="${this.menuSeed}"></label></div>`:''}
+          <div class="launch-bottom"><div>${this.started?'<button class="continue-button" data-action="resume">返回当前行动</button>':saved?'<button class="continue-button" data-action="continue">继续上次行动</button>':'<span class="start-hint">可随时暂停思考 · 首次建议「河谷重建」</span>'}<small>新行动会覆盖自动存档。需要保留时请先导出。</small></div><button class="primary launch-button" data-action="start">开始重建 ${icon('arrow')}</button></div>
+        </div><div class="launch-footer">原创实时策略 · v0.2.0 <span>完全离线 / 无外部资源</span></div>
+      </section>`,'menu');
+    }
+    showDraft():void {
+      const c=this.state.campaign;if(!c?.draft.length)return;
+      this.setModal(`<section class="modal draft-modal"><button class="close icon-button" data-action="close" aria-label="稍后选择">${icon('cross')}</button><div class="eyebrow">施政授权 · ${c.draftTier+1} / 3</div><h2>这一次，选择怎样的未来？</h2><p>只选择一项。它会改变本局的重建方式，而不只是增加一个数字。</p><div class="draft-cards">${c.draft.map((k,i)=>{const d=UPGRADES[k];return `<button class="draft-card" data-upgrade="${k}"><span class="draft-index">0${i+1} <small>${d.tag}</small></span>${emblem(d.icon)}<h3>${d.name}</h3><p>${d.desc}</p><div class="draft-flavor">${d.flavor}</div><span class="select">采用这项授权 ${icon('arrow')}</span></button>`;}).join('')}</div><button class="text-action" data-action="close">保持暂停，稍后再选</button></section>`,'draft');
     }
     showEvent():void {
-      const e=this.state.event;if(!e)return;this.setModal(`<section class="modal"><div class="event-icon">${icon('bell')}</div><div class="eyebrow">FIELD DISPATCH / W${this.state.week}</div><h2>${escape(e.title)}</h2><p>${escape(e.body)}</p><div class="between"><span class="muted" style="font-size:10px">行动已暂停，等待你的决策</span><span class="gold mono">$${Math.floor(this.state.money)}</span></div><div class="choices">${e.choices.map((c,i)=>`<button class="choice" data-choice="${i}" ${this.state.money<c.cost?'disabled':''}><strong>${escape(c.text)}</strong><small>${escape(c.detail)}</small></button>`).join('')}</div></section>`,'event');
+      const e=this.state.event;if(!e)return;
+      this.setModal(`<section class="modal event-modal"><div class="event-illustration">${emblem(e.id==='village'||e.id==='splinter'?'peace':e.id==='rain'?'convoy':'home')}<span>FIELD DISPATCH</span></div><div class="event-content"><div class="eyebrow">现场来信 · 第 ${this.state.week} 周</div><h2>${escape(e.title)}</h2><p>${escape(e.body)}</p><div class="event-choices">${e.choices.map((c,i)=>`<button class="event-choice" data-choice="${i}" ${disabled(this.state.money<c.cost?'资金不足':'')}><span class="choice-index">0${i+1}</span><span><b>${escape(c.text)}</b><small>${escape(c.detail)}</small></span>${icon('chevron')}</button>`).join('')}</div><div class="event-foot">当前资金 $${Math.floor(this.state.money)} <span>行动已暂停，等待你的选择</span></div></div></section>`,'event');
     }
     showHelp():void {
-      this.setModal(`<section class="modal" style="width:650px"><button class="close" data-action="close" aria-label="关闭手册">${icon('cross')}</button><div class="eyebrow">FIELD MANUAL / 行动手册</div><h2>不是涂满地图，而是重建生活。</h2><div class="help-grid"><div class="help-item"><b>01 / 先听诉求</b><p>点击城镇，优先回应「首要诉求」。工程需施工，民心达到 53% 且安全、通补给后才能积累稳定。</p></div><div class="help-item"><b>02 / 早建预备队</b><p>在部队面板招募。第 12 周武装出现。选择部队，再点击目的地；再次点击部队或右键取消选择。</p></div><div class="help-item"><b>03 / 不打孤立的仗</b><p>相邻部队提供支援。山地不利作战，低补给进一步削弱战力。公路加快调动；保护居民姿态可减少平民伤亡。</p></div><div class="help-item"><b>04 / 把钱变成能力</b><p>每 4 周自动发放预算并扣除部队维护。审计抑制腐败，后勤加快施工。不要只投资军事。</p></div><div class="help-item"><b>05 / 灰烬之前撤离</b><p>灰烬山脊首次喷发在第 48 周。金色边界标示危险区：点击后组织疏散。工兵、道路与安置设施提高效率。</p></div><div class="help-item"><b>06 / 谈判结束战争</b><p>第 48 周后，民心 ≥48%、武装规模 &lt;180、至少一级调解与复员，即可付费启动和谈。详细胜利条件见态势面板。</p></div></div><p><span class="help-key">空格</span> 暂停 / 继续　<span class="help-key">1 2 3</span> 1× / 2× / 4×　<span class="help-key">.</span> 推进一周<br><span class="help-key">B P U I</span> 切换面板　<span class="help-key">S</span> 保存　<span class="help-key">0</span> 地图复位<br>拖动地图平移，滚轮缩放；切换图层检查民心、补给与情报。</p><div class="divider"></div><div class="row"><button data-action="save">保存进度</button><button data-action="export">导出存档</button><button data-action="import">导入存档</button></div><p style="font-size:10px">每 4 周自动保存；切到后台会自动暂停。浏览器禁用本地存储时，使用导出存档。原创建设策略游戏，与 Rebel Inc. 无官方关系。地区和所有机制均为虚构，不是现实冲突预测模型。</p><button class="primary wide" data-action="close">返回行动（保持暂停）</button></section>`,'help');
+      this.setModal(`<section class="modal help-modal"><button class="close icon-button" data-action="close" aria-label="关闭手册">${icon('cross')}</button><div class="eyebrow">FIELD MANUAL</div><h2>先看地图，再做决定。</h2><div class="help-grid"><div><b>01 / 点击地区</b><p>默认只展示三项建议工程。回应诉求比平均花钱更有效；完整目录按需展开。</p></div><div><b>02 / 选部队，再点目的地</b><p>移动需要时间。相邻部队互相支援，低补给削弱战力。行军途中可以在下一站停止。</p></div><div><b>03 / 不只有进攻</b><p>侦察揭示邻区；运输改善生活；调解削弱武装；空运绕过断路。最多两组外勤同时执行。</p></div><div><b>04 / 选择自己的路线</b><p>第 16、56、104 周的三选一授权改变整局策略。委托是可选目标，不完成不会阻止基础胜利。</p></div><div><b>05 / 在火山喷发前救人</b><p>危险区会出现黄色边界。组织疏散，配合安置设施与工兵；喷发将封路 12 周。</p></div><div><b>06 / 让重建持续下去</b><p>每四周预算结算。别把全部资金用于军队。完整胜利条件、民心与日志在「全局」中查看。</p></div></div><div class="keys"><kbd>空格</kbd> 暂停 <kbd>1 2 3</kbd> 调速 <kbd>.</kbd> 推进一周 <kbd>Esc</kbd> 收起<br><kbd>B / U / P / M / I</kbd> 建设 / 部队 / 施政 / 委托 / 全局</div><div class="save-tools"><button data-action="save">${icon('save')} 保存</button><button data-action="export">导出存档</button><button data-action="import">导入存档</button><button data-action="sound">${icon(this.sound?'sound':'mute')}${this.sound?'关闭音效':'开启音效'}</button><button data-action="menu">主菜单</button></div><p class="legal">支持旧版存档。每四周自动保存；切到后台自动暂停。本游戏的地区与数值为虚构，素材由代码原创绘制，与 Rebel Inc. 无官方关系。种子 ${this.state.seed} · v0.2.0</p></section>`,'help');
     }
     showEnd():void {
-      const s=this.state;this.setModal(`<section class="modal" style="width:620px"><div class="event-icon">${icon(s.outcome==='victory'?'peace':'flag')}</div><div class="eyebrow">OPERATION DEBRIEF / 行动结算</div><h2>${s.outcome==='victory'?'灰烬之上，生活重来。':'重建还没有抵达终点。'}</h2><p>${escape(s.endReason)}</p><div class="result-grid">${[[s.week+'','行动周数'],[pct(stableShare(s)),'稳定人口'],[pct(support(s)),'人口民心'],[s.casualties.toLocaleString(),'居民伤亡'],[s.rescued.toLocaleString(),'提前疏散人次'],[s.completed+'','完成工程']].map(([v,label])=>`<div class="result-stat"><strong>${v}</strong><small>${label}</small></div>`).join('')}</div>${this.chart()}<p style="font-size:11px">民用投入 $${round(s.spentCivil)} · 军事投入 $${round(s.spentMilitary)}<br>${s.outcome==='defeat'?(s.reputation<=0?'复盘建议：检查城市失守、停滞与灾害伤亡。不要把所有部队和预算消耗在山地。':'复盘建议：更早回应人口中心的诉求，发展地方议事会，并尽早启动和谈。'):'安全不是和平的全部。下一局，试着用更少的伤亡达到同样的终点。'}</p><div class="row"><button class="primary" data-action="menu">新的行动</button><button data-action="export">导出复盘存档</button></div></section>`,'end');this.save(false);
+      const s=this.state,c=s.campaign;
+      this.setModal(`<section class="modal end-modal"><div class="eyebrow">OPERATION DEBRIEF</div>${emblem(s.outcome==='victory'?'peace':'home')}<h2>${s.outcome==='victory'?'灰烬之上，生活重来。':'下一次，让重建走得更远。'}</h2><p>${escape(s.endReason)}</p><div class="result-grid">${[[s.week+'','行动周数'],[pct(stableShare(s)),'稳定人口'],[String(c?.completedOrders??0),'兑现的承诺'],[s.rescued.toLocaleString(),'提前疏散人次'],[String(c?.deliveries??0),'成功援助运输'],[s.casualties.toLocaleString(),'居民伤亡']].map(([v,k])=>`<div><strong>${v}</strong><span>${k}</span></div>`).join('')}</div><p class="quiet-note">${c?DOCTRINES[c.doctrine].name+' · '+c.upgrades.map(k=>UPGRADES[k].name).join(' / '):'经典行动'}<br>完成 ${s.completed} 项工程 · 民用投入 $${round(s.spentCivil)} · 军事投入 $${round(s.spentMilitary)}</p><div class="row center"><button class="primary" data-action="menu">开启新的重建</button><button data-action="export">导出复盘存档</button></div></section>`,'end');this.save(false);
     }
-    save(notify=false):void {if(!this.started)return;try{localStorage.setItem(SAVE_KEY,serialize(this.state));if(notify)this.toast('进度已保存到当前浏览器。');}catch{if(notify||!this.saveErrorShown){this.toast('浏览器不允许本地存储，请在手册中导出存档。',true);this.saveErrorShown=true;}}}
-    load():void {try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)throw new Error('没有可读取的存档');this.restore(deserialize(raw));this.toast('存档已载入，行动保持暂停。');}catch(e){this.toast('读取失败：'+(e instanceof Error?e.message:'未知错误'),true);}}
-    private restore(s:State):void {this.state=s;this.started=true;this.selected=24;this.unit=null;this.renderer.replace(s);this.closeModal();this.refresh();}
+    save(notify=false):void {if(!this.started)return;try{localStorage.setItem(SAVE_KEY,serialize(this.state));if(notify)this.toast('进度已保存在当前浏览器。');}catch{if(notify||!this.saveErrorShown){this.toast('此浏览器限制本地保存；请在手册中导出存档。',true);this.saveErrorShown=true;}}}
+    load():void {try{const raw=localStorage.getItem(SAVE_KEY)||localStorage.getItem(LEGACY_KEY);if(!raw)throw new Error('没有可读取的存档');this.restore(deserialize(raw));this.toast('进度已恢复。行动保持暂停。');}catch(e){this.toast('读取失败：'+(e instanceof Error?e.message:'未知错误'),true);}}
+    private restore(s:State):void {this.state=s;initCampaign(s);this.started=true;this.selected=24;this.unit=null;this.panelOpen=false;this.renderer.replace(s);this.closeModal();this.refresh();}
     private exportSave():void {
       if(!this.started){this.toast('请先开始一局行动。',true);return;}
-      const blob=new Blob([serialize(this.state)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`afterfire-${this.state.seed}-W${this.state.week}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);this.toast('存档已导出。');
+      const blob=new Blob([serialize(this.state)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`afterfire-v2-${this.state.seed}-W${this.state.week}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);this.toast('存档已导出。');
     }
     private async importFile(e:Event):Promise<void> {
       const input=e.target as HTMLInputElement,file=input.files?.[0];if(!file)return;
-      try{if(file.size>1500000)throw new Error('存档过大');const s=deserialize(await file.text());this.restore(s);this.save(false);this.toast('存档导入成功。');}catch(err){this.toast('导入失败：'+(err instanceof Error?err.message:'文件损坏'),true);}finally{input.value='';}
+      try{if(file.size>1500000)throw new Error('存档过大');this.restore(deserialize(await file.text()));this.save(false);this.toast('存档已导入。');}catch(err){this.toast('导入失败：'+(err instanceof Error?err.message:'文件损坏'),true);}finally{input.value='';}
     }
   }
 }

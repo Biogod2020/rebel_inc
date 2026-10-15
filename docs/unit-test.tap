@@ -1,164 +1,302 @@
 
-> afterfire@0.1.0 test
+> afterfire@0.2.0 test
 > node scripts/test.mjs
 
 TAP version 13
-# Subtest: seeded worlds are deterministic, differ by seed, and have 35 districts
-ok 1 - seeded worlds are deterministic, differ by seed, and have 35 districts
+# Subtest: v2 is opt-in: legacy world creation stays unchanged, new campaign has 3 exclusive offers
+ok 1 - v2 is opt-in: legacy world creation stays unchanged, new campaign has 3 exclusive offers
   ---
-  duration_ms: 20.129205
+  duration_ms: 14.013544
+  type: 'test'
+  ...
+# Subtest: doctrines change real project costs, upkeep and recruitment instead of labels
+ok 2 - doctrines change real project costs, upkeep and recruitment instead of labels
+  ---
+  duration_ms: 12.275449
+  type: 'test'
+  ...
+# Subtest: mobility reduces actual convoy arrival time with fractional travel carried across legs
+ok 3 - mobility reduces actual convoy arrival time with fractional travel carried across legs
+  ---
+  duration_ms: 9.391491
+  type: 'test'
+  ...
+# Subtest: recon is delayed, reveals neighboring areas and does not advance simulation RNG
+ok 4 - recon is delayed, reveals neighboring areas and does not advance simulation RNG
+  ---
+  duration_ms: 3.004875
+  type: 'test'
+  ...
+# Subtest: external operations share a hard cap and cannot double-spend or bypass cooldown by canceling
+ok 5 - external operations share a hard cap and cannot double-spend or bypass cooldown by canceling
+  ---
+  duration_ms: 4.185294
+  type: 'test'
+  ...
+# Subtest: convoys traverse only neighboring districts and deliver effects only after arrival and unloading
+ok 6 - convoys traverse only neighboring districts and deliver effects only after arrival and unloading
+  ---
+  duration_ms: 3.618118
+  type: 'test'
+  ...
+# Subtest: hostile roads stall convoys and stalled operations eventually fail, never teleport
+ok 7 - hostile roads stall convoys and stalled operations eventually fail, never teleport
+  ---
+  duration_ms: 4.350087
+  type: 'test'
+  ...
+# Subtest: an armed escort preserves cargo on a contested but not controlled route
+ok 8 - an armed escort preserves cargo on a contested but not controlled route
+  ---
+  duration_ms: 8.765049
+  type: 'test'
+  ...
+# Subtest: rerouting finds an alternate safe path from the current district without moving or charging
+ok 9 - rerouting finds an alternate safe path from the current district without moving or charging
+  ---
+  duration_ms: 3.933723
+  type: 'test'
+  ...
+# Subtest: mediation respects the displayed 30-person threshold, stalls above it, then halves insurgents
+ok 10 - mediation respects the displayed 30-person threshold, stalls above it, then halves insurgents
+  ---
+  duration_ms: 2.228372
+  type: 'test'
+  ...
+# Subtest: a truce prevents both combat and new recruits while leaving later expiry intact
+ok 11 - a truce prevents both combat and new recruits while leaving later expiry intact
+  ---
+  duration_ms: 3.642565
+  type: 'test'
+  ...
+# Subtest: airlifts require a real need and apply supply and evacuation only after flight time
+ok 12 - airlifts require a real need and apply supply and evacuation only after flight time
+  ---
+  duration_ms: 2.827795
+  type: 'test'
+  ...
+# Subtest: three deterministic drafts use an independent RNG and only the chosen perk is retained
+ok 13 - three deterministic drafts use an independent RNG and only the chosen perk is retained
+  ---
+  duration_ms: 8.054983
+  type: 'test'
+  ...
+# Subtest: modular works increases capacity and actual construction progress
+ok 14 - modular works increases capacity and actual construction progress
+  ---
+  duration_ms: 6.165811
+  type: 'test'
+  ...
+# Subtest: cooperative and radio perks produce their advertised ongoing effects
+ok 15 - cooperative and radio perks produce their advertised ongoing effects
+  ---
+  duration_ms: 7.746158
+  type: 'test'
+  ...
+# Subtest: only one order can be accepted and its reward is issued exactly once
+ok 16 - only one order can be accepted and its reward is issued exactly once
+  ---
+  duration_ms: 2.888223
+  type: 'test'
+  ...
+# Subtest: an order cannot complete after its deadline; failure penalty is assessed once
+ok 17 - an order cannot complete after its deadline; failure penalty is assessed once
+  ---
+  duration_ms: 2.055277
+  type: 'test'
+  ...
+# Subtest: volcano orders keep the physical eruption deadline and cannot use rescues elsewhere
+ok 18 - volcano orders keep the physical eruption deadline and cannot use rescues elsewhere
+  ---
+  duration_ms: 1.7859
+  type: 'test'
+  ...
+# Subtest: expired optional rescue offers disappear without penalizing the player
+ok 19 - expired optional rescue offers disappear without penalizing the player
+  ---
+  duration_ms: 1.988098
+  type: 'test'
+  ...
+# Subtest: late legacy saves migrate without negative deadlines or invalid optional data
+ok 20 - late legacy saves migrate without negative deadlines or invalid optional data
+  ---
+  duration_ms: 7.20398
+  type: 'test'
+  ...
+# Subtest: v2 save/restore preserves future RNG, moving missions, orders, drafts and outcomes
+ok 21 - v2 save/restore preserves future RNG, moving missions, orders, drafts and outcomes
+  ---
+  duration_ms: 165.166465
+  type: 'test'
+  ...
+# Subtest: malformed campaign saves are rejected before any live state can change
+ok 22 - malformed campaign saves are rejected before any live state can change
+  ---
+  duration_ms: 43.652655
+  type: 'test'
+  ...
+# Subtest: all three scenarios have a complete v2 playthrough using only public game commands
+ok 23 - all three scenarios have a complete v2 playthrough using only public game commands
+  ---
+  duration_ms: 251.808302
+  type: 'test'
+  ...
+# Subtest: seeded worlds are deterministic, differ by seed, and have 35 districts
+ok 24 - seeded worlds are deterministic, differ by seed, and have 35 districts
+  ---
+  duration_ms: 19.354915
   type: 'test'
   ...
 # Subtest: Voronoi adjacency is symmetric, nonempty and connected
-ok 2 - Voronoi adjacency is symmetric, nonempty and connected
+ok 25 - Voronoi adjacency is symmetric, nonempty and connected
   ---
-  duration_ms: 10.99173
+  duration_ms: 10.715641
   type: 'test'
   ...
 # Subtest: convex district polygons conserve land area
-ok 3 - convex district polygons conserve land area
+ok 26 - convex district polygons conserve land area
   ---
-  duration_ms: 2.396278
+  duration_ms: 2.161874
   type: 'test'
   ...
 # Subtest: Dijkstra paths contain only adjoining districts and avoid active lava
-ok 4 - Dijkstra paths contain only adjoining districts and avoid active lava
+ok 27 - Dijkstra paths contain only adjoining districts and avoid active lava
   ---
-  duration_ms: 4.056447
+  duration_ms: 3.587204
   type: 'test'
   ...
 # Subtest: roads reduce travel time; rain slows unimproved roads
-ok 5 - roads reduce travel time; rain slows unimproved roads
+ok 28 - roads reduce travel time; rain slows unimproved roads
   ---
-  duration_ms: 2.172681
+  duration_ms: 2.264996
   type: 'test'
   ...
 # Subtest: hostile ring cuts HQ supply; front-line supply does not relay through hostile territory
-ok 6 - hostile ring cuts HQ supply; front-line supply does not relay through hostile territory
+ok 29 - hostile ring cuts HQ supply; front-line supply does not relay through hostile territory
   ---
-  duration_ms: 2.655173
+  duration_ms: 1.963632
   type: 'test'
   ...
 # Subtest: cannot spend money twice or stack construction in a district
-ok 7 - cannot spend money twice or stack construction in a district
+ok 30 - cannot spend money twice or stack construction in a district
   ---
-  duration_ms: 2.428814
+  duration_ms: 2.533352
   type: 'test'
   ...
 # Subtest: projects respect concurrency cap and complete over time, not instantly
-ok 8 - projects respect concurrency cap and complete over time, not instantly
+ok 31 - projects respect concurrency cap and complete over time, not instantly
   ---
-  duration_ms: 8.186232
+  duration_ms: 6.938693
   type: 'test'
   ...
 # Subtest: governor bonuses change prices and starting support
-ok 9 - governor bonuses change prices and starting support
+ok 32 - governor bonuses change prices and starting support
   ---
-  duration_ms: 7.20378
+  duration_ms: 7.297718
   type: 'test'
   ...
 # Subtest: intelligence gates construction, but a survey can always start in a safe district
-ok 10 - intelligence gates construction, but a survey can always start in a safe district
+ok 33 - intelligence gates construction, but a survey can always start in a safe district
   ---
-  duration_ms: 2.820471
+  duration_ms: 2.291034
   type: 'test'
   ...
 # Subtest: training prevents deployment; movement has travel time and halting does not teleport
-ok 11 - training prevents deployment; movement has travel time and halting does not teleport
+ok 34 - training prevents deployment; movement has travel time and halting does not teleport
   ---
-  duration_ms: 4.99067
+  duration_ms: 6.060626
   type: 'test'
   ...
 # Subtest: coalition contracts expire, or can be extended with the stated cost
-ok 12 - coalition contracts expire, or can be extended with the stated cost
+ok 35 - coalition contracts expire, or can be extended with the stated cost
   ---
-  duration_ms: 4.301572
+  duration_ms: 4.476153
   type: 'test'
   ...
 # Subtest: low supply lowers combat effectiveness
-ok 13 - low supply lowers combat effectiveness
+ok 36 - low supply lowers combat effectiveness
   ---
-  duration_ms: 5.910683
+  duration_ms: 8.177914
   type: 'test'
   ...
 # Subtest: defeated units cannot silently revive during next-week recovery
-ok 14 - defeated units cannot silently revive during next-week recovery
+ok 37 - defeated units cannot silently revive during next-week recovery
   ---
-  duration_ms: 3.505004
+  duration_ms: 3.166985
   type: 'test'
   ...
 # Subtest: events halt the simulation until an affordable choice is made
-ok 15 - events halt the simulation until an affordable choice is made
+ok 38 - events halt the simulation until an affordable choice is made
   ---
-  duration_ms: 6.651409
+  duration_ms: 8.48772
   type: 'test'
   ...
 # Subtest: full evacuation produces fewer casualties than neglect
-ok 16 - full evacuation produces fewer casualties than neglect
+ok 39 - full evacuation produces fewer casualties than neglect
   ---
-  duration_ms: 36.765825
+  duration_ms: 35.164699
   type: 'test'
   ...
 # Subtest: buying monitoring during an active warning must not reset evacuation
-ok 17 - buying monitoring during an active warning must not reset evacuation
+ok 40 - buying monitoring during an active warning must not reset evacuation
   ---
-  duration_ms: 8.862221
+  duration_ms: 11.128314
   type: 'test'
   ...
 # Subtest: hazard closure eventually reopens and does not leave units in molten districts
-ok 18 - hazard closure eventually reopens and does not leave units in molten districts
+ok 41 - hazard closure eventually reopens and does not leave units in molten districts
   ---
-  duration_ms: 11.276994
+  duration_ms: 13.828005
   type: 'test'
   ...
 # Subtest: peace requires legitimacy, time, diplomacy and funding
-ok 19 - peace requires legitimacy, time, diplomacy and funding
+ok 42 - peace requires legitimacy, time, diplomacy and funding
   ---
-  duration_ms: 2.350755
+  duration_ms: 5.14045
   type: 'test'
   ...
 # Subtest: victory requires sustained conditions, not a single good frame
-ok 20 - victory requires sustained conditions, not a single good frame
+ok 43 - victory requires sustained conditions, not a single good frame
   ---
-  duration_ms: 3.733709
+  duration_ms: 5.07871
   type: 'test'
   ...
 # Subtest: save/restore preserves future deterministic evolution including RNG and routes
-ok 21 - save/restore preserves future deterministic evolution including RNG and routes
+ok 44 - save/restore preserves future deterministic evolution including RNG and routes
   ---
-  duration_ms: 41.390837
+  duration_ms: 54.606192
   type: 'test'
   ...
 # Subtest: invalid save files fail without mutating live state
-ok 22 - invalid save files fail without mutating live state
+ok 45 - invalid save files fail without mutating live state
   ---
-  duration_ms: 30.6867
+  duration_ms: 32.087687
   type: 'test'
   ...
 # Subtest: scripted mixed governance clears all three standard scenarios without stat edits
-ok 23 - scripted mixed governance clears all three standard scenarios without stat edits
+ok 46 - scripted mixed governance clears all three standard scenarios without stat edits
   ---
-  duration_ms: 150.696215
+  duration_ms: 170.0149
   type: 'test'
   ...
 # Subtest: idle and military-only play cannot win through territory control alone
-ok 24 - idle and military-only play cannot win through territory control alone
+ok 47 - idle and military-only play cannot win through territory control alone
   ---
-  duration_ms: 61.598706
+  duration_ms: 87.033063
   type: 'test'
   ...
 # Subtest: random-seed, governor and difficulty stress runs maintain invariants
-ok 25 - random-seed, governor and difficulty stress runs maintain invariants
+ok 48 - random-seed, governor and difficulty stress runs maintain invariants
   ---
-  duration_ms: 1012.531304
+  duration_ms: 880.944849
   type: 'test'
   ...
-1..25
-# tests 25
+1..48
+# tests 48
 # suites 0
-# pass 25
+# pass 48
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1535.051394
+# duration_ms 1454.290996

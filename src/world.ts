@@ -45,7 +45,7 @@ namespace Afterfire {
     cost/=1+road*.45;
     if(s.rain&&road<2)cost*=1.4;
     if(riverCross(a,b)&&road<1)cost*=1.65;
-    return Math.max(1,cost);
+    return Math.max(1,cost*(s.campaign?.doctrine==='mobility'?.8:1));
   }
   /** Dijkstra: the route uses adjacency, terrain, roads and active hazards. */
   export function findPath(s:State,from:number,to:number):number[]|null {

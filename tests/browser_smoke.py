@@ -1,109 +1,143 @@
-"""Browser input / rendering / save-adapter tests for AFTERFIRE.
-Requires Python playwright and Chromium. Uses page.set_content: the evaluation
-container blocks URL navigation. Only the opt-in debug flag is changed; game
-logic/assets are the exact built release. The storage adapter is explicit.
-No game statistics are edited. Commands and ticks below use real UI inputs.
+"""Reproducible v0.2 UI playthroughs. Requires Python Playwright and Chromium.
+The sandbox blocks navigation; set_content uses the exact inline release with
+only its test-API opt-in enabled. An explicit in-memory storage adapter is used.
+The pilot READS state, proposes actions, and all game mutations go through real
+mouse/keyboard/file controls. No money, health, time or outcome is assigned.
+Native file/HTTP persistence is verified separately by native-browser.cjs.
 """
-import json, os, time
+import hashlib,json,os,time,traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'artifacts';OUT.mkdir(exist_ok=True)
-HTML=(ROOT/'dist/index.html').read_text().replace("new URLSearchParams(location.search).has('test')",'true')
-PILOT=(ROOT/'tests/pilot.cjs').read_text()
-STORAGE="""() => { const values=new Map(); Object.defineProperty(window,'localStorage',{value:{getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)},configurable:true}); }"""
-errors=[];commands=[];screens=[];checks=[]
-def state(page):
-    return page.evaluate("""() => {const s=__afterfire.app.state,C=__afterfire.core;return {week:s.week,paused:s.paused,event:s.event?.id||null,outcome:s.outcome,money:s.money,selected:__afterfire.app.selected,units:s.units.length,stable:C.stableShare(s),support:C.support(s),reputation:s.reputation,peace:s.peace,casualties:s.casualties};}""")
-def snapshot(page,name):
-    page.mouse.move(20,20);page.wait_for_timeout(90);page.screenshot(path=str(OUT/name));screens.append(name)
-def district(page,id):
-    p=page.evaluate("""id=>{const a=__afterfire.app,d=a.state.districts[id],p=a.renderer.toScreen({x:d.x,y:d.y+6}),r=a.renderer.canvas.getBoundingClientRect();return {x:p.x+r.left,y:p.y+r.top};}""",id)
-    page.mouse.click(p['x'],p['y'])
-    assert state(page)['selected']==id, ('district hit test',id,state(page))
-def ui_action(page,a):
-    kind=a[0]
-    if kind=='choice':
-        page.locator(f'[data-choice="{a[1]}"]').click()
-        if not state(page)['paused']:page.locator('[data-action=pause]').click()
-    elif kind=='build':
-        page.locator('[data-tab=district]').click();district(page,a[1]);page.locator(f'[data-project="{a[2]}"]').click()
-    elif kind=='policy':
-        page.locator('[data-tab=policies]').click();page.locator(f'[data-policy="{a[1]}"]').click()
-    elif kind=='recruit':
-        page.locator('[data-tab=forces]').click();page.locator(f'[data-recruit="{a[1]}"]').click()
-    elif kind=='move':
-        page.locator('[data-tab=forces]').click();page.locator(f'#unit-dock [data-unit="{a[1]}"]').click();district(page,a[2])
-    elif kind=='extend':
-        page.locator('[data-tab=forces]').click();page.locator(f'[data-extend="{a[1]}"]').click()
-    elif kind=='evacuate':
-        page.locator('[data-tab=district]').click();district(page,a[1]);page.locator('[data-action=evacuate]').click()
-    elif kind=='peace':
-        page.locator('[data-tab=situation]').click();page.locator('[data-action=peace]').click()
-    else:raise AssertionError(a)
-    commands.append({'week':state(page)['week'],'action':a})
-    assert 'error' not in (page.locator('#toast').get_attribute('class') or ''), (a,page.locator('#toast').inner_text())
-
+RAW=(ROOT/'index.html').read_text()
+HTML=RAW.replace("new URLSearchParams(location.search).has('test')",'true')
+BASE=(ROOT/'tests/pilot.cjs').read_text();PILOT=(ROOT/'tests/campaign-pilot.cjs').read_text()
+STORAGE="""() => {const v=new Map();Object.defineProperty(window,'localStorage',{value:{getItem:k=>v.get(k)??null,setItem:(k,x)=>v.set(k,String(x)),removeItem:k=>v.delete(k)},configurable:true});}"""
+errors=[];commands=[];screens=[];checks=[];finals=[];run='smoke';captured=set()
+def state(p):
+ return p.evaluate("""() => {const a=__afterfire.app,s=a.state,c=s.campaign,C=__afterfire.core;return {week:s.week,paused:s.paused,event:s.event?.id??null,outcome:s.outcome,money:s.money,selected:a.selected,unit:a.unit,tab:a.tab,panel:a.panelOpen,modal:a.modalKind,units:s.units.length,stable:C.stableShare(s),support:C.support(s),reputation:s.reputation,peace:s.peace,casualties:s.casualties,rescued:s.rescued,scenario:s.scenario,doctrine:c?.doctrine,orders:c?.completedOrders,deliveries:c?.deliveries,mediations:c?.mediations,upgrades:c?.upgrades};}""")
+def snapshot(p,name):
+ p.mouse.move(4,4);p.wait_for_timeout(90);p.screenshot(path=str(OUT/name));screens.append(name)
+def setup(browser,width=1440,height=900,adapter=True):
+ p=browser.new_page(viewport={'width':width,'height':height},device_scale_factor=1,accept_downloads=True,is_mobile=width<500,has_touch=width<500)
+ p.set_default_timeout(5000);p.on('pageerror',lambda e:errors.append(str(e)))
+ if adapter:p.evaluate(STORAGE)
+ p.set_content(HTML,wait_until='load');p.wait_for_function('window.__afterfire !== undefined');p.wait_for_timeout(90)
+ return p
+def tab(p,key):
+ s=state(p)
+ if not(s['panel'] and s['tab']==key):p.locator(f'.command-dock [data-tab="{key}"]').click()
+def district(p,id):
+ p.wait_for_timeout(25)
+ point=p.evaluate("""id=>{const a=__afterfire.app,C=__afterfire.core,d=a.state.districts[id],r=a.renderer,rect=r.canvas.getBoundingClientRect();const choices=[{x:d.x,y:d.y+4},{x:d.x+13,y:d.y-5}];for(let k=1;k<8;k++)for(const v of d.polygon)choices.push({x:d.x+(v.x-d.x)*k/8,y:d.y+(v.y-d.y)*k/8});for(const w of choices){if(!C.contains(d.polygon,w.x,w.y))continue;if([...r.positions.values()].some(t=>C.distance(t,w)<21))continue;const q=r.toScreen(w);q.x+=rect.left;q.y+=rect.top;if(document.elementFromPoint(q.x,q.y)===r.canvas)return q;}return null;}""",id)
+ if not point:
+  snapshot(p,f'failure-hit-{run}-{id}.png');raise AssertionError(('no unobscured map point',id,state(p)))
+ p.mouse.click(point['x'],point['y'])
+ assert state(p)['selected']==id,('district hit test',id,state(p))
+def selectunit(p,id):
+ tab(p,'forces')
+ if state(p)['unit']!=id:p.locator(f'#unit-dock [data-unit="{id}"]').click()
+def clearunit(p):
+ if state(p)['unit'] is not None:p.keyboard.press('Escape')
+def ui_action(p,a):
+ kind=a[0];before=state(p)
+ if kind=='choice':p.locator(f'[data-choice="{a[1]}"]').click()
+ elif kind=='upgrade':
+  p.locator('[data-action=draft]').first.click()
+  if 'draft' not in captured:snapshot(p,'v2-draft.png');captured.add('draft')
+  p.locator(f'[data-upgrade="{a[1]}"]').click()
+ elif kind=='contract':tab(p,'missions');p.locator(f'[data-contract="{a[1]}"]').click()
+ elif kind in ['build','operation']:
+  clearunit(p);district(p,a[1]);key='project' if kind=='build' else 'operation';loc=p.locator(f'[data-{key}="{a[2]}"]')
+  if not loc.count():p.locator(f'[data-action="all-{key}s"]').click()
+  loc.click()
+ elif kind=='reroute':tab(p,'missions');p.locator(f'[data-reroute="{a[1]}"]').click()
+ elif kind=='policy':tab(p,'policies');p.locator(f'[data-policy="{a[1]}"]').click()
+ elif kind=='recruit':tab(p,'forces');p.locator(f'[data-recruit="{a[1]}"]').click()
+ elif kind=='move':selectunit(p,a[1]);district(p,a[2])
+ elif kind=='extend':selectunit(p,a[1]);p.locator(f'[data-extend="{a[1]}"]').click()
+ elif kind=='evacuate':clearunit(p);district(p,a[1]);p.locator('[data-action=evacuate]').click()
+ elif kind=='peace':tab(p,'situation');p.locator('[data-action=peace]').click()
+ else:raise AssertionError(('unsupported command',a))
+ now=state(p);commands.append({'run':run,'week':before['week'],'action':a})
+ assert 'error' not in (p.locator('#toast').get_attribute('class') or ''),(a,p.locator('#toast').inner_text(),now)
+ assert now['paused'],('a UI command unexpectedly unpaused the game',a,now)
+def smoke(browser):
+ p=setup(browser);snapshot(p,'v2-title.png');p.locator('[data-action=start]').click();snapshot(p,'v2-opening.png')
+ assert p.locator('#panel').is_hidden() and p.locator('#metrics .metric').count()==3
+ p.keyboard.press('Space');p.wait_for_timeout(1630);p.keyboard.press('Space');w=state(p)['week'];assert w>=1
+ p.wait_for_timeout(1580);assert state(p)['week']==w
+ checks.append('real-time clock advances; space pause freezes it; opening has 3 resources and no details drawer')
+ tab(p,'district');assert p.locator('[data-project]').count()==3
+ p.locator('[data-action=all-projects]').click();assert p.locator('[data-project]').count()==8
+ snapshot(p,'v2-all-projects.png');p.keyboard.press('Escape');assert p.locator('#panel').is_hidden()
+ p.locator('[data-action=help]').click();w=state(p)['week'];p.keyboard.press('.');assert state(p)['week']==w
+ assert p.locator('#app').get_attribute('inert') is not None
+ for _ in range(20):p.keyboard.press('Tab')
+ assert p.evaluate("document.activeElement.closest('#modal-layer') !== null")
+ p.keyboard.press('Escape');assert state(p)['modal'] is None
+ checks.append('progressive project disclosure, Escape dismissal, modal pause, inert background and keyboard focus containment')
+ p.locator('[data-action=layers]').click();p.locator('[data-layer=supply]').click();assert p.evaluate('__afterfire.app.renderer.layer')=='supply'
+ p.locator('[data-layer=terrain]').click();p.locator('[data-action=layers]').click();z=p.evaluate('__afterfire.app.renderer.zoom');p.locator('[data-action=zoom-in]').click();assert p.evaluate('__afterfire.app.renderer.zoom')>z;p.locator('[data-action=fit]').click()
+ timing=p.evaluate("""()=>{const r=__afterfire.app.renderer,a=[];for(let i=0;i<45;i++){const t=performance.now();r.draw(i*16,0);a.push(performance.now()-t);}a.sort((a,b)=>a-b);return{median_ms:a[22],p95_ms:a[42],sample_frames:a.length,viewport:[innerWidth,innerHeight],note:'Headless CPU renderer sampling, not a frame-rate guarantee.'};}""")
+ checks.append('map layers, zoom and reset operate through real buttons');p.close();return timing
+def play(browser,scenario,doctrine):
+ global run
+ run=scenario+'-'+doctrine;p=setup(browser);p.locator(f'[data-scenario="{scenario}"]').click();p.locator(f'[data-doctrine="{doctrine}"]').click();p.locator('[data-action=start]').click()
+ assert state(p)['week']==0 and state(p)['doctrine']==doctrine
+ p.evaluate('(function(){const module={exports:{}};'+BASE+';window.basePilot=module.exports;})()')
+ p.evaluate('(function(){const module={exports:{}};const require=()=>window.basePilot;'+PILOT+';window.testPilot=module.exports;})()')
+ started=time.monotonic();startcommands=len(commands)
+ while state(p)['outcome']=='playing':
+  before=state(p)
+  if before['event'] and 'event' not in captured:snapshot(p,'v2-event.png');captured.add('event')
+  for _ in range(18):
+   a=p.evaluate('testPilot.nextAction(__afterfire.core,__afterfire.app.state,"balanced")')
+   if not a:break
+   ui_action(p,a)
+  s=state(p)
+  if scenario=='volcano' and s['week'] in [28,36,48,72,120]:
+   p.keyboard.press('Escape')
+   if s['week'] in [28,36]:district(p,9)
+   snapshot(p,f"v2-volcano-W{s['week']:03d}.png")
+  if scenario=='corridor' and s['week']==40:tab(p,'missions');snapshot(p,'v2-convoys.png')
+  if s['week']%40==0:print('PLAY',run,json.dumps(s,ensure_ascii=False),flush=True)
+  p.keyboard.press('.');now=state(p)
+  assert now['week']>before['week'] or now['event'] or now['outcome']!='playing',('clock stuck',now)
+  if time.monotonic()-started>390:raise AssertionError(('playthrough exceeded 390 seconds',run,now))
+ final=state(p);final['commands']=len(commands)-startcommands;final['test_seconds']=round(time.monotonic()-started,1)
+ snapshot(p,f'v2-victory-{run}.png');assert final['outcome']=='victory',final;finals.append(final)
+ with p.expect_download() as d:p.locator('[data-action=export]').click()
+ save=OUT/f'v2-{run}-save.json';d.value.save_as(str(save));assert json.loads(save.read_text())['week']==final['week']
+ p.locator('#modal-layer [data-action=menu]').click();p.locator('[data-action=start]').click();assert state(p)['week']==0
+ p.locator('[data-action=help]').click();p.locator('#file-input').set_input_files(str(save));p.wait_for_timeout(80)
+ assert state(p)['week']==final['week'] and state(p)['outcome']=='victory'
+ checks.append(f'{run}: full campaign won through mouse/keyboard only, then exported and imported through file controls')
+ print('WON',run,json.dumps(final,ensure_ascii=False),flush=True);p.close()
+def responsive(browser):
+ for width,height in [(1280,800),(1024,768),(390,844),(360,780)]:
+  p=setup(browser,width,height);p.locator('[data-scenario=valley]').click();p.locator('[data-action=start]').click();p.wait_for_timeout(100)
+  assert p.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),('horizontal overflow',width)
+  if p.locator('[data-action=advisor]').is_visible():p.locator('[data-action=advisor]').click()
+  snapshot(p,f'v2-responsive-{width}.png');tab(p,'district');assert p.locator('[data-project]').count()==3
+  box=p.locator('#panel').bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=width+1 and box['y']>=0 and box['y']+box['height']<=height+1,(width,box)
+  snapshot(p,f'v2-responsive-district-{width}.png');p.keyboard.press('Escape');assert p.locator('#panel').is_hidden()
+  p.locator('[data-action=help]').click();assert p.locator('.help-modal').is_visible();p.keyboard.press('Escape');p.close()
+ checks.append('1280×800, 1024×768, 390×844, 360×780: no horizontal overflow; context drawer bounded; close/help controls work')
 def main():
-    with sync_playwright() as p:
-        browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM','/usr/bin/chromium'),headless=True,args=['--no-sandbox'])
-        page=browser.new_page(viewport={'width':1440,'height':900},device_scale_factor=1,accept_downloads=True)
-        page.on('pageerror',lambda e:errors.append(str(e)))
-        page.evaluate(STORAGE);page.set_content(HTML,wait_until='load');page.wait_for_timeout(250)
-        snapshot(page,'01-title.png');page.locator('[data-action=start]').click()
-        page.wait_for_timeout(100);snapshot(page,'02-opening.png')
-        page.keyboard.press('Space');page.wait_for_timeout(1650);page.keyboard.press('Space');w=state(page)['week'];assert w>=1
-        page.wait_for_timeout(1600);assert state(page)['week']==w
-        checks.append('real-time clock advances; space pause prevents advancement')
-        ui_action(page,['build',24,'jobs']);assert page.evaluate('__afterfire.app.state.districts[24].project.kind')=='jobs'
-        ui_action(page,['policy','outreach']);ui_action(page,['recruit','coalition']);ui_action(page,['recruit','coalition'])
-        for _ in range(3):page.keyboard.press('.')
-        ui_action(page,['move',1,10]);assert page.evaluate('__afterfire.app.state.units[0].path.length')>0
-        snapshot(page,'03-deployment.png');checks.append('project, policy, recruitment, unit selection and map movement via UI')
-        # Load a deterministic test strategist, which only returns suggested commands.
-        page.evaluate('(function(){const module={exports:{}};'+PILOT+';window.testPilot=module.exports;})()')
-        captured=set();t=time.monotonic()
-        while state(page)['outcome']=='playing':
-            before=state(page)
-            for _ in range(18):
-                a=page.evaluate('testPilot.nextAction(__afterfire.core,__afterfire.app.state,"balanced")')
-                if not a:break
-                ui_action(page,a)
-            s=state(page)
-            if s['week'] in [24,32,40,48,52,100,140] and s['week'] not in captured:
-                page.locator('[data-tab=district]').click()
-                if s['week'] in [32,40,48,52]:district(page,10)
-                snapshot(page,f"play-W{s['week']:03d}.png");captured.add(s['week'])
-            if s['week']%20==0:print('PLAY',s,flush=True)
-            page.keyboard.press('.')
-            assert state(page)['week']>before['week'] or state(page)['event'] or state(page)['outcome']!='playing',state(page)
-            if time.monotonic()-t>240:raise AssertionError('Browser play exceeded 4 minutes')
-        final=state(page);snapshot(page,'04-victory.png');assert final['outcome']=='victory',final
-        checks.append('complete volcano campaign won using UI controls only; no game-stat modification')
-        # Export the real save via a browser download, then import using the file control.
-        with page.expect_download() as d:
-            page.locator('[data-action=export]').click()
-        downloaded=OUT/'browser-victory-save.json';d.value.save_as(str(downloaded));saved=json.loads(downloaded.read_text())
-        assert saved['week']==final['week']
-        page.get_by_role('button',name='新的行动',exact=True).click();page.locator('[data-scenario=valley]').click();page.locator('[data-action=start]').click();assert state(page)['week']==0
-        page.locator('[data-action=help]').click();page.locator('#file-input').set_input_files(str(downloaded));page.wait_for_timeout(100);assert state(page)['week']==final['week']
-        checks.append('save export and validated import via browser file input; local autosave uses a test adapter')
-        page.close()
-        # Actual responsive layouts at laptop and narrow touch-device dimensions.
-        for width,height,name in [(1280,800,'05-laptop.png'),(390,844,'06-mobile.png')]:
-            q=browser.new_page(viewport={'width':width,'height':height},device_scale_factor=1,is_mobile=width<500,has_touch=width<500)
-            q.on('pageerror',lambda e:errors.append(str(e)));q.evaluate(STORAGE);q.set_content(HTML);q.locator('[data-scenario=valley]').click();q.locator('[data-action=start]').click();q.wait_for_timeout(180)
-            q.locator('[data-layer=supply]').click();assert q.evaluate('__afterfire.app.renderer.layer')=='supply'
-            assert q.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-            q.locator('[data-action=help]').click();assert q.locator('.modal').is_visible();q.locator('[data-action=close]').first.click()
-            snapshot(q,name);q.close()
-        checks.append('1280×800 and 390×844 layout, supply overlay, help dialog; no horizontal overflow')
-        # Storage-denial fallback is checked without the adapter.
-        q=browser.new_page(viewport={'width':1024,'height':768});q.on('pageerror',lambda e:errors.append(str(e)));q.set_content(HTML);q.locator('[data-action=start]').click();q.locator('.rail [data-action=save]').click();assert '导出存档' in q.locator('#toast').inner_text();q.close()
-        checks.append('blocked localStorage falls back to a visible export-save instruction')
-        browser.close()
-        assert not errors,errors
-        report={'browser':'system Chromium / headless','rendering':'exact inline build via set_content; test API opt-in flag only','storage':'explicit in-memory adapter; denial tested separately','ui_commands':len(commands),'final':final,'checks':checks,'page_errors':errors,'screenshots':screens}
-        (OUT/'browser-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));(OUT/'browser-actions.json').write_text(json.dumps(commands,ensure_ascii=False,indent=2))
-        print('BROWSER PASS',json.dumps(report,ensure_ascii=False),flush=True)
-if __name__=='__main__':main()
+ with sync_playwright() as pw:
+  browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM','/usr/bin/chromium'),headless=True,args=['--no-sandbox'])
+  timing=smoke(browser)
+  for scenario,doctrine in [('valley','rebuild'),('volcano','accord'),('corridor','mobility')]:play(browser,scenario,doctrine)
+  responsive(browser)
+  p=setup(browser,1024,768,False);p.locator('[data-action=start]').click();p.keyboard.press('s');assert '导出存档' in p.locator('#toast').inner_text();assert 'visible' in p.locator('#toast').get_attribute('class');p.close()
+  checks.append('denied localStorage produces a visible, actionable export-save fallback');browser.close()
+  assert not errors,errors
+  report={'version':'0.2.0','build_sha256':hashlib.sha256(RAW.encode()).hexdigest(),'browser':'system Chromium / headless','rendering':'exact inline release via set_content; test-API opt-in only','storage':'explicit in-memory adapter; denial checked separately; native persistence is a separate test','ui_commands':len(commands),'campaigns':finals,'checks':checks,'render_timing':timing,'page_errors':errors,'screenshots':screens}
+  (OUT/'browser-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');(OUT/'browser-actions.json').write_text(json.dumps(commands,ensure_ascii=False,indent=2)+'\n')
+  print('BROWSER PASS',json.dumps(report,ensure_ascii=False),flush=True)
+if __name__=='__main__':
+ try:main()
+ except Exception:
+  (OUT/'browser-partial.json').write_text(json.dumps({'commands':commands,'finals':finals,'checks':checks,'errors':errors,'traceback':traceback.format_exc()},ensure_ascii=False,indent=2));raise

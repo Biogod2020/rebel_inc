@@ -1,0 +1,65 @@
+{
+  "version": "0.2.0",
+  "build_sha256": "4bd3b52df260442a6c612d4cf6f7188d64a47856b7d37796df8e4cf0c1515072",
+  "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+  "mode": "Native file:// and localhost HTTP. Exact release HTML, no injected scripts or storage adapters. ?test=1 exposes read-only test observation.",
+  "checks": [
+    "Native file:// build starts and preserves an actual project, unit and week through reload.",
+    "file:// localStorage survives closing and reopening the browser with the same profile.",
+    "Native download and file-input import restore actual state without a storage adapter.",
+    "Malformed native save import is rejected without replacing the current game.",
+    "Native localhost HTTP startup and localStorage reload preserve state."
+  ],
+  "page_errors": [],
+  "external_network_requests": [],
+  "restored_snapshot": {
+    "week": 5,
+    "money": 94.9,
+    "scenario": "valley",
+    "doctrine": "mobility",
+    "outcome": "playing",
+    "projects": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "school",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "units": [
+      {
+        "kind": "coalition",
+        "training": 0
+      }
+    ]
+  }
+}

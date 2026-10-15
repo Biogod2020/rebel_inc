@@ -23,7 +23,7 @@ function nextAction(C,s,style='balanced') {
   } else if(style!=='civil') {
     const armed=s.units.filter(u=>u.kind!=='engineer').length;
     const target=s.week<25?2:s.week<65?3:s.week<115?4:5;
-    if(armed<target&&s.money>=(armed<2?17:13)+5)return ['recruit',armed<2?'coalition':'national'];
+    if(armed<target&&s.money>=C.recruitCost(s,armed<2?'coalition':'national')+5)return ['recruit',armed<2?'coalition':'national'];
     if(s.scenario==='volcano'&&s.week>15&&!s.units.some(u=>u.kind==='engineer')&&s.money>=22)return ['recruit','engineer'];
   }
   if(style!=='military') {
