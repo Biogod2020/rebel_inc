@@ -1,0 +1,791 @@
+[
+  {
+    "week": 0,
+    "action": [
+      "central"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "repair",
+      "grid"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "cabinet",
+      "allocation",
+      "livelihood"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "recruit",
+      "coalition"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "central"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "cabinet",
+      "allocation",
+      "livelihood"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "repair",
+      "grid"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "channel"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "contract",
+      1
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "recruit",
+      "coalition"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "recruit",
+      "coalition"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "build",
+      29,
+      "school"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "policy",
+      "outreach"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "policy",
+      "audit"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "policy",
+      "logistics"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "build",
+      33,
+      "health"
+    ]
+  },
+  {
+    "week": 0,
+    "action": [
+      "build",
+      30,
+      "health"
+    ]
+  },
+  {
+    "week": 4,
+    "action": [
+      "build",
+      21,
+      "jobs"
+    ]
+  },
+  {
+    "week": 4,
+    "action": [
+      "build",
+      23,
+      "jobs"
+    ]
+  },
+  {
+    "week": 7,
+    "action": [
+      "build",
+      26,
+      "jobs"
+    ]
+  },
+  {
+    "week": 7,
+    "action": [
+      "build",
+      27,
+      "jobs"
+    ]
+  },
+  {
+    "week": 8,
+    "action": [
+      "choice",
+      2
+    ]
+  },
+  {
+    "week": 8,
+    "action": [
+      "move",
+      1,
+      10
+    ]
+  },
+  {
+    "week": 8,
+    "action": [
+      "move",
+      2,
+      9
+    ]
+  },
+  {
+    "week": 12,
+    "action": [
+      "cabinet",
+      "coordination",
+      "joint"
+    ]
+  },
+  {
+    "week": 12,
+    "action": [
+      "build",
+      11,
+      "health"
+    ]
+  },
+  {
+    "week": 14,
+    "action": [
+      "move",
+      1,
+      2
+    ]
+  },
+  {
+    "week": 15,
+    "action": [
+      "move",
+      2,
+      1
+    ]
+  },
+  {
+    "week": 16,
+    "action": [
+      "upgrade",
+      "cooperative"
+    ]
+  },
+  {
+    "week": 16,
+    "action": [
+      "build",
+      16,
+      "health"
+    ]
+  },
+  {
+    "week": 16,
+    "action": [
+      "build",
+      31,
+      "school"
+    ]
+  },
+  {
+    "week": 20,
+    "action": [
+      "move",
+      1,
+      4
+    ]
+  },
+  {
+    "week": 20,
+    "action": [
+      "build",
+      33,
+      "jobs"
+    ]
+  },
+  {
+    "week": 21,
+    "action": [
+      "move",
+      2,
+      0
+    ]
+  },
+  {
+    "week": 23,
+    "action": [
+      "move",
+      2,
+      7
+    ]
+  },
+  {
+    "week": 24,
+    "action": [
+      "cabinet",
+      "readiness",
+      "reserve"
+    ]
+  },
+  {
+    "week": 24,
+    "action": [
+      "build",
+      32,
+      "jobs"
+    ]
+  },
+  {
+    "week": 26,
+    "action": [
+      "move",
+      2,
+      8
+    ]
+  },
+  {
+    "week": 28,
+    "action": [
+      "choice",
+      2
+    ]
+  },
+  {
+    "week": 28,
+    "action": [
+      "recruit",
+      "national"
+    ]
+  },
+  {
+    "week": 31,
+    "action": [
+      "move",
+      1,
+      5
+    ]
+  },
+  {
+    "week": 31,
+    "action": [
+      "move",
+      2,
+      12
+    ]
+  },
+  {
+    "week": 32,
+    "action": [
+      "build",
+      25,
+      "health"
+    ]
+  },
+  {
+    "week": 36,
+    "action": [
+      "build",
+      28,
+      "health"
+    ]
+  },
+  {
+    "week": 40,
+    "action": [
+      "move",
+      3,
+      6
+    ]
+  },
+  {
+    "week": 40,
+    "action": [
+      "build",
+      34,
+      "water"
+    ]
+  },
+  {
+    "week": 42,
+    "action": [
+      "move",
+      1,
+      6
+    ]
+  },
+  {
+    "week": 44,
+    "action": [
+      "repair",
+      "rail"
+    ]
+  },
+  {
+    "week": 44,
+    "action": [
+      "operation",
+      20,
+      "mediate"
+    ]
+  },
+  {
+    "week": 44,
+    "action": [
+      "build",
+      22,
+      "water"
+    ]
+  },
+  {
+    "week": 44,
+    "action": [
+      "build",
+      21,
+      "water"
+    ]
+  },
+  {
+    "week": 48,
+    "action": [
+      "choice",
+      2
+    ]
+  },
+  {
+    "week": 48,
+    "action": [
+      "central"
+    ]
+  },
+  {
+    "week": 48,
+    "action": [
+      "build",
+      19,
+      "water"
+    ]
+  },
+  {
+    "week": 52,
+    "action": [
+      "repair",
+      "factory"
+    ]
+  },
+  {
+    "week": 52,
+    "action": [
+      "contract",
+      11
+    ]
+  },
+  {
+    "week": 52,
+    "action": [
+      "build",
+      33,
+      "health"
+    ]
+  },
+  {
+    "week": 52,
+    "action": [
+      "build",
+      6,
+      "health"
+    ]
+  },
+  {
+    "week": 52,
+    "action": [
+      "build",
+      7,
+      "water"
+    ]
+  },
+  {
+    "week": 53,
+    "action": [
+      "move",
+      2,
+      13
+    ]
+  },
+  {
+    "week": 56,
+    "action": [
+      "upgrade",
+      "local"
+    ]
+  },
+  {
+    "week": 56,
+    "action": [
+      "build",
+      14,
+      "school"
+    ]
+  },
+  {
+    "week": 57,
+    "action": [
+      "move",
+      1,
+      20
+    ]
+  },
+  {
+    "week": 60,
+    "action": [
+      "build",
+      13,
+      "school"
+    ]
+  },
+  {
+    "week": 60,
+    "action": [
+      "build",
+      20,
+      "water"
+    ]
+  },
+  {
+    "week": 61,
+    "action": [
+      "build",
+      17,
+      "health"
+    ]
+  },
+  {
+    "week": 62,
+    "action": [
+      "build",
+      0,
+      "school"
+    ]
+  },
+  {
+    "week": 65,
+    "action": [
+      "build",
+      15,
+      "water"
+    ]
+  },
+  {
+    "week": 68,
+    "action": [
+      "choice",
+      1
+    ]
+  },
+  {
+    "week": 69,
+    "action": [
+      "contract",
+      23
+    ]
+  },
+  {
+    "week": 69,
+    "action": [
+      "operation",
+      12,
+      "mediate"
+    ]
+  },
+  {
+    "week": 70,
+    "action": [
+      "cabinet",
+      "readiness",
+      "routine"
+    ]
+  },
+  {
+    "week": 71,
+    "action": [
+      "build",
+      18,
+      "school"
+    ]
+  },
+  {
+    "week": 72,
+    "action": [
+      "build",
+      12,
+      "health"
+    ]
+  },
+  {
+    "week": 76,
+    "action": [
+      "recruit",
+      "national"
+    ]
+  },
+  {
+    "week": 80,
+    "action": [
+      "build",
+      8,
+      "health"
+    ]
+  },
+  {
+    "week": 80,
+    "action": [
+      "build",
+      5,
+      "water"
+    ]
+  },
+  {
+    "week": 84,
+    "action": [
+      "extend",
+      1
+    ]
+  },
+  {
+    "week": 84,
+    "action": [
+      "build",
+      10,
+      "water"
+    ]
+  },
+  {
+    "week": 88,
+    "action": [
+      "choice",
+      2
+    ]
+  },
+  {
+    "week": 88,
+    "action": [
+      "extend",
+      2
+    ]
+  },
+  {
+    "week": 92,
+    "action": [
+      "build",
+      12,
+      "health"
+    ]
+  },
+  {
+    "week": 94,
+    "action": [
+      "policy",
+      "diplomacy"
+    ]
+  },
+  {
+    "week": 94,
+    "action": [
+      "build",
+      9,
+      "health"
+    ]
+  },
+  {
+    "week": 96,
+    "action": [
+      "central"
+    ]
+  },
+  {
+    "week": 96,
+    "action": [
+      "build",
+      1,
+      "health"
+    ]
+  },
+  {
+    "week": 100,
+    "action": [
+      "policy",
+      "outreach"
+    ]
+  },
+  {
+    "week": 100,
+    "action": [
+      "peace"
+    ]
+  },
+  {
+    "week": 100,
+    "action": [
+      "build",
+      2,
+      "jobs"
+    ]
+  },
+  {
+    "week": 102,
+    "action": [
+      "contract",
+      31
+    ]
+  },
+  {
+    "week": 104,
+    "action": [
+      "upgrade",
+      "radio"
+    ]
+  },
+  {
+    "week": 104,
+    "action": [
+      "build",
+      24,
+      "water"
+    ]
+  },
+  {
+    "week": 108,
+    "action": [
+      "choice",
+      0
+    ]
+  },
+  {
+    "week": 108,
+    "action": [
+      "build",
+      4,
+      "health"
+    ]
+  },
+  {
+    "week": 111,
+    "action": [
+      "build",
+      3,
+      "health"
+    ]
+  },
+  {
+    "week": 111,
+    "action": [
+      "build",
+      27,
+      "water"
+    ]
+  },
+  {
+    "week": 112,
+    "action": [
+      "build",
+      11,
+      "jobs"
+    ]
+  },
+  {
+    "week": 116,
+    "action": [
+      "recruit",
+      "national"
+    ]
+  },
+  {
+    "week": 116,
+    "action": [
+      "build",
+      13,
+      "jobs"
+    ]
+  },
+  {
+    "week": 119,
+    "action": [
+      "contract",
+      43
+    ]
+  },
+  {
+    "week": 120,
+    "action": [
+      "operation",
+      8,
+      "mediate"
+    ]
+  },
+  {
+    "week": 120,
+    "action": [
+      "build",
+      28,
+      "jobs"
+    ]
+  },
+  {
+    "week": 124,
+    "action": [
+      "build",
+      9,
+      "jobs"
+    ]
+  },
+  {
+    "week": 124,
+    "action": [
+      "build",
+      2,
+      "water"
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "version": "0.3.0",
+  "build_sha256": "7d85613836d74ac075e57101602486eaf484de54ddd890282e5c1540f4aaf8e5",
+  "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+  "mode": "Native file://. No game-script injection or storage adapter. Test-only observation; all mutations through UI.",
+  "checks": [
+    "Native offline reload restores pending central audit, partly repaired infrastructure, active cabinet settings and real unit.",
+    "Chinese campaign survives browser shutdown/restart using actual file:// localStorage.",
+    "Native download/file-input import preserves every state field (pause normalized).",
+    "Invalid theatre import is rejected without replacing the live campaign.",
+    "Full standard coastal/accord campaign won through native file:// mouse/keyboard controls without injecting scripts or editing game state."
+  ],
+  "page_errors": [],
+  "external_network_requests": [],
+  "ui_commands": 104,
+  "campaign_commands": 100,
+  "campaign": {
+    "theatre": "coast",
+    "doctrine": "accord",
+    "difficulty": "standard",
+    "week": 128,
+    "outcome": "victory",
+    "essentials": 76.60140347750013,
+    "output": 82.63537457771879,
+    "pressure": 38.29999999999983,
+    "reviews": 3,
+    "casualties": 0,
+    "deliveries": 0,
+    "mediations": 3,
+    "ending": "防御与重建完成：前线受控，后方没有因长期动员被耗空。"
+  }
+}

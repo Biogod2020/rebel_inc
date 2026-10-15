@@ -17,6 +17,7 @@
     "src/model.ts",
     "src/world.ts",
     "src/campaign.ts",
+    "src/theatre.ts",
     "src/simulation.ts",
     "src/render.ts",
     "src/ui.ts",

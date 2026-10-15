@@ -1,15 +1,16 @@
 {
   "name": "afterfire",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "烬土 AFTERFIRE — original real-time reconstruction strategy game",
+  "description": "山河之间 AFTERFIRE — fictional Chinese politics, reconstruction and defense strategy",
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "npm run build && node scripts/serve.mjs",
     "dev": "npm run start",
     "test": "node scripts/test.mjs",
     "check": "tsc --noEmit -p tsconfig.json",
-    "balance": "node scripts/balance.mjs"
+    "balance": "node scripts/balance.mjs",
+    "balance:china": "node scripts/theatre-balance.cjs"
   },
   "devDependencies": {
     "typescript": "5.8.3"

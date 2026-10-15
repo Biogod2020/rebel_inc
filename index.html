@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#142225"><meta name="description" content="烬土 AFTERFIRE：原创实时重建策略游戏。在冲突与火山危机中重建民生、保障补给、推动和平。"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23142225'/%3E%3Cpath d='M8 51 28 12 37 32 45 20 59 51Z' fill='none' stroke='%23c9d5ad' stroke-width='3'/%3E%3C/svg%3E"><title>烬土 AFTERFIRE — 重建与和平</title><style>:root{color-scheme:dark;--ink:#122729;--panel:#172e30;--paper:#f0ecdb;--muted:#a8b9b2;--dim:#708d86;--line:rgba(211,223,204,.15);--gold:#d9b975;--green:#a9ce9a;--red:#ed9c88;--shadow:0 16px 55px rgba(4,17,20,.3);font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:13px;line-height:1.65;color:var(--paper);background:#12343e}
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#142225"><meta name="description" content="山河之间 AFTERFIRE：中国背景架空政军策略。协调民生、产业、财政与防御，守住前线，也守住生活。"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23142225'/%3E%3Cpath d='M8 51 28 12 37 32 45 20 59 51Z' fill='none' stroke='%23c9d5ad' stroke-width='3'/%3E%3C/svg%3E"><title>山河之间 AFTERFIRE — 前线与后方</title><style>:root{color-scheme:dark;--ink:#122729;--panel:#172e30;--paper:#f0ecdb;--muted:#a8b9b2;--dim:#708d86;--line:rgba(211,223,204,.15);--gold:#d9b975;--green:#a9ce9a;--red:#ed9c88;--shadow:0 16px 55px rgba(4,17,20,.3);font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:13px;line-height:1.65;color:var(--paper);background:#12343e}
 *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}button,input,select{font:inherit}button{appearance:none;cursor:pointer;color:inherit;background:transparent;border:1px solid transparent;border-radius:8px;padding:8px 12px;transition:background .16s,border-color .16s,transform .16s}button:hover:not(:disabled){background:rgba(228,234,213,.075)}button:active:not(:disabled){transform:translateY(1px)}button:disabled{cursor:not-allowed;opacity:.42}button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}input{color:var(--paper);background:#11292b;border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}h1,h2,h3,p{margin:0}h1,h2,h3{font-weight:500}h3{font-size:14px}small,.small{font-size:11px;color:var(--muted)}strong,b{font-weight:600}svg.icon{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}button .icon{pointer-events:none}button>*{pointer-events:none}button input{pointer-events:auto}.good{color:var(--green)!important}.bad{color:var(--red)!important}.gold{color:var(--gold)!important}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.eyebrow span{margin:0 7px;color:var(--dim)}.between{display:flex;align-items:center;justify-content:space-between;gap:10px}.row{display:flex;align-items:center;gap:8px}.wide{width:100%}.center{text-align:center}.primary{background:var(--paper);color:#233b36;border-color:var(--paper);font-weight:600}.primary:hover:not(:disabled){background:#fff9e5;border-color:#fff9e5}.divider{height:1px;background:var(--line);margin:20px 0}.track{height:3px;border-radius:6px;background:rgba(214,225,211,.12);overflow:hidden}.track i{display:block;height:100%;background:var(--green);border-radius:6px;transition:width .25s}.track.gold i{background:var(--gold)}.track.bad i{background:var(--red)}.quiet-note{font-size:11px;line-height:1.8;color:var(--muted);padding:12px 0}.icon-button{padding:9px;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted)}.icon-button:hover{color:var(--paper)}.text-action{padding:6px 0;color:var(--gold);font-size:12px;text-align:left}.text-action .icon{width:16px;height:16px;margin-left:7px}.emblem{width:160px;max-width:100%;height:128px;color:var(--gold)}
 #app,#map-host{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}#app{isolation:isolate}#map-host{z-index:0;touch-action:none}#world{display:block;touch-action:none}.topbar{position:absolute;z-index:5;top:0;left:0;right:0;height:89px;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;pointer-events:none;background:linear-gradient(#102b33df,#102b3377,transparent)}.topbar>*{pointer-events:auto}.brand{display:flex;align-items:center;gap:10px;padding:0;text-align:left}.brand svg{width:34px;height:36px;stroke:var(--gold);fill:none;stroke-width:1}.brand strong{display:block;font-size:19px;letter-spacing:6px;font-weight:500;line-height:1.3}.brand span{display:block;font-family:ui-sans-serif,system-ui,sans-serif;font-size:8px;letter-spacing:2.8px;color:var(--muted);margin-top:4px}.metrics{display:flex;gap:32px;position:absolute;left:50%;transform:translateX(-50%)}.metric{display:flex;align-items:center;gap:10px;min-width:135px;padding:0;text-align:left}.metric>.icon{width:20px;height:20px;color:var(--gold);opacity:.85}.metric label{display:block;font-size:10px;letter-spacing:1px;color:var(--muted);line-height:1.4;margin-bottom:4px}.metric b{font:500 26px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:-.5px;font-variant-numeric:tabular-nums}.metric small{margin-left:5px;font-size:10px;white-space:nowrap}.metric-button{border:0}.menu-button{background:rgba(12,33,36,.55);border:1px solid var(--line);border-radius:50%}.region-heading{position:absolute;z-index:2;left:30px;top:110px;pointer-events:none}.region-heading h1{font-size:27px;letter-spacing:5px;line-height:1.6;margin-top:9px;text-shadow:0 2px 16px #0f3038}.region-heading .eyebrow{font-size:9px;color:#b5c6bd;letter-spacing:1.3px}.region-line{width:32px;height:1px;background:var(--gold);margin-top:15px}.advisor{position:absolute;z-index:3;left:30px;top:232px;width:226px;border-top:1px solid var(--line);padding:12px 0 0;background:linear-gradient(90deg,#12343ea6,#14394222);text-shadow:0 1px 8px #12313a}.advisor-heading{display:flex;width:100%;justify-content:space-between;padding:0 0 11px;color:var(--muted);border-radius:0}.advisor-heading .eyebrow{color:var(--gold);letter-spacing:2px}.advisor h3{font-size:14px;line-height:1.7;font-weight:500}.advisor p{font-size:11px;line-height:1.95;margin:8px 0;color:#b9cac0}.advisor .between{margin:10px 0 5px}.advisor .text-action{margin-top:8px}.alerts{position:absolute;z-index:4;left:30px;top:466px;width:236px;display:flex;flex-direction:column;gap:8px;pointer-events:none}.alert{display:flex;align-items:center;gap:11px;text-align:left;width:100%;padding:13px;background:rgba(22,41,39,.92);border:1px solid rgba(217,185,117,.35);border-radius:10px;box-shadow:0 5px 16px #0c22252c;pointer-events:auto}.alert>svg:first-child{color:var(--gold)}.alert>svg:last-child{width:14px;height:14px;margin-left:auto;opacity:.5}.alert span{font-size:12px}.alert small{display:block;font-size:10px;line-height:1.8;margin-top:2px}.alert b{color:var(--gold);margin-left:4px}.new-draft{border-color:#a9ce9a55}.new-draft>svg:first-child{color:var(--green)}
 .map-tools{position:absolute;z-index:3;right:25px;bottom:168px;display:flex;align-items:center;flex-direction:column;gap:4px}.map-tools>.icon-button{width:34px;height:34px;background:#142e32ba;border:1px solid var(--line);font-size:22px;line-height:1;border-radius:50%}.map-tools .icon{width:17px;height:17px}.layer-buttons{display:none;position:absolute;bottom:121px;right:45px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.layer-buttons.expanded{display:flex;gap:4px}.layer-buttons button{white-space:nowrap;font-size:11px;padding:6px 10px}.layer-buttons .active{background:var(--paper);color:var(--ink)}.panel-open .map-tools{right:374px}.context-panel{position:absolute;z-index:6;right:22px;top:95px;bottom:122px;width:328px;padding:23px 21px;background:rgba(19,40,41,.97);border:1px solid rgba(190,215,192,.18);border-radius:17px;box-shadow:var(--shadow);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#58716a55 transparent;backdrop-filter:blur(12px)}.context-panel[hidden]{display:none!important}.sheet-header{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}.sheet-header>.icon-button{margin-top:-8px;margin-right:-10px}.sheet-header .eyebrow{font-size:9px;letter-spacing:1.6px}.sheet-header h2{font-size:23px;letter-spacing:2px;margin-top:6px}.sheet-intro{font-size:11px;color:var(--muted);line-height:1.9;margin-bottom:18px}.local-stats{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:15px 0;margin:18px 0 22px}.local-stats small{display:block;font-size:9px;margin-bottom:5px}.local-stats b{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums}.local-stats b.word{font-size:15px;line-height:2}.section-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:22px 0 12px}.section-label h3{font-size:12px;color:#c7d6ca}.section-label>span{font-size:9px;color:var(--dim)}.project-action{display:flex;width:100%;gap:11px;align-items:center;text-align:left;border:1px solid var(--line);padding:12px 10px;border-radius:9px;margin-bottom:8px;background:rgba(155,175,145,.025)}.project-action.featured{border-color:#bda46b77;background:#bbad7220}.action-icon{width:29px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0}.featured .action-icon{color:var(--gold)}.action-copy{flex:1;min-width:0}.action-copy b{display:block;font-size:12px;font-weight:500;line-height:1.8}.action-copy small{display:block;font-size:9px;line-height:1.8;color:var(--muted)}.action-copy em{font-style:normal;font-size:8px;display:inline-block;vertical-align:1px;padding:1px 4px;margin-left:5px;background:#d9b97524;color:var(--gold);border-radius:3px}.action-price{font-size:14px;color:var(--gold);text-align:right;min-width:32px;font-variant-numeric:tabular-nums}.action-price small{display:block;font-size:9px;color:var(--dim);white-space:nowrap;margin-top:3px}.project-action:disabled{opacity:.45}.disclosure{display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 0;color:var(--muted);font-size:10px;border-radius:0}.disclosure>span{font-size:17px;color:var(--dim)}.all-projects{margin-top:7px}.all-projects .project-action{padding:9px 8px}.construction-card{display:flex;align-items:center;gap:14px;padding:17px 15px;border:1px solid #a9ce9a44;border-radius:9px;background:#a9ce9a0a}.construction-card>.icon{color:var(--green);width:25px;height:25px}.construction-card>div{flex:1}.construction-card b{display:block;font-size:12px}.construction-card small{display:block;font-size:10px;margin:4px 0 10px}.operations-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.operation-card{min-height:117px;padding:13px 10px;display:flex;align-items:flex-start;flex-wrap:wrap;text-align:left;border:1px solid var(--line);gap:6px}.operation-card>.icon{width:19px;height:19px;color:var(--muted)}.operation-card b{font-size:11px;font-weight:500;flex:1;line-height:1.8}.operation-card strong{font-size:11px;color:var(--gold);font-weight:500;margin-left:auto}.operation-card small{display:block;flex-basis:100%;font-size:9px;line-height:1.9}.district-foot{border-top:1px solid var(--line);margin-top:17px;padding-top:12px;font-size:10px;line-height:1.95;color:var(--dim)}.hazard-card{padding:14px;background:#d59e4420;border:1px solid #d5ad5655;border-radius:9px;margin:12px 0}.hazard-card .between{font-size:11px}.hazard-card .between svg{height:17px;width:17px;margin-right:5px;color:var(--gold)}.hazard-card .track{margin:13px 0}.hazard-card .primary{font-size:11px;padding:8px}.notice-card{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;padding:12px 0;border-bottom:1px solid var(--line)}.notice-card button{font-size:10px;background:#e7b97418;color:var(--gold);padding:6px}
@@ -18,6 +18,13 @@
 @media(max-width:700px){.route-label{flex-basis:100%;font-size:9px}.route-description small{font-size:8px;display:block;margin:3px 0 0}.launch-bottom>div{order:2;width:100%}.launch-bottom>div>small{font-size:8px;margin-top:1px}.scenario-option strong{font-size:12px}.scenario-option>div>.icon{width:15px;height:15px}.launch-story h1{font-size:35px}.result-grid strong{font-size:23px}.result-grid span{font-size:9px}.seed-control{flex-direction:column}.seed-control input{font-size:12px}.recruit-card>button{min-height:42px}.context-panel .inline-link{min-height:38px}}
 /* Keep the map uncluttered when contextual detail is open. */
 .panel-open .advisor{display:none}.action-copy small{font-size:10px}.project-action .action-copy b{font-size:13px}.action-price{font-size:15px}.project-action{min-height:69px}.draft-index small{font-size:9px;letter-spacing:1px;margin-left:5px}.event-choices .event-choice{min-height:73px}.event-foot,.event-content>small{display:block;font-size:9px;color:var(--dim);margin-top:18px}.seed-control{align-self:end}.advanced-config>label.seed-control{display:flex;flex-direction:column;gap:6px;margin:0}.advanced-config>label.seed-control>input{width:100%}
+/* v0.3 / contemporary provincial coordination — restrained red, paper and blue-grey. */
+.china-mode{--gold:#d8b994;--green:#a6cbbb;--panel:#203236;--line:rgba(221,223,209,.17)}
+.province-seal{display:inline-flex!important;align-items:center;justify-content:center;border:1px solid #cc7869!important;border-radius:4px;color:#eadac4!important;background:#883f3888;letter-spacing:2px!important;width:42px;height:42px;font-family:serif!important;font-size:13px!important;padding:4px}
+.china-launch .launch-story h1{letter-spacing:4px}.china-launch .launch-story .eyebrow{color:#dfb6a2}.china-launch .launch-config{border-top:2px solid #bf7967}.china-launch .scenario-option.active{border-color:#ba8b70;background:rgba(167,107,78,.11)}.china-launch .scenario-option{min-height:130px}
+.theatre-brief{font-size:12px;line-height:1.9;color:var(--muted);padding:15px 0 3px}.theatre-difficulty{margin-top:12px;font-size:11px}.theatre-difficulty .segmented{max-width:225px}.cabinet-tabs{margin:18px 0 4px}.cabinet-axis{margin-top:15px}.cabinet-axis p{font-size:11px;color:var(--muted);line-height:1.9;padding-top:9px}.cabinet-axis .segmented button{padding:9px 7px}.cabinet-axis button.active:disabled{opacity:1;cursor:default}.asset-card,.funding-card{border:1px solid var(--line);background:rgba(226,219,193,.035);border-radius:10px;padding:13px;margin:12px 0}.asset-card p,.funding-card p{font-size:11px;color:var(--muted);line-height:1.8;margin:8px 0}.asset-card b,.funding-card b{font-size:12px}.asset-card .icon{width:17px;height:17px;color:var(--gold)}.asset-card .between:last-child{margin-top:8px}.asset-card .between:last-child button{font-size:11px}.finance-details{border-top:1px solid var(--line);padding:13px 0;font-size:11px;color:var(--muted)}.finance-details summary{cursor:pointer}.finance-details p{padding:10px 0}.fiction-note{border-left:2px solid #bf7967;background:#a0715c10;padding:10px 15px;font-size:12px;color:#dac9b2;margin:16px 0}
+@media (max-height:850px) and (min-width:1000px){.china-launch .launch-story{top:12%}.china-launch .launch-story h1{font-size:46px}.china-launch .launch-config{padding-top:16px;padding-bottom:16px}.china-launch .scenario-option{min-height:110px}.china-launch .theatre-brief{padding-top:10px;font-size:11px}.china-launch .launch-bottom{margin-top:15px}.china-launch .route-row{margin-top:12px}}
+@media (max-width:700px){.china-launch .theatre-brief{font-size:11px}.china-launch .scenario-option{min-height:92px}.province-seal{width:32px;height:32px}.theatre-difficulty{flex-wrap:wrap}.china-launch .launch-story h1{letter-spacing:2px}}
 </style></head><body><noscript>此游戏需要启用 JavaScript。没有外部依赖或在线服务。</noscript><script>"use strict";
 /** All numbers are fictional game abstractions, not an empirical conflict model. */
 var Afterfire;
@@ -517,7 +524,7 @@ var Afterfire;
         const list = [
             { id: base + 1, kind: 'service', target: service.id, title: `让${service.name}重新运转`, brief: `提升 1 级${Afterfire.PROJECTS[service.demand].short}，并让当地民心达到 53%。`, goal: service.levels[service.demand] + 1, progress: 0, baseline: 0, deadline: 52, reward: 18, status: 'offer' },
             { id: base + 2, kind: round % 2 === 0 ? 'road' : 'delivery', target: road.id, title: round % 2 === 0 ? '山路不再是边界' : '两次如约而至', brief: round % 2 === 0 ? `提升${road.name} 1 级道路，保持补给通畅。` : '完成两次援助运输。保护车队比派出车队更重要。', goal: round % 2 === 0 ? road.levels.road + 1 : 2, progress: 0, baseline: 0, deadline: 48, reward: round % 2 === 0 ? 17 : 25, status: 'offer' },
-            { id: base + 3, kind: round % 2 === 0 ? 'dialogue' : 'protect', target: road.id, title: round % 2 === 0 ? '让一个村庄放下武器' : '十二周没有枪声', brief: round % 2 === 0 ? `在${road.name}完成地方调解，并使民心 ≥45%、武装 <10。` : `让${service.name}民心 ≥53%、武装 <3、通补给，连续维持 12 周。`, goal: round % 2 === 0 ? 1 : 12, progress: 0, baseline: 0, deadline: 60, reward: 22, status: 'offer' }
+            { id: base + 3, kind: round % 2 === 0 ? 'dialogue' : 'protect', target: road.id, title: round % 2 === 0 ? (s.theatre ? '为居民争取局部停火' : '让一个村庄放下武器') : '十二周没有枪声', brief: round % 2 === 0 ? `在${road.name}完成${s.theatre ? '接触协调' : '地方调解'}，并使民心 ≥45%、${s.theatre ? '敌方兵力' : '武装'} <10。` : `让${service.name}民心 ≥53%、武装 <3、通补给，连续维持 12 周。`, goal: round % 2 === 0 ? 1 : 12, progress: 0, baseline: 0, deadline: 60, reward: 22, status: 'offer' }
         ];
         if (list[2].kind === 'protect')
             list[2].target = service.id;
@@ -703,6 +710,521 @@ var Afterfire;
     }
     Afterfire.restoreCampaign = restoreCampaign;
 })(Afterfire || (Afterfire = {}));
+/** China-inspired fictional province-scale campaign. No real geography, forces or forecasts.
+ * The player aggregates a civil-military coordination table, NOT an actual official's powers.
+ * This module is opt-in so the v1/v2 simulation and saves retain their original rules.
+ */
+var Afterfire;
+(function (Afterfire) {
+    Afterfire.THEATRES = {
+        river: { name: '江城保卫线', region: '澜江省 · 架空', tag: '01 / 工业与民生', brief: '2032年，外部冲突冲击沿江工业带。你在省域军地联席协调桌上，兼顾前线防御、工厂复产、县域医疗与财政考核。没有哪个部门能独自解决危机。', map: 'valley', seed: 203201, fronts: [0, 6], assets: [16, 24, 21, 27], pressure: 32, output: 68 },
+        coast: { name: '临海压力场', region: '临海省 · 架空', tag: '02 / 通商与威慑', brief: '近海危机使运价、保险和外贸同时承压。提高战备可以加强防御，也会挤占生产并推高外部压力；稳住内需、疏通援助并推动降级，才有可持续的结局。', map: 'valley', seed: 203202, fronts: [6, 13], assets: [23, 27, 33, 24], pressure: 55, output: 61 },
+        highland: { name: '云岭生命线', region: '云岭省 · 架空', tag: '03 / 交通与协同', brief: '山地通道承受冲突和恶劣天气的双重压力。统筹跨地区运输、分布式供电与地方自主响应，在不掏空后方的情况下维持前线和居民补给。', map: 'corridor', seed: 203203, fronts: [0, 6], assets: [16, 30, 24, 11], pressure: 38, output: 63 }
+    };
+    Afterfire.ASSETS = {
+        grid: { name: '区域供电中心', short: '电力', icon: 'power', desc: '可靠供电支撑生产与公共服务。受损或失去补给会拖累全区。' },
+        rail: { name: '综合货运枢纽', short: '货运', icon: 'convoy', desc: '保持安全、补给和完好度，才能发挥运输与复产作用。' },
+        factory: { name: '装备与民用工业园', short: '工业', icon: 'jobs', desc: '产出同时受到电力、道路、外部压力和动员占用的影响。' },
+        network: { name: '通信与调度中心', short: '通信', icon: 'radar', desc: '运行良好时改善全区情报；加固后提高恢复能力。' }
+    };
+    Afterfire.READINESS = {
+        routine: { name: '常态防御', desc: '不挤占民用生产；战力按基础值。压力每周缓降。' },
+        reserve: { name: '有限动员', desc: '战力 +12%、补给恢复 +1；民用产出目标 −8 点，每月维护 +2。' },
+        mobilized: { name: '强化动员', desc: '战力 +28%、补给恢复 +2；民用产出目标 −21 点，每月维护 +5，外部压力持续上升。' }
+    };
+    Afterfire.ALLOCATIONS = {
+        balanced: { name: '均衡预算', desc: '不追加固定开支，保留财政弹性。' },
+        livelihood: { name: '三保优先', desc: '每月支出 3；公共服务覆盖 +10 点，全区民心缓升，但产出目标 −3 点。' },
+        industry: { name: '产业保供', desc: '每月支出 4；产出目标 +10 点、设施修复 +25%，短期民心恢复较慢。' }
+    };
+    Afterfire.COORDINATIONS = {
+        local: { name: '属地响应', desc: '地方民心每周 +0.025；施工与跨区修复按基础速度。' },
+        joint: { name: '军地协同', desc: '施工与设施修复 +12%；每月协调成本 2。' },
+        central: { name: '集中保供', desc: '施工与设施修复 +25%；每月协调成本 4，地方民心每周 −0.025。' }
+    };
+    const good = (message) => ({ ok: true, message }), bad = (message) => ({ ok: false, message });
+    function newTheatre(key, governor = 'civil', diff = 'standard', doctrine = 'rebuild', seed = Afterfire.THEATRES[key].seed) {
+        const def = Afterfire.THEATRES[key], s = Afterfire.newGame(def.map, governor, diff, seed);
+        Afterfire.initCampaign(s, doctrine);
+        s.theatre = { schema: 1, key, readiness: 'routine', allocation: 'balanced', coordination: 'local', pressure: def.pressure, output: def.output, power: key === 'highland' ? 66 : 74, assets: ['grid', 'rail', 'factory', 'network'].map((kind, i) => ({ kind, at: def.assets[i], integrity: [68, 65, 70, 72][i], work: 0, level: 0 })), supportRequest: null, nextSupport: 0, nextCabinet: 0, debt: 0, grants: 0, reviews: 0, failedReviews: 0, agreements: 0, nextTalk: 0, lastCasualties: 0, hold: 0, strain: 0, nextShock: 20, decisions: [], ledger: [] };
+        s.nextEvent = 8;
+        s.money += 18;
+        s.warningAt = 99999;
+        s.eruptionAt = 99999;
+        theatreNames(s);
+        s.logs = [];
+        s.campaign.contracts = [];
+        s.campaign.nextOffer = 0;
+        generateTheatreContracts(s);
+        s.mood = '先稳住人口中心和供电，再决定动员与预算。';
+        Afterfire.addLog(s, `2032 · ${def.region}。本战役是虚构省域危机；玩家代表联席协调桌，不等同现实官员权限。`);
+        Afterfire.addLog(s, '12周后外部武装进入边缘地区；居民诉求与敌方兵力是独立系统。', 'warn');
+        return s;
+    }
+    Afterfire.newTheatre = newTheatre;
+    // Contract generator is kept in campaign.ts; initialize after districts are renamed.
+    function generateTheatreContracts(s) { s.campaign.round = 0; Afterfire.campaignTick(s); }
+    function theatreNames(s) {
+        if (!s.theatre)
+            return;
+        const base = ['北岭关', '长松镇', '青岚岭', '望山关', '云屏岭', '东屏关', '海隘口', '白沙县', '北站片区', '新塘乡', '青石县', '北城新区', '滨湖县', '东关镇', '西郊片区', '茶山乡', '清源城区', '江北片区', '桥西县', '东郊片区', '临港北区', '老城工业区', '禾田乡', '南城片区', '江城中心区', '古渡镇', '新安片区', '临江货运区', '西渡口', '稻香乡', '南站片区', '柳岸街道', '南原县', '临海城区', '盐田片区'];
+        s.districts.forEach((d, i) => { d.name = base[i]; });
+        if (s.theatre.key === 'coast') {
+            s.districts[24].name = '临海中心区';
+            s.districts[33].name = '滨海工业区';
+            s.districts[27].name = '海东货运区';
+        }
+        if (s.theatre.key === 'highland') {
+            s.districts[24].name = '云岭中心区';
+            s.districts[11].name = '高原通信区';
+            s.districts[30].name = '南岭货运区';
+        }
+        s.units.forEach(u => u.name = unitName(s, u.kind, u.id));
+    }
+    Afterfire.theatreNames = theatreNames;
+    function unitTitle(s, kind) { return s.theatre ? { coalition: '机动支援群', national: '区域防御群', engineer: '工程保障队' }[kind] : Afterfire.UNIT_DEFS[kind].name; }
+    Afterfire.unitTitle = unitTitle;
+    function unitName(s, kind, id) { return `${s.theatre ? { coalition: '机动', national: '防御', engineer: '工程' }[kind] : kind === 'coalition' ? '联援' : kind === 'national' ? '国民' : '工兵'} ${String(id).padStart(2, '0')}`; }
+    Afterfire.unitName = unitName;
+    function regionalTitle(s) { return s.theatre ? Afterfire.THEATRES[s.theatre.key].name : Afterfire.SCENARIOS[s.scenario].name; }
+    Afterfire.regionalTitle = regionalTitle;
+    function assetEfficiency(s, a) { const d = s.districts[a.at]; return Afterfire.controlled(d) || d.hazard > 0 ? 0 : a.integrity * (d.supplied ? 1 : .35); }
+    Afterfire.assetEfficiency = assetEfficiency;
+    function essentials(s) {
+        if (!s.theatre)
+            return Afterfire.stableShare(s);
+        const t = s.theatre;
+        const local = s.districts.reduce((n, d) => n + d.population * (Afterfire.controlled(d) || d.hazard > 0 ? .12 : d.supplied ? 1 : .35) * Math.min(1, .55 + d.levels.water * .12 + d.levels.health * .12 + d.levels.shelter * .04), 0) / Afterfire.population(s);
+        return Afterfire.clamp(local * (.6 + t.power * .004) * 100 + (t.allocation === 'livelihood' ? 10 : 0));
+    }
+    Afterfire.essentials = essentials;
+    Afterfire.theatreCombat = (s) => !s.theatre ? 1 : s.theatre.readiness === 'mobilized' ? 1.28 : s.theatre.readiness === 'reserve' ? 1.12 : 1;
+    Afterfire.theatreWorks = (s) => !s.theatre ? 1 : s.theatre.coordination === 'central' ? 1.25 : s.theatre.coordination === 'joint' ? 1.12 : 1;
+    Afterfire.theatreRevenue = (s) => s.theatre?.output !== undefined ? .55 + s.theatre.output * .0065 : 1;
+    Afterfire.theatreUpkeep = (s) => !s.theatre ? 0 : (s.theatre.readiness === 'mobilized' ? 5 : s.theatre.readiness === 'reserve' ? 2 : 0) + (s.theatre.allocation === 'livelihood' ? 3 : s.theatre.allocation === 'industry' ? 4 : 0) + (s.theatre.coordination === 'central' ? 4 : s.theatre.coordination === 'joint' ? 2 : 0);
+    function cabinetDecision(s, axis, value) {
+        const t = s.theatre;
+        if (!t || s.outcome !== 'playing')
+            return bad('当前不在省域危机行动中');
+        if (!['readiness', 'allocation', 'coordination'].includes(axis))
+            return bad('无效的决策类别');
+        const table = axis === 'readiness' ? Afterfire.READINESS : axis === 'allocation' ? Afterfire.ALLOCATIONS : Afterfire.COORDINATIONS;
+        if (!Object.hasOwn(table, value))
+            return bad('无效的联席决策');
+        if (t[axis] === value)
+            return bad('该方案已经执行');
+        if (s.week < t.nextCabinet)
+            return bad(`第 ${t.nextCabinet} 周可再次调整，避免朝令夕改`);
+        if (axis === 'readiness')
+            t.readiness = value;
+        else if (axis === 'allocation')
+            t.allocation = value;
+        else
+            t.coordination = value;
+        t.nextCabinet = s.week + 4;
+        t.decisions.push(`${s.week}:${axis}:${value}`);
+        t.decisions = t.decisions.slice(-60);
+        const label = table[value].name;
+        Afterfire.addLog(s, `联席决策 · ${label}。将持续生效，4周内不可再调整。`, 'info');
+        return good('方案已生效。下一次调整需等待4周。');
+    }
+    Afterfire.cabinetDecision = cabinetDecision;
+    function requestCentral(s) {
+        const t = s.theatre;
+        if (!t || s.outcome !== 'playing')
+            return bad('当前没有省域授权');
+        if (t.supportRequest)
+            return bad('已有支持申请或考核尚未结清');
+        if (s.week < t.nextSupport)
+            return bad(`第 ${t.nextSupport} 周后可再次申请`);
+        if (s.reputation < 35)
+            return bad('协调授权低于35，先修复公共信任');
+        t.supportRequest = { arrival: s.week + 4, deadline: s.week + 24, baseline: s.spentCivil, received: false };
+        t.nextSupport = s.week + 48;
+        Afterfire.addLog(s, '中央专项支持申请已提交：4周后拨付32预算；24周内新增民用投入至少24，且考核时腐败≤30。', 'info');
+        return good('申请进入办理；不是即时到账，也不是无条件收入。');
+    }
+    Afterfire.requestCentral = requestCentral;
+    function bridgeFinance(s, repay = false) {
+        const t = s.theatre;
+        if (!t || s.outcome !== 'playing')
+            return bad('当前没有省域授权');
+        if (repay) {
+            if (t.debt <= 0)
+                return bad('没有待归还的周转预算');
+            const n = Math.min(t.debt, 20);
+            if (s.money < n)
+                return bad(`预算不足以归还 ${n.toFixed(1)}`);
+            s.money -= n;
+            t.debt = Math.max(0, t.debt - n);
+            return good(`已归还 ${n.toFixed(1)} 周转预算。`);
+        }
+        if (t.debt > 0)
+            return bad('先结清上一笔周转，不能连续借新还旧');
+        t.debt = 42;
+        s.money += 36;
+        t.decisions.push(`${s.week}:finance`);
+        t.decisions = t.decisions.slice(-60);
+        return good('周转预算 +36；总偿还额42，此后每月自动扣6。纯游戏预算单位。');
+    }
+    Afterfire.bridgeFinance = bridgeFinance;
+    function repairAssetAllowed(s, kind) {
+        const t = s.theatre, a = t?.assets.find(x => x.kind === kind);
+        if (!t || !a || s.outcome !== 'playing')
+            return '当前无此设施';
+        const d = s.districts[a.at];
+        if (Afterfire.controlled(d) || !d.supplied)
+            return '先恢复设施所在地区的安全与补给';
+        if (a.work)
+            return '修复加固正在进行';
+        if (a.integrity >= 96 && a.level >= 2)
+            return '设施已处于最佳状态';
+        if (t.assets.some(x => x.work))
+            return '跨区技术队正在另一处施工';
+        if (s.money < 12)
+            return '修复加固需要12预算';
+        return '';
+    }
+    Afterfire.repairAssetAllowed = repairAssetAllowed;
+    function repairAsset(s, kind) {
+        const reason = repairAssetAllowed(s, kind);
+        if (reason)
+            return bad(reason);
+        s.money -= 12;
+        s.spentCivil += 12;
+        s.theatre.assets.find(a => a.kind === kind).work = 6;
+        Afterfire.addLog(s, `${Afterfire.ASSETS[kind].name}开始修复加固，基准6周。`);
+        return good('技术队已派出；受控或断供时施工暂停。');
+    }
+    Afterfire.repairAsset = repairAsset;
+    function diplomaticChannel(s) {
+        const t = s.theatre;
+        if (!t || s.outcome !== 'playing')
+            return bad('当前没有省域危机');
+        if (s.week < t.nextTalk)
+            return bad(`联络渠道第 ${t.nextTalk} 周可再次使用`);
+        if (t.readiness === 'mobilized')
+            return bad('强化动员期间无法提出这一轮缓和安排');
+        if (s.money < 8)
+            return bad('联络与核验需要8预算');
+        s.money -= 8;
+        s.spentCivil += 8;
+        t.pressure = Afterfire.clamp(t.pressure - 9);
+        t.nextTalk = s.week + 16;
+        t.agreements++;
+        if (s.negotiating)
+            s.peace = Afterfire.clamp(s.peace + 4);
+        Afterfire.addLog(s, '经授权的联络渠道完成一轮事实核验与人道协调：外部压力 −9，后续需维持克制。', 'good');
+        return good('外部压力下降9；16周后可开展下一轮。');
+    }
+    Afterfire.diplomaticChannel = diplomaticChannel;
+    function theatreMonthly(s) {
+        const t = s.theatre;
+        if (!t)
+            return;
+        if (t.debt > 0) {
+            const paid = Math.min(6, t.debt, s.money);
+            s.money -= paid;
+            t.debt -= paid;
+            s.lastUpkeep += paid;
+            if (paid < Math.min(6, t.debt + paid)) {
+                s.reputation = Afterfire.clamp(s.reputation - 2);
+                Afterfire.addLog(s, '周转预算偿还不足，协调授权受损。', 'bad');
+            }
+        }
+        t.ledger.push({ week: s.week, output: t.output, power: t.power, pressure: t.pressure, essentials: essentials(s) });
+        t.ledger = t.ledger.slice(-90);
+    }
+    Afterfire.theatreMonthly = theatreMonthly;
+    function theatreTick(s) {
+        const t = s.theatre;
+        if (!t)
+            return;
+        for (const a of t.assets) {
+            const d = s.districts[a.at], safe = !Afterfire.controlled(d) && d.supplied;
+            if (a.work > 0 && safe) {
+                a.work = Math.max(0, a.work - Afterfire.theatreWorks(s) * (t.allocation === 'industry' ? 1.25 : 1));
+                if (a.work === 0) {
+                    a.integrity = Afterfire.clamp(a.integrity + 32);
+                    a.level = Math.min(2, a.level + 1);
+                    Afterfire.addLog(s, `${Afterfire.ASSETS[a.kind].name}修复加固完成，设施完好度提高。`, 'good');
+                }
+            }
+            if (Afterfire.controlled(d))
+                a.integrity = Afterfire.clamp(a.integrity - .7);
+            else if (d.rebels > 3)
+                a.integrity = Afterfire.clamp(a.integrity - .18);
+            else if (safe)
+                a.integrity = Afterfire.clamp(a.integrity + .045 + a.level * .018);
+        }
+        const efficiency = (kind) => assetEfficiency(s, t.assets.find(a => a.kind === kind));
+        const powerTarget = Afterfire.clamp(25 + efficiency('grid') * .72 + (t.allocation === 'livelihood' ? 2 : 0));
+        t.power = Afterfire.clamp(t.power + (powerTarget - t.power) * .16);
+        const occupied = s.districts.filter(Afterfire.controlled).reduce((n, d) => n + d.population, 0) / Afterfire.population(s);
+        const jobs = s.districts.reduce((n, d) => n + (d.supplied && !Afterfire.controlled(d) ? d.levels.jobs : 0), 0);
+        const diversion = t.readiness === 'mobilized' ? 21 : t.readiness === 'reserve' ? 8 : 0;
+        const target = Afterfire.clamp(24 + efficiency('factory') * .32 + efficiency('rail') * .17 + t.power * .22 + Math.min(12, jobs * .8) - t.pressure * (t.key === 'coast' ? .23 : .12) - occupied * 42 - diversion + (t.allocation === 'industry' ? 10 : t.allocation === 'livelihood' ? -3 : 0));
+        t.output = Afterfire.clamp(t.output + (target - t.output) * .1);
+        const casualties = s.casualties - t.lastCasualties;
+        t.lastCasualties = s.casualties;
+        const assault = s.units.filter(u => Afterfire.active(u) && u.stance === 'assault' && s.districts[u.at].lastCombat === s.week).length;
+        t.pressure = Afterfire.clamp(t.pressure + (t.readiness === 'mobilized' ? .26 : t.readiness === 'reserve' ? .035 : -.055) + casualties * .035 + assault * .06 - (s.negotiating ? .10 : 0));
+        for (const d of s.districts) {
+            d.support = Afterfire.clamp(d.support + (t.allocation === 'livelihood' ? .045 : t.allocation === 'industry' ? -.016 : 0) + (t.coordination === 'local' ? .025 : t.coordination === 'central' ? -.025 : 0) - (t.power < 45 ? .055 : 0));
+            d.intel = Afterfire.clamp(d.intel + efficiency('network') * .0015);
+        }
+        for (const u of s.units.filter(Afterfire.active))
+            if (s.districts[u.at].supplied)
+                u.supply = Afterfire.clamp(u.supply + (t.readiness === 'mobilized' ? 2 : t.readiness === 'reserve' ? 1 : 0));
+        const r = t.supportRequest;
+        if (r && !r.received && s.week >= r.arrival) {
+            r.received = true;
+            s.money += 32;
+            t.grants++;
+            Afterfire.addLog(s, '中央专项支持到账32。专项用途考核仍然有效，请留出民生与设施预算。', 'good');
+        }
+        if (r && s.week >= r.deadline) {
+            if (s.spentCivil - r.baseline >= 24 && s.corruption <= 30) {
+                t.reviews++;
+                s.reputation = Afterfire.clamp(s.reputation + 3);
+                Afterfire.addLog(s, '专项考核通过：民用投入落实、腐败受控。协调授权 +3。', 'good');
+            }
+            else {
+                t.failedReviews++;
+                s.reputation = Afterfire.clamp(s.reputation - 6);
+                Afterfire.addLog(s, '专项考核未通过：新增民用投入不足24或腐败超过30。协调授权 −6。', 'bad');
+            }
+            t.supportRequest = null;
+        }
+        if (s.week === t.nextShock) {
+            const choices = t.assets.filter(a => a.kind !== 'network' || t.key === 'highland');
+            const a = choices[(Math.floor(s.week / 20) + s.seed) % choices.length];
+            a.integrity = Afterfire.clamp(a.integrity - Math.max(4, 15 - a.level * 4));
+            Afterfire.addLog(s, `供应链冲击 · ${Afterfire.ASSETS[a.kind].name}完好度下降。加固可减轻下一轮损失。`, 'warn');
+            t.nextShock = s.week + 36;
+        }
+    }
+    Afterfire.theatreTick = theatreTick;
+    function theatreStartEnemy(s) { for (const id of Afterfire.THEATRES[s.theatre.key].fronts) {
+        const d = s.districts[id];
+        d.camp = true;
+        d.rebels = 16 * Afterfire.difficulty(s);
+    } Afterfire.addLog(s, '外部冲突延伸至边缘地区。前线兵力由外部增援维持，不由居民不满生成。', 'bad'); }
+    Afterfire.theatreStartEnemy = theatreStartEnemy;
+    function theatreEnemyTick(s) {
+        if (s.week < 12)
+            return;
+        const t = s.theatre, fronts = Afterfire.THEATRES[t.key].fronts;
+        for (const d of s.districts) {
+            if (d.hazard > 0 || Afterfire.isTruce(s, d.id))
+                continue;
+            const troops = s.units.some(u => Afterfire.active(u) && u.at === d.id && !u.path.length);
+            if (d.camp && !troops)
+                d.rebels = Afterfire.clamp(d.rebels + (.64 + t.pressure * .007) * Afterfire.difficulty(s) * (s.negotiating ? Math.max(.1, 1 - s.peace / 100) : 1), 0, 100);
+            if (d.rebels > 0 && !troops && !d.camp)
+                d.rebels = Math.max(0, d.rebels - .08 - d.levels.police * .12);
+            if (!troops && d.rebels > 28 && s.week % 4 === 0) {
+                const n = d.neighbors.map(id => s.districts[id]).filter(x => x.hazard <= 0 && !Afterfire.isTruce(s, x.id) && x.rebels < 16 && !s.units.some(u => Afterfire.active(u) && u.at === x.id)).sort((a, b) => b.levels.road - a.levels.road || a.id - b.id)[0];
+                if (n) {
+                    const amount = Math.min(11, d.rebels * .28);
+                    d.rebels -= amount;
+                    n.rebels += amount;
+                }
+            }
+        }
+        if (s.week % 24 === 0 && (!s.negotiating || s.peace < 75))
+            for (const id of fronts) {
+                const d = s.districts[id];
+                if (!Afterfire.isTruce(s, id) && !s.units.some(u => Afterfire.active(u) && u.at === id)) {
+                    d.camp = true;
+                    d.rebels = Math.min(100, d.rebels + 5 * Afterfire.difficulty(s));
+                }
+            }
+    }
+    Afterfire.theatreEnemyTick = theatreEnemyTick;
+    function theatreOutcome(s) {
+        const t = s.theatre;
+        const held = s.districts.filter(Afterfire.controlled).reduce((n, d) => n + d.population, 0) / Afterfire.population(s);
+        s.reputation = Afterfire.clamp(s.reputation - held * .7 - (essentials(s) < 40 && s.week > 48 ? .12 : 0) - (s.corruption > 48 ? (s.corruption - 48) * .005 : 0));
+        if (s.negotiating) {
+            const gain = (.22 + s.policies.diplomacy * .16 + Math.max(0, Afterfire.support(s) - 42) * .024 + Afterfire.stableShare(s) * .002 - Afterfire.totalRebels(s) * .002) * (s.governor === 'mediator' ? 1.35 : 1) * (s.campaign?.doctrine === 'accord' ? 1.25 : 1);
+            s.peace = Afterfire.clamp(s.peace + gain - (t.readiness === 'mobilized' ? .65 : 0));
+        }
+        const diplomatic = s.peace >= 85 && t.pressure <= 60 && Afterfire.totalRebels(s) < 85;
+        const defensive = Afterfire.totalRebels(s) < 8 && t.pressure <= 72;
+        const conditions = s.week >= 64 && essentials(s) >= 70 && t.output >= 55 && Afterfire.stableShare(s) >= 55 && held < .08 && (diplomatic || defensive);
+        t.hold = conditions ? t.hold + 1 : 0;
+        s.peaceHold = t.hold;
+        t.strain = t.pressure >= 98 ? t.strain + 1 : 0;
+        if (t.hold >= 8) {
+            s.outcome = 'victory';
+            s.paused = true;
+            s.endReason = diplomatic ? '危机降级：保供、生产与地方生活恢复，停火框架得以维持。' : '防御与重建完成：前线受控，后方没有因长期动员被耗空。';
+            Afterfire.addLog(s, s.endReason, 'good');
+        }
+        else if (s.reputation <= 0 || t.strain >= 12 || s.week >= 300) {
+            s.outcome = 'defeat';
+            s.paused = true;
+            s.endReason = s.reputation <= 0 ? '协调授权被撤回：军事控制未能替代公共服务与财政责任。' : t.strain >= 12 ? '危机失控：外部压力连续12周接近极限，联席方案被中止。' : '行动期结束：尚未同时恢复保供、生产和持续安全。';
+        }
+    }
+    Afterfire.theatreOutcome = theatreOutcome;
+    function theatreEvent(s) {
+        const cards = [
+            { id: 'cn_power', title: '第一场联席会：电力先给谁？', body: '省发改与工信专班要求保障工业连续生产，卫健与市县代表要求先保诊所和居民用电。战区联络席提醒，后方停摆同样会削弱防御。', choices: [{ text: '医院与居民优先', detail: '支出8；全区民心 +3、电力 +4；工业产出 −5', cost: 8, effect: 'cn_lights' }, { text: '保住工业连续生产', detail: '支出6；工业产出 +9；全区民心 −1', cost: 6, effect: 'cn_factory' }, { text: '错峰运行，维持现有预算', detail: '不新增支出；电力 +1，工业产出 −2', cost: 0, effect: 'cn_shift' }] },
+            { id: 'cn_fiscal', title: '市县的账，不能只看总数', body: '县域基本服务支出吃紧，中心城市则希望加快交通工程。财政席位要求公开取舍；在这张协调桌上，考核目标不会自动变成执行能力。', choices: [{ text: '将增量资金下沉县域', detail: '支出10；非城市地区民心 +4，腐败 −2', cost: 10, effect: 'cn_counties' }, { text: '先完成跨区交通节点', detail: '支出10；货运设施完好度 +15，工业产出 +4', cost: 10, effect: 'cn_freight' }, { text: '压缩一般性支出', detail: '预算 +8；全区在建项目进度 −1', cost: 0, effect: 'cn_saving' }] },
+            { id: 'cn_readiness', title: '威慑并不免费', body: '联络席请求提高战备；工业园报告关键岗位已经缺人。外部观察方同时关注动员信号。是优先眼前战力，还是维持长期生产能力？', choices: [{ text: '安排短期战备补给', detail: '支出9；部队补给 +20；外部压力 +4，工业产出 −3', cost: 9, effect: 'cn_reserve' }, { text: '保护生产，强化联络', detail: '支出7；外部压力 −7，工业产出 +3；部队補给 −5', cost: 7, effect: 'cn_channel' }, { text: '维持既定方案', detail: '不新增支出；外部压力 +2', cost: 0, effect: 'cn_maintain' }] },
+            { id: 'cn_data', title: '一份不一致的恢复报告', body: '市县上报的恢复率与现场抽样不一致。统计、审计和工程负责人对核验的时点有分歧；决策质量取决于能否及时知道真实损失。', choices: [{ text: '公开修正并独立核验', detail: '支出5；腐败 −10，全区情报 +8；协调授权暂时 −2', cost: 5, effect: 'cn_verify' }, { text: '先现场复核，再发布结论', detail: '不新增支出；腐败 −4，所有在建工程进度 −2', cost: 0, effect: 'cn_review' }] },
+            { id: 'cn_trade', title: '外贸订单与通道成本', body: '港航企业报告保险与运输成本上升。稳订单需要公共资金，转内需也需要时间。外部压力会持续反馈到财政，而不只是新闻栏上的文字。', choices: [{ text: '协调保险与民用通商', detail: '支出11；外部压力 −8，工业产出 +6', cost: 11, effect: 'cn_trade' }, { text: '转向本地采购与内需', detail: '支出8；工业产出 +4，非城市民心 +2', cost: 8, effect: 'cn_domestic' }, { text: '企业自行消化成本', detail: '不新增支出；工业产出 −5，全区民心 −1', cost: 0, effect: 'cn_wait' }] },
+            { id: 'cn_humanitarian', title: '先让平民安全离开', body: '前线地区的居民需要安全转移与医疗接续。保留通道意味着资源不能全部投向作战，但人员伤亡和流离失所也会反过来破坏恢复计划。', choices: [{ text: '拨付安置与转运预算', detail: '支出10；流离失所人数减少50%，民心 +3，外部压力 −4', cost: 10, effect: 'cn_shelter' }, { text: '请求属地互助与分散安置', detail: '不新增支出；流离失所人数减少20%，在建工程进度 −1', cost: 0, effect: 'cn_mutual' }] },
+            { id: 'cn_oversight', title: '紧急采购，也需要边界', body: '保供企业提出先采购、后补手续以缩短交期；审计代表担心不可追踪的支出。速度和责任都重要，不能假定其中一项没有成本。', choices: [{ text: '并行审计与采购', detail: '支出8；腐败 −8，供电设施完好度 +8', cost: 8, effect: 'cn_procure' }, { text: '走完整常规流程', detail: '不新增支出；腐败 −5，工业产出 −3', cost: 0, effect: 'cn_procedure' }] },
+            { id: 'cn_offramp', title: '冲突后的台阶', body: '授权联络渠道出现窗口。前线希望把安全条件写清，市县则需要稳定预期以恢复生产。降低动员不能替代防御，但无限延长动员也不是胜利。', choices: [{ text: '以核验换取降级', detail: '支出10；外部压力 −10，已启动的和谈 +10；部队补给 −5', cost: 10, effect: 'cn_offramp' }, { text: '先修复基本生活', detail: '支出6；全区民心 +3，工业产出 +3', cost: 6, effect: 'cn_rebuild' }, { text: '保持现状，继续观察', detail: '不新增支出；外部压力 +3', cost: 0, effect: 'cn_observe' }] }
+        ];
+        return cards[s.eventIndex % cards.length];
+    }
+    Afterfire.theatreEvent = theatreEvent;
+    function theatreEventEffect(s, effect) {
+        const t = s.theatre;
+        const all = (v) => s.districts.forEach(d => d.support = Afterfire.clamp(d.support + v));
+        const counties = (v) => s.districts.filter(d => d.terrain !== 'city').forEach(d => d.support = Afterfire.clamp(d.support + v));
+        const progress = (v) => s.districts.forEach(d => { if (d.project)
+            d.project.progress = Math.max(0, d.project.progress + v); });
+        const supplies = (v) => s.units.forEach(u => u.supply = Afterfire.clamp(u.supply + v));
+        const asset = (k, v) => { const a = t.assets.find(x => x.kind === k); a.integrity = Afterfire.clamp(a.integrity + v); };
+        switch (effect) {
+            case 'cn_lights':
+                all(3);
+                t.power += 4;
+                t.output -= 5;
+                break;
+            case 'cn_factory':
+                t.output += 9;
+                all(-1);
+                break;
+            case 'cn_shift':
+                t.power++;
+                t.output -= 2;
+                break;
+            case 'cn_counties':
+                counties(4);
+                s.corruption = Afterfire.clamp(s.corruption - 2);
+                break;
+            case 'cn_freight':
+                asset('rail', 15);
+                t.output += 4;
+                break;
+            case 'cn_saving':
+                s.money += 8;
+                progress(-1);
+                break;
+            case 'cn_reserve':
+                supplies(20);
+                t.pressure += 4;
+                t.output -= 3;
+                break;
+            case 'cn_channel':
+                t.pressure -= 7;
+                t.output += 3;
+                supplies(-5);
+                break;
+            case 'cn_maintain':
+                t.pressure += 2;
+                break;
+            case 'cn_verify':
+                s.corruption = Afterfire.clamp(s.corruption - 10);
+                s.districts.forEach(d => d.intel = Afterfire.clamp(d.intel + 8));
+                s.reputation = Afterfire.clamp(s.reputation - 2);
+                break;
+            case 'cn_review':
+                s.corruption = Afterfire.clamp(s.corruption - 4);
+                progress(-2);
+                break;
+            case 'cn_trade':
+                t.pressure -= 8;
+                t.output += 6;
+                break;
+            case 'cn_domestic':
+                t.output += 4;
+                counties(2);
+                break;
+            case 'cn_wait':
+                t.output -= 5;
+                all(-1);
+                break;
+            case 'cn_shelter':
+                s.districts.forEach(d => d.displaced = Math.round(d.displaced * .5));
+                all(3);
+                t.pressure -= 4;
+                break;
+            case 'cn_mutual':
+                s.districts.forEach(d => d.displaced = Math.round(d.displaced * .8));
+                progress(-1);
+                break;
+            case 'cn_procure':
+                s.corruption = Afterfire.clamp(s.corruption - 8);
+                asset('grid', 8);
+                break;
+            case 'cn_procedure':
+                s.corruption = Afterfire.clamp(s.corruption - 5);
+                t.output -= 3;
+                break;
+            case 'cn_offramp':
+                t.pressure -= 10;
+                if (s.negotiating)
+                    s.peace = Afterfire.clamp(s.peace + 10);
+                supplies(-5);
+                break;
+            case 'cn_rebuild':
+                all(3);
+                t.output += 3;
+                break;
+            case 'cn_observe':
+                t.pressure += 3;
+                break;
+        }
+        t.power = Afterfire.clamp(t.power);
+        t.output = Afterfire.clamp(t.output);
+        t.pressure = Afterfire.clamp(t.pressure);
+        t.decisions.push(`${s.week}:${effect}`);
+        t.decisions = t.decisions.slice(-60);
+    }
+    Afterfire.theatreEventEffect = theatreEventEffect;
+    function restoreTheatre(s, raw) {
+        if (raw === undefined)
+            return;
+        const x = raw;
+        const fail = () => { throw new Error('省域战役存档损坏'); };
+        const num = (v, max = 100) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= max;
+        if (!x || x.schema !== 1 || !Object.hasOwn(Afterfire.THEATRES, x.key) || !Object.hasOwn(Afterfire.READINESS, x.readiness) || !Object.hasOwn(Afterfire.ALLOCATIONS, x.allocation) || !Object.hasOwn(Afterfire.COORDINATIONS, x.coordination) || s.scenario !== Afterfire.THEATRES[x.key].map)
+            fail();
+        for (const k of ['pressure', 'output', 'power'])
+            if (!num(x[k]))
+                fail();
+        for (const k of ['nextSupport', 'nextCabinet', 'grants', 'reviews', 'failedReviews', 'agreements', 'nextTalk', 'lastCasualties', 'hold', 'strain', 'nextShock'])
+            if (!num(x[k], 1e8) || !Number.isInteger(x[k]))
+                fail();
+        if (!num(x.debt, 42) || !Array.isArray(x.assets) || x.assets.length !== 4 || new Set(x.assets.map(a => a.kind)).size !== 4)
+            fail();
+        const assets = x.assets.map(a => { const i = ['grid', 'rail', 'factory', 'network'].indexOf(a.kind); if (i < 0 || a.at !== Afterfire.THEATRES[x.key].assets[i] || !num(a.integrity) || !num(a.work, 6) || !num(a.level, 2) || !Number.isInteger(a.level))
+            fail(); return { kind: a.kind, at: a.at, integrity: a.integrity, work: a.work, level: a.level }; });
+        if (assets.filter(a => a.work > 0).length > 1)
+            fail();
+        let supportRequest = null;
+        if (x.supportRequest) {
+            const r = x.supportRequest;
+            if (!num(r.arrival, 1000) || !num(r.deadline, 1000) || !Number.isInteger(r.arrival) || !Number.isInteger(r.deadline) || r.deadline !== r.arrival + 20 || !num(r.baseline, 1e8) || typeof r.received !== 'boolean')
+                fail();
+            supportRequest = { arrival: r.arrival, deadline: r.deadline, baseline: r.baseline, received: r.received };
+        }
+        if (!Array.isArray(x.decisions) || x.decisions.length > 60 || x.decisions.some(v => typeof v !== 'string' || v.length > 100) || !Array.isArray(x.ledger) || x.ledger.length > 90)
+            fail();
+        const ledger = x.ledger.map(v => { if (!v || !num(v.week, 360) || !Number.isInteger(v.week) || !num(v.output) || !num(v.power) || !num(v.pressure) || !num(v.essentials))
+            fail(); return { week: v.week, output: v.output, power: v.power, pressure: v.pressure, essentials: v.essentials }; });
+        s.theatre = { schema: 1, key: x.key, readiness: x.readiness, allocation: x.allocation, coordination: x.coordination, pressure: x.pressure, output: x.output, power: x.power, assets, supportRequest, nextSupport: x.nextSupport, nextCabinet: x.nextCabinet, debt: x.debt, grants: x.grants, reviews: x.reviews, failedReviews: x.failedReviews, agreements: x.agreements, nextTalk: x.nextTalk, lastCasualties: x.lastCasualties, hold: x.hold, strain: x.strain, nextShock: x.nextShock, decisions: [...x.decisions], ledger };
+        theatreNames(s);
+    }
+    Afterfire.restoreTheatre = restoreTheatre;
+})(Afterfire || (Afterfire = {}));
 var Afterfire;
 (function (Afterfire) {
     const ok = (message) => ({ ok: true, message });
@@ -805,8 +1327,8 @@ var Afterfire;
         s.money -= cost;
         s.spentMilitary += cost;
         const id = s.nextUnit++;
-        s.units.push({ id, name: `${kind === 'coalition' ? '联援' : kind === 'national' ? '国民' : '工兵'} ${String(id).padStart(2, '0')}`, kind, at: s.hq, path: [], leg: 0, legTotal: 0, hp: 100, supply: 100, training: Math.max(1, def.train - (kind === 'national' ? s.policies.training * 2 : 0)), contract: kind === 'coalition' ? 96 : 99999, stance: 'protect', experience: 0 });
-        Afterfire.addLog(s, `${def.name}进入训练，完成后在河岚城部署。`);
+        s.units.push({ id, name: Afterfire.unitName(s, kind, id), kind, at: s.hq, path: [], leg: 0, legTotal: 0, hp: 100, supply: 100, training: Math.max(1, def.train - (kind === 'national' ? s.policies.training * 2 : 0)), contract: kind === 'coalition' ? 96 : 99999, stance: 'protect', experience: 0 });
+        Afterfire.addLog(s, `${Afterfire.unitTitle(s, kind)}进入训练，完成后在${s.districts[s.hq].name}部署。`);
         return ok('招募成功；训练期间仍需维护经费。');
     }
     Afterfire.recruit = recruit;
@@ -895,6 +1417,8 @@ var Afterfire;
     function startPeace(s) {
         if (s.negotiating)
             return fail('和谈已经启动');
+        if (s.theatre?.readiness === 'mobilized')
+            return fail('先从强化动员调整为有限动员或常态防御');
         if (s.week < 48)
             return fail('第 48 周后才能启动正式和谈');
         if (s.policies.diplomacy < 1)
@@ -914,6 +1438,8 @@ var Afterfire;
     }
     Afterfire.startPeace = startPeace;
     function eventFor(s) {
+        if (s.theatre)
+            return Afterfire.theatreEvent(s);
         const events = [
             { id: 'aid', title: '援助不是没有条件的', body: '外部援助方提出一批重建资金，但希望优先保障城市。偏远村落的代表要求公开分配规则。', choices: [{ text: '接受定向援助', detail: '资金 +22；城市民心 +3，山地与林地民心 −3', cost: 0, effect: 'aid_city' }, { text: '坚持公开分配', detail: '资金 +12；全区民心 +2，腐败 −2', cost: 0, effect: 'aid_fair' }] },
             { id: 'contract', title: '一张异常的工程账单', body: '地方承包商的报价明显高于实际用料。立即调查会扰乱工程进度，但放任它会损害整个重建计划。', choices: [{ text: '独立调查', detail: '支出 $8；腐败 −12，声望 +2', cost: 8, effect: 'audit' }, { text: '公开重新招标', detail: '全区工程进度 −2；腐败 −6', cost: 0, effect: 'retender' }, { text: '暂缓处理', detail: '腐败 +8；本期不影响施工', cost: 0, effect: 'ignore' }] },
@@ -936,6 +1462,8 @@ var Afterfire;
         s.money -= c.cost;
         s.spentCivil += c.cost;
         const all = (n) => s.districts.forEach(d => d.support = Afterfire.clamp(d.support + n));
+        if (s.theatre && c.effect.startsWith('cn_'))
+            Afterfire.theatreEventEffect(s, c.effect);
         switch (c.effect) {
             case 'aid_city':
                 s.money += 22;
@@ -1000,13 +1528,17 @@ var Afterfire;
         Afterfire.addLog(s, `${s.event.title}：${c.text}。`, 'info');
         s.event = null;
         s.eventIndex++;
-        s.nextEvent = s.week + 28;
+        s.nextEvent = s.week + (s.theatre ? 20 : 28);
         s.paused = false;
         return ok('决策已执行。');
     }
     Afterfire.chooseEvent = chooseEvent;
     function snapshot(s) { s.history.push({ week: s.week, support: Afterfire.support(s), reputation: s.reputation, rebels: Afterfire.totalRebels(s), money: s.money, stable: Afterfire.stableShare(s) }); s.history = s.history.slice(-110); }
     function startInsurgency(s) {
+        if (s.theatre) {
+            Afterfire.theatreStartEnemy(s);
+            return;
+        }
         const ids = s.scenario === 'corridor' ? [0, 13, 20] : [2, 5, 12];
         for (const id of ids) {
             const d = s.districts[id];
@@ -1016,11 +1548,18 @@ var Afterfire;
         Afterfire.addLog(s, '偏远地区出现有组织武装。保护城镇和交通节点，不要让主力陷在群山中。', 'bad');
         s.mood = '武装开始活动。部队先守人口中心，再协同推进。';
     }
-    function monthly(s) {
+    /** Project the recurring four-week balance; excludes one-off grants and purchases. */
+    function budgetProjection(s) {
         const jobs = s.districts.reduce((a, d) => a + (!Afterfire.controlled(d) && d.hazard <= 0 ? d.levels.jobs * .65 : 0), 0);
         const cooperative = Afterfire.hasUpgrade(s, 'cooperative') ? s.districts.reduce((a, d) => a + (d.supplied && !Afterfire.controlled(d) && d.terrain !== 'city' ? d.levels.jobs * .8 : 0), 0) : 0;
-        const income = 16 + Afterfire.stableCount(s) * .65 + jobs + cooperative + (s.difficulty === 'relaxed' ? 3 : 0);
-        const upkeep = s.units.reduce((a, u) => a + Afterfire.UNIT_DEFS[u.kind].upkeep * (s.campaign?.doctrine === 'rebuild' ? 1.15 : 1), 0);
+        const income = (16 + Afterfire.stableCount(s) * .65 + jobs + cooperative + (s.difficulty === 'relaxed' ? 3 : 0)) * Afterfire.theatreRevenue(s);
+        const upkeep = s.units.reduce((a, u) => a + Afterfire.UNIT_DEFS[u.kind].upkeep * (s.campaign?.doctrine === 'rebuild' ? 1.15 : 1), 0) + Afterfire.theatreUpkeep(s);
+        const repayment = Math.min(6, s.theatre?.debt ?? 0);
+        return { income, upkeep, repayment, net: income - upkeep - repayment };
+    }
+    Afterfire.budgetProjection = budgetProjection;
+    function monthly(s) {
+        const { income, upkeep } = budgetProjection(s);
         s.lastIncome = income;
         s.lastUpkeep = upkeep;
         s.money += income - upkeep;
@@ -1029,6 +1568,7 @@ var Afterfire;
             s.money = 0;
             Afterfire.addLog(s, '经费不足，军政服务中断，声望受损。', 'bad');
         }
+        Afterfire.theatreMonthly(s);
         snapshot(s);
     }
     function unitsTick(s) {
@@ -1099,7 +1639,7 @@ var Afterfire;
             if (!local.length || d.rebels < .5 || d.hazard > 0 || Afterfire.isTruce(s, d.id))
                 continue;
             const adjacent = s.units.filter(u => Afterfire.active(u) && !u.path.length && d.neighbors.includes(u.at) && u.kind !== 'engineer');
-            const strength = (u) => Afterfire.UNIT_DEFS[u.kind].power * (.4 + .6 * u.hp / 100) * (.25 + .75 * u.supply / 100) * (u.kind === 'national' ? 1 + s.policies.training * .22 : 1) * (u.stance === 'protect' ? .82 : u.stance === 'assault' ? 1.23 : 1) * (1 + u.experience * .002);
+            const strength = (u) => Afterfire.UNIT_DEFS[u.kind].power * Afterfire.theatreCombat(s) * (.4 + .6 * u.hp / 100) * (.25 + .75 * u.supply / 100) * (u.kind === 'national' ? 1 + s.policies.training * .22 : 1) * (u.stance === 'protect' ? .82 : u.stance === 'assault' ? 1.23 : 1) * (1 + u.experience * .002);
             const attack = local.reduce((a, u) => a + strength(u), 0) + adjacent.reduce((a, u) => a + strength(u) * .28, 0);
             const terrain = d.terrain === 'mountain' ? .56 : d.terrain === 'forest' ? .75 : 1;
             const before = d.rebels, kills = Math.min(d.rebels, attack * terrain * .53 * (.85 + Afterfire.rand(s) * .3));
@@ -1147,7 +1687,7 @@ var Afterfire;
             const local = s.units.filter(u => Afterfire.active(u) && u.at === d.id && !u.path.length);
             const engineer = local.some(u => u.kind === 'engineer');
             if (d.project && d.hazard <= 0 && !Afterfire.controlled(d)) {
-                const speed = (Afterfire.hasUpgrade(s, 'works') ? 1.15 : 1) * (Afterfire.hasUpgrade(s, 'precision') ? .93 : 1) * (s.governor === 'engineer' ? 1.3 : 1) * (1 + s.policies.logistics * .2) * (1 - s.corruption * .006) * (d.supplied ? 1 : .22) * (engineer ? 1.7 : 1) * (1 + d.levels.road * .12) * (d.terrain === 'mountain' ? .7 : 1) * (d.rebels > 2 ? .4 : 1);
+                const speed = Afterfire.theatreWorks(s) * (Afterfire.hasUpgrade(s, 'works') ? 1.15 : 1) * (Afterfire.hasUpgrade(s, 'precision') ? .93 : 1) * (s.governor === 'engineer' ? 1.3 : 1) * (1 + s.policies.logistics * .2) * (1 - s.corruption * .006) * (d.supplied ? 1 : .22) * (engineer ? 1.7 : 1) * (1 + d.levels.road * .12) * (d.terrain === 'mountain' ? .7 : 1) * (d.rebels > 2 ? .4 : 1);
                 d.project.progress += speed;
                 if (d.project.progress >= d.project.total) {
                     const kind = d.project.kind;
@@ -1190,6 +1730,10 @@ var Afterfire;
         }
     }
     function enemyTick(s) {
+        if (s.theatre) {
+            Afterfire.theatreEnemyTick(s);
+            return;
+        }
         if (s.week < 12)
             return;
         const factor = Afterfire.difficulty(s) * (s.negotiating ? Math.max(.4, 1 - s.peace / 160) : 1);
@@ -1300,6 +1844,12 @@ var Afterfire;
         }
     }
     function outcomeTick(s) {
+        if (s.theatre) {
+            Afterfire.theatreOutcome(s);
+            if (s.outcome !== 'playing')
+                snapshot(s);
+            return;
+        }
         const held = s.districts.filter(Afterfire.controlled);
         const uncontrolledPop = held.reduce((a, d) => a + d.population, 0) / Afterfire.population(s);
         const stagnation = s.week > 96 ? Math.max(0, .13 - Afterfire.stableShare(s) * .003) : 0;
@@ -1350,6 +1900,7 @@ var Afterfire;
         enemyTick(s);
         Afterfire.updateSupply(s);
         Afterfire.campaignTick(s);
+        Afterfire.theatreTick(s);
         if (s.week % 4 === 0)
             monthly(s);
         outcomeTick(s);
@@ -1438,7 +1989,6 @@ var Afterfire;
         s.stableEver = Array.isArray(x.stableEver) ? [...new Set(x.stableEver.filter(n => Number.isInteger(n) && !!s.districts[n]))] : [];
         s.logs = Array.isArray(x.logs) ? x.logs.slice(0, 75).filter(l => finite(l.week, 0, 360) && typeof l.text === 'string' && ['good', 'bad', 'warn', 'info'].includes(l.type)).map(l => ({ ...l, text: l.text.slice(0, 240) })) : [];
         s.history = Array.isArray(x.history) ? x.history.slice(-110).filter(h => ['week', 'support', 'reputation', 'rebels', 'money', 'stable'].every(k => finite(h[k], 0, 1e8))) : [];
-        s.event = x.event ? eventFor(s) : null;
         s.paused = true;
         s.speed = 1;
         if (!['playing', 'victory', 'defeat'].includes(x.outcome))
@@ -1446,6 +1996,8 @@ var Afterfire;
         s.outcome = x.outcome;
         s.endReason = typeof x.endReason === 'string' ? x.endReason.slice(0, 240) : '';
         Afterfire.restoreCampaign(s, x.campaign);
+        Afterfire.restoreTheatre(s, x.theatre);
+        s.event = x.event ? eventFor(s) : null;
         Afterfire.updateSupply(s);
         return s;
     }
@@ -1723,7 +2275,7 @@ var Afterfire;
                     const count = d.terrain === 'city' ? 32 : d.terrain === 'town' ? 17 : 5;
                     for (let i = 0; i < count; i++) {
                         const col = i % 6, row = Math.floor(i / 6), x = d.x + (col - 2.5) * 8 + row * 2, y = d.y - 8 + (row - 2) * 8 + (col % 2) * 2;
-                        const w = d.terrain === 'city' ? 3.4 + Afterfire.rand(rng) * 1.6 : 3 + Afterfire.rand(rng) * 1.2, h = d.terrain === 'city' ? 5 + Afterfire.rand(rng) * 5 : 3 + Afterfire.rand(rng) * 3, roof = Afterfire.rand(rng) < .55 ? '#bd795b' : '#658a84';
+                        const w = d.terrain === 'city' ? 3.4 + Afterfire.rand(rng) * 1.6 : 3 + Afterfire.rand(rng) * 1.2, h = d.terrain === 'city' ? (this.state.theatre ? 12 + Afterfire.rand(rng) * 19 : 5 + Afterfire.rand(rng) * 5) : 3 + Afterfire.rand(rng) * 3, roof = Afterfire.rand(rng) < .55 ? '#bd795b' : '#658a84';
                         objects.push({ y, draw: () => house(c, x, y, w, h, roof) });
                     }
                 }
@@ -1769,12 +2321,12 @@ var Afterfire;
             c.save();
             c.translate(1005, 487);
             c.rotate(-1.12);
-            c.fillText('T h e   G r e y   S e a', 0, 0);
+            c.fillText(this.state.theatre ? '近 海 · 架 空 水 域' : 'T h e   G r e y   S e a', 0, 0);
             c.restore();
             c.font = 'italic 11px Georgia,serif';
             c.fillStyle = 'rgba(47,66,49,.45)';
-            c.fillText('N O R T H E R N   H I G H L A N D S', 575, 96);
-            c.fillText('H E L A N   B A S I N', 408, 617);
+            c.fillText(this.state.theatre ? '北 部 前 沿 / NORTHERN SECTOR' : 'N O R T H E R N   H I G H L A N D S', 575, 96);
+            c.fillText(this.state.theatre ? '城 市 与 工 业 走 廊' : 'H E L A N   B A S I N', 408, 617);
         }
         volcano(c, hot) {
             const d = this.state.districts[3], x = d.x, y = d.y - 10;
@@ -1928,6 +2480,7 @@ var Afterfire;
                 c.strokeRect(-5, -5, 10, 10);
                 c.restore();
             }
+            this.drawTheatre(c);
             this.drawMissions(c, fraction);
             this.drawLabels(c);
             this.drawUnits(c, fraction);
@@ -2207,6 +2760,103 @@ var Afterfire;
                 c.restore();
             }
         }
+        drawTheatre(c) {
+            const s = this.state, t = s.theatre;
+            if (!t)
+                return;
+            // Geographically abstract railway; every leg follows an existing adjacency edge.
+            const rail = t.assets.find(a => a.kind === 'rail'), factory = t.assets.find(a => a.kind === 'factory');
+            const route = Afterfire.findPath(s, rail.at, factory.at);
+            if (route) {
+                c.save();
+                c.strokeStyle = '#394b49';
+                c.lineWidth = 5;
+                c.beginPath();
+                c.moveTo(s.districts[rail.at].x, s.districts[rail.at].y);
+                route.forEach(id => c.lineTo(s.districts[id].x, s.districts[id].y));
+                c.stroke();
+                c.strokeStyle = '#d5c6a4';
+                c.lineWidth = 3;
+                c.setLineDash([1, 6]);
+                c.stroke();
+                c.restore();
+            }
+            for (const a of t.assets) {
+                const d = s.districts[a.at], x = d.x - 37, y = d.y - 30, online = Afterfire.assetEfficiency(s, a) > 40;
+                c.save();
+                c.translate(x, y);
+                c.fillStyle = online ? '#183e45' : '#773f39';
+                c.strokeStyle = a.work ? '#e9c895' : online ? '#bdd5c7' : '#e9a792';
+                c.lineWidth = 1.4;
+                c.beginPath();
+                c.roundRect(-13, -14, 26, 27, 4);
+                c.fill();
+                c.stroke();
+                c.strokeStyle = '#eee1be';
+                c.lineWidth = 1.3;
+                if (a.kind === 'grid') {
+                    c.beginPath();
+                    c.moveTo(2, -10);
+                    c.lineTo(-6, 1);
+                    c.lineTo(0, 1);
+                    c.lineTo(-1, 8);
+                    c.lineTo(7, -3);
+                    c.lineTo(1, -3);
+                    c.closePath();
+                    c.stroke();
+                }
+                else if (a.kind === 'rail') {
+                    c.strokeRect(-7, -8, 14, 11);
+                    line(c, { x: -5, y: 6 }, { x: 5, y: 6 });
+                    line(c, { x: -6, y: 8 }, { x: -3, y: 3 });
+                    line(c, { x: 6, y: 8 }, { x: 3, y: 3 });
+                }
+                else if (a.kind === 'factory') {
+                    c.beginPath();
+                    c.moveTo(-8, 7);
+                    c.lineTo(-8, -3);
+                    c.lineTo(-2, 0);
+                    c.lineTo(-2, -4);
+                    c.lineTo(4, -1);
+                    c.lineTo(4, -9);
+                    c.lineTo(8, -9);
+                    c.lineTo(8, 7);
+                    c.closePath();
+                    c.stroke();
+                }
+                else {
+                    line(c, { x: 0, y: -4 }, { x: 0, y: 8 });
+                    line(c, { x: -5, y: 8 }, { x: 5, y: 8 });
+                    c.beginPath();
+                    c.arc(0, -5, 7, .25, Math.PI - .25);
+                    c.stroke();
+                    circle(c, 0, -5, 2, '#eee1be');
+                }
+                c.fillStyle = '#183537';
+                c.fillRect(-11, 16, 22, 3);
+                c.fillStyle = online ? '#bcceaf' : '#e9a792';
+                c.fillRect(-11, 16, 22 * a.integrity / 100, 3);
+                if (a.work) {
+                    c.strokeStyle = '#e9c895';
+                    c.setLineDash([3, 3]);
+                    c.lineDashOffset = -this.time * 3;
+                    c.strokeRect(-17, -18, 34, 36);
+                    c.setLineDash([]);
+                }
+                c.restore();
+                this.label(c, Afterfire.ASSETS[a.kind].short, x, y - 19, 9, false, '#f3dfc2');
+            }
+            // Front markers represent fictional edge incursions, never civilian districts as political enemies.
+            if (s.week >= 12)
+                for (const id of Afterfire.THEATRES[t.key].fronts) {
+                    const d = s.districts[id];
+                    c.save();
+                    c.translate(d.x, d.y - 48);
+                    c.fillStyle = '#b56e59';
+                    shape(c, [[-6, -5], [6, -5], [0, 3]], '#e5b397');
+                    c.restore();
+                }
+        }
         drawPreview(c) {
             if (this.selectedUnit === null || this.hover < 0)
                 return;
@@ -2249,6 +2899,7 @@ var Afterfire;
 var Afterfire;
 (function (Afterfire) {
     const ICONS = {
+        power: '<path d="m13 2-9 12h7l-1 8 10-13h-7Z"/>',
         convoy: '<path d="M2 6h13v12H2Zm13 5h4l3 4v3h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
         airlift: '<path d="m3 14 7-2V4l2-2 2 2v8l7 2v3l-7-1v4l2 1H8l2-1v-4l-7 1Z"/>',
         box: '<path d="m3 7 9-4 9 4v12l-9 4-9-4Zm0 0 9 4 9-4m-9 4v12M7 5l10 4v5"/>',
@@ -2319,6 +2970,9 @@ var Afterfire;
             this.showLayers = false;
             this.showAdvanced = false;
             this.advisorOpen = true;
+            this.menuSetting = 'china';
+            this.menuTheatre = 'river';
+            this.cabinetPage = 'plan';
             this.audio = null;
             this.saveErrorShown = false;
             this.menuPreview = '';
@@ -2487,6 +3141,32 @@ var Afterfire;
                 this.refresh();
                 return;
             }
+            if (b.dataset.setting) {
+                this.menuSetting = b.dataset.setting;
+                this.menuPreview = '';
+                this.showMenu();
+                return;
+            }
+            if (b.dataset.theatre) {
+                this.menuTheatre = b.dataset.theatre;
+                this.menuSeed = Afterfire.THEATRES[this.menuTheatre].seed;
+                this.menuPreview = '';
+                this.showMenu();
+                return;
+            }
+            if (b.dataset.cabinetPage) {
+                this.cabinetPage = b.dataset.cabinetPage;
+                this.refresh();
+                return;
+            }
+            if (b.dataset.cabinet) {
+                this.result(Afterfire.cabinetDecision(this.state, b.dataset.cabinet, b.dataset.value));
+                return;
+            }
+            if (b.dataset.repair) {
+                this.result(Afterfire.repairAsset(this.state, b.dataset.repair));
+                return;
+            }
             if (b.dataset.scenario) {
                 this.menuScenario = b.dataset.scenario;
                 this.menuSeed = Afterfire.SCENARIOS[this.menuScenario].seed;
@@ -2650,6 +3330,18 @@ var Afterfire;
                     this.beep();
                     this.showHelp();
                     break;
+                case 'central-support':
+                    this.result(Afterfire.requestCentral(this.state));
+                    break;
+                case 'bridge-finance':
+                    this.result(Afterfire.bridgeFinance(this.state));
+                    break;
+                case 'repay-finance':
+                    this.result(Afterfire.bridgeFinance(this.state, true));
+                    break;
+                case 'diplomatic-channel':
+                    this.result(Afterfire.diplomaticChannel(this.state));
+                    break;
                 case 'peace':
                     this.result(Afterfire.startPeace(this.state));
                     break;
@@ -2762,7 +3454,7 @@ var Afterfire;
                 this.renderer.fit();
         }
         start() {
-            this.state = Afterfire.newGame(this.menuScenario, this.menuGovernor, this.menuDiff, this.menuSeed);
+            this.state = this.menuSetting === 'china' ? Afterfire.newTheatre(this.menuTheatre, this.menuGovernor, this.menuDiff, this.menuDoctrine, this.menuSeed === 58421 ? Afterfire.THEATRES[this.menuTheatre].seed : this.menuSeed) : Afterfire.newGame(this.menuScenario, this.menuGovernor, this.menuDiff, this.menuSeed);
             Afterfire.initCampaign(this.state, this.menuDoctrine);
             this.started = true;
             this.panelOpen = false;
@@ -2808,15 +3500,24 @@ var Afterfire;
                 this.unit = null;
                 this.renderer.selectedUnit = null;
             }
-            const net = s.lastIncome - s.lastUpkeep;
-            this.put('metrics', `<div class="metric money" title="每四周入账，已扣除部队维护">${Afterfire.icon('money')}<div><label>重建资金</label><b>$${Math.floor(s.money)}</b><small>${net >= 0 ? '+' : ''}${net.toFixed(1)}/月</small></div></div><div class="metric" title="行动授权；归零时失败">${Afterfire.icon('flag')}<div><label>行动声望</label><b class="${s.reputation < 35 ? 'bad' : ''}">${Math.ceil(s.reputation)}</b><small>/100</small></div></div><button class="metric metric-button" data-tab="situation" title="稳定的人口比例；点击查看胜利条件">${Afterfire.icon('leaf')}<div><label>稳定人口</label><b>${Afterfire.pct(Afterfire.stableShare(s))}</b><small>/70%</small></div></button>`);
-            this.put('datebox', `<b>第 ${String(s.week).padStart(2, '0')} 周</b><small>${s.rain ? '雨季' : s.week < 12 ? '重建初期' : s.negotiating ? '和平进程' : '区域行动'}</small>`);
+            const net = s.theatre ? Afterfire.budgetProjection(s).net : s.lastIncome - s.lastUpkeep;
+            document.body.classList.toggle('china-mode', !!s.theatre);
+            const brand = document.querySelector('.brand strong');
+            if (brand)
+                brand.textContent = s.theatre ? '山河' : '烬土';
+            this.put('metrics', `<div class="metric money" title="每四周入账，已扣除部队维护">${Afterfire.icon('money')}<div><label>重建资金</label><b>$${Math.floor(s.money)}</b><small>${net >= 0 ? '+' : ''}${net.toFixed(1)}${s.theatre ? '/月预估' : '/月'}</small></div></div><div class="metric" title="行动授权；归零时失败">${Afterfire.icon('flag')}<div><label>行动声望</label><b class="${s.reputation < 35 ? 'bad' : ''}">${Math.ceil(s.reputation)}</b><small>/100</small></div></div><button class="metric metric-button" data-tab="situation" title="稳定的人口比例；点击查看胜利条件">${Afterfire.icon('leaf')}<div><label>稳定人口</label><b>${Afterfire.pct(Afterfire.stableShare(s))}</b><small>/70%</small></div></button>`);
+            if (s.theatre)
+                this.put('metrics', `<div class="metric money" title="抽象预算单位，不对应人民币；显示当前政策下的预计月净额，不含一次性拨款">${Afterfire.icon('money')}<div><label>可用预算</label><b>${Math.floor(s.money)}</b><small>${net >= 0 ? '+' : ''}${net.toFixed(1)}${s.theatre ? '/月预估' : '/月'}</small></div></div><div class="metric" title="协调授权归零将结束本次行动">${Afterfire.icon('flag')}<div><label>协调授权</label><b>${Math.ceil(s.reputation)}</b><small>/100</small></div></div><button class="metric metric-button" data-tab="situation" title="基本公共服务、供电与安全物流的综合覆盖，不等于支持率">${Afterfire.icon('power')}<div><label>民生保供</label><b>${Afterfire.pct(Afterfire.essentials(s))}</b><small>/70%</small></div></button>`);
+            this.put('datebox', `<b>第 ${String(s.week).padStart(2, '0')} 周</b><small>${s.theatre ? (s.negotiating ? '降级与恢复' : s.week < 12 ? '危机准备期' : s.rain ? '雨季保供' : '前线与后方') : s.rain ? '雨季' : s.week < 12 ? '重建初期' : s.negotiating ? '和平进程' : '区域行动'}</small>`);
             this.put('speeds', `<button class="play-toggle ${s.paused ? 'paused' : ''}" data-action="pause" aria-label="${s.paused ? '继续' : '暂停'}">${Afterfire.icon(s.paused ? 'play' : 'pause')}</button>${[1, 2, 4].map(n => `<button data-speed="${n}" class="${s.speed === n ? 'active' : ''}" aria-label="${n}倍速">${n}×</button>`).join('')}<button class="step-button" data-action="tick" aria-label="推进一周" title="推进一周 [.]">↦</button>`);
-            this.put('region-subtitle', `${Afterfire.SCENARIOS[s.scenario].subtitle} <span>·</span> ${DIFF_LABELS[s.difficulty]}`);
-            $('map-title').textContent = Afterfire.SCENARIOS[s.scenario].name;
+            this.put('region-subtitle', `${s.theatre ? Afterfire.THEATRES[s.theatre.key].tag : Afterfire.SCENARIOS[s.scenario].subtitle} <span>·</span> ${DIFF_LABELS[s.difficulty]}${s.theatre ? ' · 2032 架空' : ''}`);
+            $('map-title').textContent = Afterfire.regionalTitle(s);
             this.put('layers', [['terrain', '自然'], ['support', '民心'], ['supply', '补给'], ['intel', '情报']].map(([key, name]) => `<button data-layer="${key}" class="${this.renderer.layer === key ? 'active' : ''}">${name}</button>`).join(''));
             $('layers').classList.toggle('expanded', this.showLayers);
             this.renderAdvisor();
+            const policyLabel = document.querySelector('.command-dock [data-tab=policies] span');
+            if (policyLabel)
+                policyLabel.textContent = s.theatre ? '联席会' : '施政';
             const warning = s.districts.filter(d => d.warning), activeMissions = c?.missions.filter(m => m.status === 'active') ?? [];
             this.put('alerts', `${warning.length ? `<button class="alert warning" data-goto="${(warning.find(d => !d.evacuating) ?? warning[0]).id}">${Afterfire.icon('volcano')}<span>火山预警 <b>${s.eruptionAt - s.week} 周</b><small>${warning.filter(d => d.evacuation >= .9).length}/${warning.length} 地区基本撤离</small></span>${Afterfire.icon('chevron')}</button>` : ''}${c?.draft.length ? `<button class="alert new-draft" data-action="draft">${Afterfire.icon('leaf')}<span>新的施政授权<small>三选一，改变这一局的路线</small></span>${Afterfire.icon('chevron')}</button>` : ''}${activeMissions.some(m => m.stalled) ? `<button class="alert warning" data-tab="missions">${Afterfire.icon('convoy')}<span>外勤行动受阻<small>查看路线，恢复前方安全</small></span>${Afterfire.icon('chevron')}</button>` : ''}`);
             this.put('unit-dock', s.units.map(u => `<button class="unit-chip ${this.unit === u.id ? 'selected' : ''} ${u.hp < 30 ? 'danger' : ''}" data-unit="${u.id}" title="${u.name} · ${s.districts[u.at].name} · 战备 ${Afterfire.pct(u.hp)} · 补给 ${Afterfire.pct(u.supply)}">${Afterfire.icon(u.kind === 'engineer' ? 'wrench' : 'shield')}<span>${u.name}<small>${u.training ? '训练 ' + u.training + '周' : u.path.length ? '行军中' : s.districts[u.at].rebels > 1 ? '接敌' : '待命'}</small></span><i style="--hp:${u.hp}%"></i></button>`).join(''));
@@ -2867,11 +3568,30 @@ var Afterfire;
                 body = '指派疏散与工程支援，不必等到火山喷发。';
                 label = '前往预警地区';
             }
-            this.put('advisor', `<button class="advisor-heading" data-action="advisor" aria-expanded="${this.advisorOpen}"><span class="eyebrow">${o ? '当前承诺' : '下一步'}</span><span>${this.advisorOpen ? '−' : '+'}</span></button>${this.advisorOpen ? `<h3>${Afterfire.escape(title)}</h3><p>${Afterfire.escape(body)}</p>${o ? `<div class="between small"><span>第 ${o.deadline} 周前</span><b>${Afterfire.pct(Math.min(100, Afterfire.contractProgress(s, o)))}</b></div>${meter(Afterfire.contractProgress(s, o))}` : ''}<button class="text-action" ${o && !s.districts.some(d => d.warning && !d.evacuating) ? 'data-tab="missions"' : 'data-action="next-action"'}>${label} ${Afterfire.icon('arrow')}</button>` : ''}`);
+            if (s.theatre) {
+                const t = s.theatre;
+                const damaged = t.assets.filter(a => a.integrity < 65 && !a.work).sort((a, b) => a.integrity - b.integrity)[0];
+                if (s.week < 5) {
+                    title = '先看后方，再看前线';
+                    body = '恢复人口中心的基本服务。中央支持不是即时收入，动员也不是免费战力。';
+                    label = '查看建议地区';
+                }
+                else if (t.pressure > 72) {
+                    title = '威慑正在挤压恢复';
+                    body = '打开「联席会」降低动员，或在「全局」通过授权联络渠道降级。';
+                    label = '查看联席方案';
+                }
+                else if (damaged) {
+                    title = Afterfire.ASSETS[damaged.kind].name + '承压';
+                    body = '设施受损正在影响供电、生产或运输。联席会的「保供」页可派出修复队。';
+                    label = '查看保供设施';
+                }
+            }
+            this.put('advisor', `<button class="advisor-heading" data-action="advisor" aria-expanded="${this.advisorOpen}"><span class="eyebrow">${o ? '当前承诺' : '下一步'}</span><span>${this.advisorOpen ? '−' : '+'}</span></button>${this.advisorOpen ? `<h3>${Afterfire.escape(title)}</h3><p>${Afterfire.escape(body)}</p>${o ? `<div class="between small"><span>第 ${o.deadline} 周前</span><b>${Afterfire.pct(Math.min(100, Afterfire.contractProgress(s, o)))}</b></div>${meter(Afterfire.contractProgress(s, o))}` : ''}<button class="text-action" ${s.theatre && s.week >= 5 ? 'data-tab="policies"' : o && !s.districts.some(d => d.warning && !d.evacuating) ? 'data-tab="missions"' : 'data-action="next-action"'}>${label} ${Afterfire.icon('arrow')}</button>` : ''}`);
         }
         projectButton(d, kind, featured = false) {
             const s = this.state, def = Afterfire.PROJECTS[kind], reason = Afterfire.projectAllowed(s, d.id, kind), cost = Afterfire.projectCost(s, d.id, kind);
-            return `<button class="project-action ${featured ? 'featured' : ''}" data-project="${kind}" ${disabled(reason)}><span class="action-icon">${Afterfire.icon(def.icon)}</span><span class="action-copy"><b>${def.name}${featured ? '<em>当地急需</em>' : ''}</b><small>${reason || briefProject[kind]}</small></span><span class="action-price">$${cost}<small>${def.weeks}周起</small></span></button>`;
+            return `<button class="project-action ${featured ? 'featured' : ''}" data-project="${kind}" ${disabled(reason)}><span class="action-icon">${Afterfire.icon(def.icon)}</span><span class="action-copy"><b>${def.name}${featured ? '<em>当地急需</em>' : ''}</b><small>${reason || (s.theatre && kind === 'school' ? '恢复教育与居民信任' : briefProject[kind])}</small></span><span class="action-price">$${cost}<small>${def.weeks}周起</small></span></button>`;
         }
         districtPanel() {
             const s = this.state, d = s.districts[this.selected], p = d.project;
@@ -2886,6 +3606,7 @@ var Afterfire;
             const ops = this.allOperations ? ['recon', 'convoy', 'mediate', 'airlift'] : d.warning ? ['airlift', 'convoy'] : d.intel < 40 ? ['recon', 'convoy'] : ['convoy', 'mediate'];
             return this.heading(`地区 ${String(d.id + 1).padStart(2, '0')} · ${Afterfire.TERRAIN[d.terrain]}`, d.name, `${(d.population / 10000).toFixed(1)} 万居民 · ${d.id === s.hq ? '行动总部' : state}`) + `
         <div class="local-stats"><div><small>当地民心</small><b>${Afterfire.pct(d.support)}</b></div><div><small>稳定进度</small><b>${Afterfire.pct(d.stability)}</b></div><div><small>补给状态</small><b class="word ${d.supplied ? 'good' : 'bad'}">${d.supplied ? '通畅' : '受阻'}</b></div></div>
+        ${s.theatre ? this.assetCards(d.id) : ''}
         ${d.warning ? `<div class="hazard-card"><div class="between"><b>${Afterfire.icon('volcano')} 距离喷发 ${s.eruptionAt - s.week} 周</b><span>${Afterfire.pct(d.evacuation * 100)}</span></div>${meter(d.evacuation * 100, 'gold')}<button class="primary wide" data-action="evacuate" ${disabled(d.evacuating ? '疏散正在进行' : s.money < Afterfire.evacuateCost(s, d.id) ? '资金不足' : '')}>${d.evacuating ? '疏散正在进行' : '组织居民疏散 · $' + Afterfire.evacuateCost(s, d.id)}</button></div>` : ''}
         ${d.displaced > 0 ? `<div class="notice-card"><b>${Afterfire.round(d.displaced).toLocaleString()} 人等待安置</b><button data-action="relief" ${disabled(s.money < 6 ? '资金不足' : '')}>应急安置 · $6</button></div>` : ''}
         ${Afterfire.isTruce(s, d.id) ? `<div class="quiet-note good">地方停火还剩 ${s.campaign.truces[d.id] - s.week} 周。</div>` : ''}
@@ -2894,10 +3615,12 @@ var Afterfire;
         <button class="disclosure" data-action="all-projects" aria-expanded="${this.allProjects}">${this.allProjects ? '收起完整工程目录' : '查看全部 8 类工程'} <span>${this.allProjects ? '−' : '+'}</span></button>
         ${this.allProjects ? `<div class="all-projects">${Object.keys(Afterfire.PROJECTS).filter(k => p || !kinds.includes(k)).map(k => this.projectButton(d, k)).join('')}</div>` : ''}
         <div class="section-label"><h3>不只有建设</h3><button class="inline-link" data-action="all-operations">${this.allOperations ? '收起' : '全部行动'}</button></div>
-        <div class="operations-grid">${ops.map(k => { const def = Afterfire.OPERATIONS[k], reason = Afterfire.operationAllowed(s, d.id, k); return `<button class="operation-card" data-operation="${k}" ${disabled(reason)} title="${Afterfire.escape(reason || def.desc)}">${Afterfire.icon(def.icon)}<b>${def.name}</b><span>$${Afterfire.operationCost(s, k)} <small>${k === 'convoy' ? '按路程' : def.weeks + '周'}</small></span><small>${reason || (k === 'convoy' ? '车队需要安全路线' : k === 'mediate' ? '减少武装，不靠进攻' : k === 'recon' ? '揭示本区和邻区情报' : '绕过地面道路')}</small></button>`; }).join('')}</div>
+        <div class="operations-grid">${ops.map(k => { const def = Afterfire.OPERATIONS[k], reason = Afterfire.operationAllowed(s, d.id, k); return `<button class="operation-card" data-operation="${k}" ${disabled(reason)} title="${Afterfire.escape(reason || (s.theatre && k === 'mediate' ? '接触前线武装以争取局部停火；居民不是敌方兵源。' : def.desc))}">${Afterfire.icon(def.icon)}<b>${s.theatre && k === 'mediate' ? '接触协调' : def.name}</b><span>$${Afterfire.operationCost(s, k)} <small>${k === 'convoy' ? '按路程' : def.weeks + '周'}</small></span><small>${reason || (k === 'convoy' ? '车队需要安全路线' : k === 'mediate' ? '减少武装，不靠进攻' : k === 'recon' ? '揭示本区和邻区情报' : '绕过地面道路')}</small></button>`; }).join('')}</div>
         <div class="district-foot">情报 ${Afterfire.pct(d.intel)} <span>·</span> 武装 ${this.rebelLabel(d)} <span>·</span> 道路 ${d.levels.road} 级</div>`;
         }
         policyPanel() {
+            if (this.state.theatre)
+                return this.theatrePanel();
             const s = this.state, c = s.campaign, doctrine = Afterfire.DOCTRINES[c.doctrine];
             const notes = { audit: '持续降低腐败与工程浪费', outreach: '全区民心与情报逐步增长', logistics: '多一支工程队，施工 +20%', training: '国民军战力 +22%，训练更快', diplomacy: '减少招募，解锁正式和谈', forecast: '预警提前 8 周，疏散更快' };
             return this.heading('治理路线', doctrine.name, doctrine.desc) + `<div class="tradeoff">${Afterfire.icon('flag')} ${doctrine.tradeoff}</div>
@@ -2909,9 +3632,9 @@ var Afterfire;
         forcePanel() {
             const s = this.state, u = s.units.find(u => u.id === this.unit);
             return this.heading('安全与支援', u ? u.name : '把安全送到前线', u ? `${s.districts[u.at].name} · ${u.training ? '训练还需 ' + u.training + ' 周' : u.path.length ? '正在行军' : '等待你的命令'}` : '选择部队，再点击目的地区域。道路与相邻支援决定行动效率。') +
-                (u ? `<div class="unit-detail"><div class="unit-sigil">${Afterfire.icon(u.kind === 'engineer' ? 'wrench' : 'shield')}</div><div class="unit-bars"><label>战备 <b>${Afterfire.pct(u.hp)}</b></label>${meter(u.hp)}<label>补给 <b>${Afterfire.pct(u.supply)}</b></label>${meter(u.supply, 'blue')}</div></div><div class="segmented stances">${Object.keys(STANCES).map(k => `<button data-stance="${k}" data-id="${u.id}" class="${u.stance === k ? 'active' : ''}">${STANCES[k]}</button>`).join('')}</div><p class="quiet-note">${u.stance === 'protect' ? '优先保护居民，战力略低，居民伤亡风险更小。' : u.stance === 'balanced' ? '在效率与居民风险之间维持平衡。' : '突击提高战力，也提高居民伤亡风险；会结束所在地停火。'}</p>${u.path.length ? `<button class="wide" data-halt="${u.id}">到下一地区后停止行军</button>` : u.training ? '' : '<div class="move-instruction">点击地图上的目的地，预览路线后出发。</div>'}${u.kind === 'coalition' ? `<div class="contract-line"><span>驻留剩余 ${u.contract} 周</span><button data-extend="${u.id}" ${disabled(u.contract > 70 ? '合同尚有充足时间' : s.money < 11 ? '资金不足' : '')}>延期 · $11</button></div>` : ''}<div class="divider"></div>` : '') +
+                (u ? `<div class="unit-detail"><div class="unit-sigil">${Afterfire.icon(u.kind === 'engineer' ? 'wrench' : 'shield')}</div><div class="unit-bars"><label>战备 <b>${Afterfire.pct(u.hp)}</b></label>${meter(u.hp)}<label>补给 <b>${Afterfire.pct(u.supply)}</b></label>${meter(u.supply, 'blue')}</div></div><div class="segmented stances">${Object.keys(STANCES).map(k => `<button data-stance="${k}" data-id="${u.id}" class="${u.stance === k ? 'active' : ''}">${STANCES[k]}</button>`).join('')}</div><p class="quiet-note">${u.stance === 'protect' ? '优先保护居民，战力略低，居民伤亡风险更小。' : u.stance === 'balanced' ? '在效率与居民风险之间维持平衡。' : '突击提高战力，也提高居民伤亡风险；会结束所在地停火。'}</p>${u.path.length ? `<button class="wide" data-halt="${u.id}">到下一地区后停止行军</button>` : u.training ? '' : '<div class="move-instruction">点击地图上的目的地，预览路线后出发。</div>'}${u.kind === 'coalition' ? `<div class="contract-line"><span>${s.theatre ? '轮换前剩余' : '驻留剩余'} ${u.contract} 周</span><button data-extend="${u.id}" ${disabled(u.contract > 70 ? '合同尚有充足时间' : s.money < 11 ? '资金不足' : '')}>延期 · $11</button></div>` : ''}<div class="divider"></div>` : '') +
                 `${s.units.length ? `<div class="roster">${s.units.map(x => `<button class="roster-row ${x.id === this.unit ? 'active' : ''}" data-unit="${x.id}">${Afterfire.icon(x.kind === 'engineer' ? 'wrench' : 'shield')}<span><b>${x.name}</b><small>${s.districts[x.at].name} · ${x.training ? '训练中' : x.path.length ? '行军中' : '待命'}</small></span><span class="hp">${Afterfire.pct(x.hp)}</span>${Afterfire.icon('chevron')}</button>`).join('')}</div>` : ''}
-        <div class="section-label"><h3>增派支援</h3><span>${s.units.length}/7 支部队</span></div><div class="recruits">${Object.keys(Afterfire.UNIT_DEFS).map(k => { const def = Afterfire.UNIT_DEFS[k], cost = Afterfire.recruitCost(s, k); return `<div class="recruit-card"><div>${Afterfire.icon(k === 'engineer' ? 'wrench' : 'shield')}<b>${def.name}</b><small>${k === 'coalition' ? '2周训练 · 96周合同' : k === 'national' ? '长期驻守 · 训练较慢' : '施工与疏散 · 战力弱'}</small></div><button data-recruit="${k}" ${disabled(s.units.length >= 7 ? '部署已满' : s.money < cost ? '资金不足' : '')}>$${cost} ${Afterfire.icon('plus')}</button></div>`; }).join('')}</div>`;
+        <div class="section-label"><h3>增派支援</h3><span>${s.units.length}/7 支部队</span></div><div class="recruits">${Object.keys(Afterfire.UNIT_DEFS).map(k => { const def = Afterfire.UNIT_DEFS[k], cost = Afterfire.recruitCost(s, k); return `<div class="recruit-card"><div>${Afterfire.icon(k === 'engineer' ? 'wrench' : 'shield')}<b>${Afterfire.unitTitle(s, k)}</b><small>${k === 'coalition' ? (s.theatre ? '2周整备 · 96周轮换' : '2周训练 · 96周合同') : k === 'national' ? '长期驻守 · 训练较慢' : '施工与疏散 · 战力弱'}</small></div><button data-recruit="${k}" ${disabled(s.units.length >= 7 ? '部署已满' : s.money < cost ? '资金不足' : '')}>$${cost} ${Afterfire.icon('plus')}</button></div>`; }).join('')}</div>`;
         }
         missionPanel() {
             const s = this.state, c = s.campaign, orders = c.contracts.filter(o => o.status === 'offer' || o.status === 'active'), missions = c.missions.filter(m => m.status === 'active');
@@ -2929,6 +3652,8 @@ var Afterfire;
             return `<svg viewBox="0 0 280 126" class="situation-chart" role="img" aria-label="声望与稳定人口趋势"><path d="M10 14H270M10 59H270M10 104H270" stroke="currentColor" opacity=".12" stroke-dasharray="3 5"/><polyline points="${points('reputation')}" fill="none" stroke="#85ada6" stroke-width="1.6"/><polyline points="${points('stable')}" fill="none" stroke="#dcb472" stroke-width="2"/><text x="10" y="121">W${h[0].week}</text><text x="245" y="121">W${h[h.length - 1].week}</text></svg><div class="chart-legend"><span>— 行动声望</span><span>— 稳定人口</span></div>`;
         }
         situationPanel() {
+            if (this.state.theatre)
+                return this.theatreSituation();
             const s = this.state, goals = [[Afterfire.stableShare(s) >= 70, '让 70% 人口生活稳定', `${Afterfire.pct(Afterfire.stableShare(s))} / 70%`], [s.peace >= 100, '让和平协议获得支持', `${Afterfire.pct(s.peace)} / 100%`], [s.peaceHold >= 8, '在安全条件下巩固 8 周', `${s.peaceHold} / 8 周`]];
             return this.heading('行动全局', '不是占领，而是留下生活', '城市安全、基本服务和地方认同共同决定结局。') +
                 `<div class="goals">${goals.map(([yes, t, v]) => `<div class="goal ${yes ? 'done' : ''}"><i>${yes ? '✓' : ''}</i><div><b>${t}</b><small>${v}</small></div></div>`).join('')}</div>
@@ -2959,6 +3684,11 @@ var Afterfire;
             this.modalFocus = null;
         }
         showMenu() {
+            if (this.menuSetting === 'china') {
+                this.showTheatreMenu();
+                return;
+            }
+            document.body.classList.remove('china-mode');
             let saved = false;
             try {
                 saved = !!(localStorage.getItem(SAVE_KEY) || localStorage.getItem(LEGACY_KEY));
@@ -2975,14 +3705,59 @@ var Afterfire;
         <div class="launch-story"><div class="eyebrow">重建策略 · SECOND EDITION</div><h1>让生活，<br>先于承诺抵达。</h1><p>修复一条道路，兑现一份承诺。<br>在冲突与灰烬之间，选择你自己的重建之路。</p></div>
         <div class="launch-location"><span class="eyebrow">${this.menuScenario === 'volcano' ? '02' : this.menuScenario === 'valley' ? '01' : '03'} / 河岚联省</span><strong>${Afterfire.SCENARIOS[this.menuScenario].name}</strong><small>程序生成地形 · 每一条路都可以抵达</small></div>
         <div class="launch-config">
-          <div class="config-top"><span class="eyebrow">选择你的下一场行动</span><button class="inline-link" data-action="advanced">${this.showAdvanced ? '收起设置' : '难度与高级设置'} ${Afterfire.icon('chevron')}</button></div>
+          <div class="config-top"><button class="inline-link" data-setting="china">← 中国背景战役</button><span class="eyebrow">经典重建</span><button class="inline-link" data-action="advanced">${this.showAdvanced ? '收起设置' : '难度与高级设置'} ${Afterfire.icon('chevron')}</button></div>
           <div class="scenario-options">${Object.keys(Afterfire.SCENARIOS).map((k, i) => `<button class="scenario-option ${this.menuScenario === k ? 'active' : ''}" data-scenario="${k}"><span class="scenario-number">0${i + 1}</span><div>${Afterfire.icon(k === 'volcano' ? 'volcano' : k === 'corridor' ? 'convoy' : 'home')}<strong>${Afterfire.SCENARIOS[k].name}</strong><small>${k === 'valley' ? '恢复民生，连接乡村' : k === 'volcano' ? '守住城市，也救下居民' : '保护车队，打通生命线'}</small></div><span class="scenario-check">${this.menuScenario === k ? '✓' : ''}</span></button>`).join('')}</div>
           <div class="route-row"><span class="route-label">重建路线</span><div class="route-choices">${Object.keys(Afterfire.DOCTRINES).map(k => `<button data-doctrine="${k}" class="${k === this.menuDoctrine ? 'active' : ''}">${Afterfire.icon(Afterfire.DOCTRINES[k].icon)}${Afterfire.DOCTRINES[k].name}</button>`).join('')}</div></div>
           <div class="route-description"><span>${d.desc}</span><small>代价：${d.tradeoff}</small></div>
           ${this.showAdvanced ? `<div class="advanced-config"><div><label>行动强度</label><div class="segmented">${Object.keys(DIFF_LABELS).map(k => `<button data-difficulty="${k}" class="${this.menuDiff === k ? 'active' : ''}">${DIFF_LABELS[k]}</button>`).join('')}</div></div><div><label>治理者</label><div class="segmented">${Object.keys(Afterfire.GOVERNORS).map(k => `<button data-governor="${k}" title="${Afterfire.escape(Afterfire.GOVERNORS[k].desc)}" class="${this.menuGovernor === k ? 'active' : ''}">${Afterfire.GOVERNORS[k].name}</button>`).join('')}</div></div><label class="seed-control">地图种子<input type="number" min="0" max="4294967295" id="seed-input" value="${this.menuSeed}"></label></div>` : ''}
           <div class="launch-bottom"><div>${this.started ? '<button class="continue-button" data-action="resume">返回当前行动</button>' : saved ? '<button class="continue-button" data-action="continue">继续上次行动</button>' : '<span class="start-hint">可随时暂停思考 · 首次建议「河谷重建」</span>'}<small>新行动会覆盖自动存档。需要保留时请先导出。</small></div><button class="primary launch-button" data-action="start">开始重建 ${Afterfire.icon('arrow')}</button></div>
-        </div><div class="launch-footer">原创实时策略 · v0.2.0 <span>完全离线 / 无外部资源</span></div>
+        </div><div class="launch-footer">原创实时策略 · v0.3.0 <span>完全离线 / 无外部资源</span></div>
       </section>`, 'menu');
+        }
+        assetCards(at) {
+            const s = this.state, t = s.theatre;
+            if (!t)
+                return '';
+            return t.assets.filter(a => at === undefined || a.at === at).map(a => `<article class="asset-card"><div class="between"><span>${Afterfire.icon(Afterfire.ASSETS[a.kind].icon)} <b>${Afterfire.ASSETS[a.kind].name}</b></span><strong class="${a.integrity < 50 ? 'bad' : 'gold'}">${Afterfire.pct(a.integrity)}</strong></div><p>${s.districts[a.at].name} · ${Afterfire.assetEfficiency(s, a) < a.integrity ? '安全或补给受阻' : '接入供应网络'} · 加固 ${a.level}/2</p>${meter(a.integrity)}<div class="between"><button class="text-action" data-goto="${a.at}">地图定位</button><button data-repair="${a.kind}" ${disabled(Afterfire.repairAssetAllowed(s, a.kind))}>${a.work ? '施工 ' + Math.ceil(a.work) + ' 周' : '修复加固 · 12'}</button></div></article>`).join('');
+        }
+        theatrePanel() {
+            const s = this.state, t = s.theatre, c = s.campaign;
+            const top = this.heading('2032 / 省域联席协调', '不是一个人的战争', '军地与部门共同执行；以下是游戏化的统筹方案，不对应现实职权。') + `<div class="local-stats"><div><small>电力可靠性</small><b>${Afterfire.pct(t.power)}</b></div><div><small>民用产出</small><b>${Afterfire.pct(t.output)}</b></div><div><small>外部压力</small><b class="${t.pressure > 70 ? 'bad' : ''}">${Math.round(t.pressure)}</b></div></div><div class="segmented cabinet-tabs">${[['plan', '联席方案'], ['supply', '关键保供'], ['capacity', '长期能力']].map(([k, n]) => `<button data-cabinet-page="${k}" class="${this.cabinetPage === k ? 'active' : ''}">${n}</button>`).join('')}</div>`;
+            if (this.cabinetPage === 'plan') {
+                const axis = (key, name, defs) => `<div class="cabinet-axis"><div class="section-label"><h3>${name}</h3></div><div class="segmented">${Object.entries(defs).map(([k, v]) => `<button data-cabinet="${key}" data-value="${k}" title="${Afterfire.escape(v.desc)}" class="${t[key] === k ? 'active' : ''}" ${disabled(t[key] === k ? '正在执行' : s.week < t.nextCabinet ? '联席方案4周内不能连续调整' : '')}>${v.name}</button>`).join('')}</div><p>${defs[t[key]].desc}</p></div>`;
+                return top + axis('readiness', '军地资源占用', Afterfire.READINESS) + axis('allocation', '公共预算侧重', Afterfire.ALLOCATIONS) + axis('coordination', '执行与协调方式', Afterfire.COORDINATIONS) + `<div class="quiet-note">${s.week < t.nextCabinet ? '下一次调整：第 ' + t.nextCabinet + ' 周。' : '可调整一项；随后锁定4周。'}<br>当前方案每月额外支出 ${Afterfire.theatreUpkeep(s)} 预算。强化动员会抬升外部压力，并阻碍停火进程。</div><button class="text-action" data-tab="situation">查看降级与胜利条件 ${Afterfire.icon('arrow')}</button>`;
+            }
+            if (this.cabinetPage === 'supply') {
+                const q = t.supportRequest;
+                return top + `<p class="quiet-note">每次只派一支跨区技术队。安全与补给恢复后，修复才会继续。地图上的方形标记是关键设施。</p>` + this.assetCards() + `<div class="section-label"><h3>中央支持与财政周转</h3></div><div class="funding-card"><b>${q ? (q.received ? '32预算已到账，等待用途核验' : '支持申请办理中') : '申请中央专项支持'}</b><p>${q ? `第 ${q.arrival} 周拨付 · 第 ${q.deadline} 周核验<br>新增民用投入 ${Math.floor(s.spentCivil - q.baseline)}/24 · 腐败 ${Math.round(s.corruption)}/30` : '4周后拨付32；24周内新增民用投入≥24、腐败≤30。通过授权+3，未通过−6。两次申请至少间隔48周。'}</p><button class="wide" data-action="central-support" ${disabled(q ? '申请或考核尚未结清' : s.week < t.nextSupport ? '尚在申请冷却期' : s.reputation < 35 ? '协调授权至少35' : '')}>申请专项支持</button></div><details class="finance-details"><summary>应急周转 · 当前待偿还 ${t.debt.toFixed(0)}</summary><p>立即获得36，总偿还42；每月自动扣6，未结清不可重复使用。不是人民币或真实债券机制。</p><div class="row"><button data-action="bridge-finance" ${disabled(t.debt > 0 ? '先结清上一笔' : '')}>安排周转</button><button data-action="repay-finance" ${disabled(t.debt <= 0 ? '无待偿还余额' : s.money < Math.min(t.debt, 20) ? '预算不足' : '')}>提前归还</button></div></details>`;
+            }
+            return top + `${c.draft.length ? `<button class="draft-invitation" data-action="draft">${Afterfire.icon('leaf')}<div><b>新的施政授权</b><small>三选一 · 只持续本局</small></div>${Afterfire.icon('arrow')}</button>` : ''}<div class="selected-perks">${c.upgrades.map(k => `<span title="${Afterfire.escape(Afterfire.UPGRADES[k].desc)}">${Afterfire.UPGRADES[k].name}</span>`).join('')}</div><div class="policy-list">${Object.keys(Afterfire.POLICIES).filter(k => k !== 'forecast').map(k => { const def = Afterfire.POLICIES[k], cost = Afterfire.policyCost(s, k), names = { outreach: '市县联络机制', training: '联合保障训练', diplomacy: '停火协调机制' }; return `<button class="policy-action" data-policy="${k}" ${disabled(s.policies[k] >= def.max ? '已满级' : s.money < cost ? '预算不足' : '')}><span class="action-icon">${Afterfire.icon(def.icon)}</span><span class="action-copy"><b>${names[k] ?? def.name}</b><small>${k === 'diplomacy' ? '支持正式停火谈判与危机降级' : k === 'training' ? '提高区域防御群战力，缩短整备时间' : def.desc}</small><span class="level-pips">${Array.from({ length: def.max }, (_, i) => `<i class="${i < s.policies[k] ? 'filled' : ''}"></i>`).join('')}</span></span><b class="action-price">${cost}</b></button>`; }).join('')}</div><p class="quiet-note">腐败 ${Afterfire.pct(s.corruption)} · 通胀 ${Afterfire.pct(s.inflation)}<br>新授权在16、56、104周到达，不需立即选择。</p>`;
+        }
+        theatreSituation() {
+            const s = this.state, t = s.theatre;
+            const held = s.districts.filter(Afterfire.controlled).reduce((n, d) => n + d.population, 0) / Afterfire.population(s) * 100;
+            const peace = s.peace >= 85 && t.pressure <= 60 && Afterfire.totalRebels(s) < 85, secure = Afterfire.totalRebels(s) < 8 && t.pressure <= 72;
+            const goals = [
+                [Afterfire.essentials(s) >= 70 && t.output >= 55, '让社会继续运转', `民生保供 ${Math.round(Afterfire.essentials(s))}/70% · 民用产出 ${Math.round(t.output)}/55%`],
+                [Afterfire.stableShare(s) >= 55 && held < 8, '恢复地方生活与安全', `稳定人口 ${Math.round(Afterfire.stableShare(s))}/55% · 敌控人口 ${held.toFixed(1)}% <8%`],
+                [peace || secure, '危机降级或守住防线', `停火 ${Math.round(s.peace)}/85% · 外部压力 ${Math.round(t.pressure)}`],
+                [t.hold >= 8, '第64周后连续维持8周', `${t.hold}/8 周 · 当前第 ${s.week} 周`]
+            ];
+            return this.heading('全局 / 前线与后方', '胜利不是地图全绿', '保供、生产、地方认同和持续安全，必须同时成立。') + `<div class="goals">${goals.map(([yes, n, v]) => `<div class="goal ${yes ? 'done' : ''}"><i>${yes ? '✓' : ''}</i><div><b>${n}</b><small>${v}</small></div></div>`).join('')}</div><div class="funding-card"><b>经授权的外部联络渠道</b><p>完成核验与人道协调，外部压力 −9；支出8，每16周一次。强化动员期间无法执行。</p><button class="wide" data-action="diplomatic-channel" ${disabled(t.readiness === 'mobilized' ? '先降低动员级别' : s.week < t.nextTalk ? '第 ' + t.nextTalk + ' 周后可再联络' : s.money < 8 ? '预算不足' : '')}>开展降级联络 · 8</button></div><button class="primary wide" data-action="peace" ${disabled(s.negotiating ? '已经启动' : s.week < 48 ? '第48周后开放' : s.policies.diplomacy < 1 ? '先建设停火协调机制' : Afterfire.support(s) < 48 ? '全区民心至少48%' : Afterfire.totalRebels(s) > 180 ? '先遏制敌方兵力' : t.readiness === 'mobilized' ? '先降低动员级别' : s.money < 12 ? '预算不足' : '')}>${s.negotiating ? '停火进程 · ' + Afterfire.pct(s.peace) : '启动正式停火协调 · 12'}</button><p class="quiet-note">降级路线：停火≥85%、外压≤60、敌方兵力&lt;85。<br>防御路线：敌方兵力&lt;8、外压≤72。<br>两条路线都需要满足上方民生与生产条件。<br>外压≥98连续12周、授权归零或第300周仍未达标则失败。</p><div class="local-stats"><div><small>中央支持到账</small><b>${t.grants}次</b></div><div><small>专项考核通过</small><b>${t.reviews}次</b></div><div><small>居民伤亡</small><b>${s.casualties}</b></div></div><div class="log-list">${s.logs.slice(0, 10).map(l => `<div class="log ${l.type}"><time>${l.week}</time><p>${Afterfire.escape(l.text)}</p></div>`).join('')}</div>`;
+        }
+        showTheatreMenu() {
+            document.body.classList.add('china-mode');
+            let saved = false;
+            try {
+                saved = !!(localStorage.getItem(SAVE_KEY) || localStorage.getItem(LEGACY_KEY));
+            }
+            catch { }
+            const def = Afterfire.THEATRES[this.menuTheatre], key = 'china' + this.menuTheatre + this.menuSeed;
+            if (this.menuPreview !== key || this.renderer.state === this.state) {
+                this.renderer.replace(Afterfire.newTheatre(this.menuTheatre, this.menuGovernor, this.menuDiff, this.menuDoctrine, this.menuSeed === 58421 ? def.seed : this.menuSeed));
+                this.menuPreview = key;
+            }
+            this.setModal(`<section class="launch china-launch"><div class="launch-wordmark"><span class="province-seal">山河</span> 山河之间 <span>AFTERFIRE</span></div><div class="launch-story"><div class="eyebrow">现代中国背景 / 架空政军策略</div><h1>守住前线。<br>也守住生活。</h1><p>一场危机，不能只用战争回答。<br>在联席协调桌上，决定资源如何抵达需要它的人。</p></div><div class="launch-location"><span class="eyebrow">2032 / ${def.region}</span><strong>${def.name}</strong><small>工业、城市与交通 · 不对应现实地图</small></div><div class="launch-config"><div class="config-top"><span class="eyebrow">选择一场省域危机</span><button class="inline-link" data-setting="classic">经典重建模式 ${Afterfire.icon('chevron')}</button></div><div class="scenario-options">${Object.keys(Afterfire.THEATRES).map((k, i) => `<button class="scenario-option ${k === this.menuTheatre ? 'active' : ''}" data-theatre="${k}"><span class="scenario-number">0${i + 1}</span><div>${Afterfire.icon(k === 'river' ? 'power' : k === 'coast' ? 'peace' : 'convoy')}<strong>${Afterfire.THEATRES[k].name}</strong><small>${k === 'river' ? '工业保卫 · 县域民生' : k === 'coast' ? '通商压力 · 动员取舍' : '交通保障 · 跨区协同'}</small></div><span class="scenario-check">${k === this.menuTheatre ? '✓' : ''}</span></button>`).join('')}</div><p class="theatre-brief">${def.brief}</p><div class="route-row"><span class="route-label">初始路线</span><div class="route-choices">${Object.keys(Afterfire.DOCTRINES).map(k => `<button data-doctrine="${k}" class="${k === this.menuDoctrine ? 'active' : ''}">${Afterfire.icon(Afterfire.DOCTRINES[k].icon)}${Afterfire.DOCTRINES[k].name}</button>`).join('')}</div></div><div class="route-description"><span>${Afterfire.DOCTRINES[this.menuDoctrine].desc}</span><small>代价：${Afterfire.DOCTRINES[this.menuDoctrine].tradeoff}</small></div><div class="between theatre-difficulty"><span>危机强度</span><div class="segmented">${Object.keys(DIFF_LABELS).map(k => `<button data-difficulty="${k}" class="${this.menuDiff === k ? 'active' : ''}">${DIFF_LABELS[k]}</button>`).join('')}</div><button class="inline-link" data-action="advanced">${this.showAdvanced ? '收起' : '高级'}</button></div>${this.showAdvanced ? `<div class="advanced-config"><div><label>执行专长</label><div class="segmented">${Object.keys(Afterfire.GOVERNORS).map(k => `<button data-governor="${k}" title="${Afterfire.escape(Afterfire.GOVERNORS[k].desc)}" class="${this.menuGovernor === k ? 'active' : ''}">${Afterfire.GOVERNORS[k].name}</button>`).join('')}</div></div><label class="seed-control">地图种子<input type="number" id="seed-input" min="0" max="4294967295" value="${this.menuSeed === 58421 ? def.seed : this.menuSeed}"></label></div>` : ''}<div class="launch-bottom"><div>${this.started ? '<button class="continue-button" data-action="resume">返回当前行动</button>' : saved ? '<button class="continue-button" data-action="continue">继续上次行动</button>' : '<span class="start-hint">首次建议「江城保卫线 / 宽松」</span>'}<small>新行动覆盖自动存档；需要保留时先导出。</small></div><button class="primary launch-button" data-action="start">进入联席会 ${Afterfire.icon('arrow')}</button></div></div><div class="launch-footer">虚构地区与冲突 · 非现实预测 <span>v0.3.0 / 完全离线</span></div></section>`, 'menu');
         }
         showDraft() {
             const c = this.state.campaign;
@@ -2997,11 +3772,11 @@ var Afterfire;
             this.setModal(`<section class="modal event-modal"><div class="event-illustration">${emblem(e.id === 'village' || e.id === 'splinter' ? 'peace' : e.id === 'rain' ? 'convoy' : 'home')}<span>FIELD DISPATCH</span></div><div class="event-content"><div class="eyebrow">现场来信 · 第 ${this.state.week} 周</div><h2>${Afterfire.escape(e.title)}</h2><p>${Afterfire.escape(e.body)}</p><div class="event-choices">${e.choices.map((c, i) => `<button class="event-choice" data-choice="${i}" ${disabled(this.state.money < c.cost ? '资金不足' : '')}><span class="choice-index">0${i + 1}</span><span><b>${Afterfire.escape(c.text)}</b><small>${Afterfire.escape(c.detail)}</small></span>${Afterfire.icon('chevron')}</button>`).join('')}</div><div class="event-foot">当前资金 $${Math.floor(this.state.money)} <span>行动已暂停，等待你的选择</span></div></div></section>`, 'event');
         }
         showHelp() {
-            this.setModal(`<section class="modal help-modal"><button class="close icon-button" data-action="close" aria-label="关闭手册">${Afterfire.icon('cross')}</button><div class="eyebrow">FIELD MANUAL</div><h2>先看地图，再做决定。</h2><div class="help-grid"><div><b>01 / 点击地区</b><p>默认只展示三项建议工程。回应诉求比平均花钱更有效；完整目录按需展开。</p></div><div><b>02 / 选部队，再点目的地</b><p>移动需要时间。相邻部队互相支援，低补给削弱战力。行军途中可以在下一站停止。</p></div><div><b>03 / 不只有进攻</b><p>侦察揭示邻区；运输改善生活；调解削弱武装；空运绕过断路。最多两组外勤同时执行。</p></div><div><b>04 / 选择自己的路线</b><p>第 16、56、104 周的三选一授权改变整局策略。委托是可选目标，不完成不会阻止基础胜利。</p></div><div><b>05 / 在火山喷发前救人</b><p>危险区会出现黄色边界。组织疏散，配合安置设施与工兵；喷发将封路 12 周。</p></div><div><b>06 / 让重建持续下去</b><p>每四周预算结算。别把全部资金用于军队。完整胜利条件、民心与日志在「全局」中查看。</p></div></div><div class="keys"><kbd>空格</kbd> 暂停 <kbd>1 2 3</kbd> 调速 <kbd>.</kbd> 推进一周 <kbd>Esc</kbd> 收起<br><kbd>B / U / P / M / I</kbd> 建设 / 部队 / 施政 / 委托 / 全局</div><div class="save-tools"><button data-action="save">${Afterfire.icon('save')} 保存</button><button data-action="export">导出存档</button><button data-action="import">导入存档</button><button data-action="sound">${Afterfire.icon(this.sound ? 'sound' : 'mute')}${this.sound ? '关闭音效' : '开启音效'}</button><button data-action="menu">主菜单</button></div><p class="legal">支持旧版存档。每四周自动保存；切到后台自动暂停。本游戏的地区与数值为虚构，素材由代码原创绘制，与 Rebel Inc. 无官方关系。种子 ${this.state.seed} · v0.2.0</p></section>`, 'help');
+            this.setModal(`<section class="modal help-modal"><button class="close icon-button" data-action="close" aria-label="关闭手册">${Afterfire.icon('cross')}</button><div class="eyebrow">FIELD MANUAL</div><h2>先看地图，再做决定。</h2>${this.state.theatre ? `<div class="fiction-note">2032年中国背景架空战役。地图、敌方与事件均虚构；玩家代表军地联席协调桌，不对应现实任何单一职务。货币均为游戏预算点。</div><p class="quiet-note">联席会：常态/有限/强化动员，预算侧重，属地/协同/集中响应。保供页：修复4类关键设施，申请有考核的中央支持。全局页：外部降级与完整胜利条件。军事控制、居民认同和民生保供是不同指标。</p>` : ''}<div class="help-grid"><div><b>01 / 点击地区</b><p>默认只展示三项建议工程。回应诉求比平均花钱更有效；完整目录按需展开。</p></div><div><b>02 / 选部队，再点目的地</b><p>移动需要时间。相邻部队互相支援，低补给削弱战力。行军途中可以在下一站停止。</p></div><div><b>03 / 不只有进攻</b><p>侦察揭示邻区；运输改善生活；调解削弱武装；空运绕过断路。最多两组外勤同时执行。</p></div><div><b>04 / 选择自己的路线</b><p>第 16、56、104 周的三选一授权改变整局策略。委托是可选目标，不完成不会阻止基础胜利。</p></div><div><b>05 / ${this.state.theatre ? '稳住关键设施' : '在火山喷发前救人'}</b><p>${this.state.theatre ? '电力影响工业与民生；货运影响产出，通信影响情报。一次只能修复一处，断供时暂停施工。' : '危险区会出现黄色边界。组织疏散，配合安置设施与工兵；喷发将封路 12 周。'}</p></div><div><b>06 / 让重建持续下去</b><p>每四周预算结算。别把全部资金用于军队。完整胜利条件、民心与日志在「全局」中查看。</p></div></div><div class="keys"><kbd>空格</kbd> 暂停 <kbd>1 2 3</kbd> 调速 <kbd>.</kbd> 推进一周 <kbd>Esc</kbd> 收起<br><kbd>B / U / P / M / I</kbd> 建设 / 部队 / 施政 / 委托 / 全局</div><div class="save-tools"><button data-action="save">${Afterfire.icon('save')} 保存</button><button data-action="export">导出存档</button><button data-action="import">导入存档</button><button data-action="sound">${Afterfire.icon(this.sound ? 'sound' : 'mute')}${this.sound ? '关闭音效' : '开启音效'}</button><button data-action="menu">主菜单</button></div><p class="legal">支持旧版存档。每四周自动保存；切到后台自动暂停。本游戏的地区与数值为虚构，素材由代码原创绘制，与 Rebel Inc. 无官方关系。种子 ${this.state.seed} · v0.3.0</p></section>`, 'help');
         }
         showEnd() {
             const s = this.state, c = s.campaign;
-            this.setModal(`<section class="modal end-modal"><div class="eyebrow">OPERATION DEBRIEF</div>${emblem(s.outcome === 'victory' ? 'peace' : 'home')}<h2>${s.outcome === 'victory' ? '灰烬之上，生活重来。' : '下一次，让重建走得更远。'}</h2><p>${Afterfire.escape(s.endReason)}</p><div class="result-grid">${[[s.week + '', '行动周数'], [Afterfire.pct(Afterfire.stableShare(s)), '稳定人口'], [String(c?.completedOrders ?? 0), '兑现的承诺'], [s.rescued.toLocaleString(), '提前疏散人次'], [String(c?.deliveries ?? 0), '成功援助运输'], [s.casualties.toLocaleString(), '居民伤亡']].map(([v, k]) => `<div><strong>${v}</strong><span>${k}</span></div>`).join('')}</div><p class="quiet-note">${c ? Afterfire.DOCTRINES[c.doctrine].name + ' · ' + c.upgrades.map(k => Afterfire.UPGRADES[k].name).join(' / ') : '经典行动'}<br>完成 ${s.completed} 项工程 · 民用投入 $${Afterfire.round(s.spentCivil)} · 军事投入 $${Afterfire.round(s.spentMilitary)}</p><div class="row center"><button class="primary" data-action="menu">开启新的重建</button><button data-action="export">导出复盘存档</button></div></section>`, 'end');
+            this.setModal(`<section class="modal end-modal"><div class="eyebrow">OPERATION DEBRIEF</div>${emblem(s.outcome === 'victory' ? 'peace' : 'home')}<h2>${s.theatre ? (s.outcome === 'victory' ? '山河仍在，生活继续。' : '守住前线，还要守住生活。') : s.outcome === 'victory' ? '灰烬之上，生活重来。' : '下一次，让重建走得更远。'}</h2><p>${Afterfire.escape(s.endReason)}</p><div class="result-grid">${[[s.week + '', '行动周数'], [Afterfire.pct(Afterfire.stableShare(s)), '稳定人口'], [String(c?.completedOrders ?? 0), '兑现的承诺'], [s.rescued.toLocaleString(), '提前疏散人次'], [String(c?.deliveries ?? 0), '成功援助运输'], [s.casualties.toLocaleString(), '居民伤亡']].map(([v, k]) => `<div><strong>${v}</strong><span>${k}</span></div>`).join('')}</div><p class="quiet-note">${c ? Afterfire.DOCTRINES[c.doctrine].name + ' · ' + c.upgrades.map(k => Afterfire.UPGRADES[k].name).join(' / ') : '经典行动'}<br>完成 ${s.completed} 项工程 · 民用投入 $${Afterfire.round(s.spentCivil)} · 军事投入 $${Afterfire.round(s.spentMilitary)}</p><div class="row center"><button class="primary" data-action="menu">开启新的重建</button><button data-action="export">导出复盘存档</button></div></section>`, 'end');
             this.save(false);
         }
         save(notify = false) { if (!this.started)
@@ -3034,7 +3809,7 @@ var Afterfire;
             }
             const blob = new Blob([Afterfire.serialize(this.state)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a');
             a.href = url;
-            a.download = `afterfire-v2-${this.state.seed}-W${this.state.week}.json`;
+            a.download = `afterfire-v3-${this.state.seed}-W${this.state.week}.json`;
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
             this.toast('存档已导出。');

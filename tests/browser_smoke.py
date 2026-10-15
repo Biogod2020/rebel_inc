@@ -1,4 +1,4 @@
-"""Reproducible v0.2 UI playthroughs. Requires Python Playwright and Chromium.
+"""Classic-mode UI regression on the current release. Requires Python Playwright and Chromium.
 The sandbox blocks navigation; set_content uses the exact inline release with
 only its test-API opt-in enabled. An explicit in-memory storage adapter is used.
 The pilot READS state, proposes actions, and all game mutations go through real
@@ -24,6 +24,7 @@ def setup(browser,width=1440,height=900,adapter=True):
  p.set_default_timeout(5000);p.on('pageerror',lambda e:errors.append(str(e)))
  if adapter:p.evaluate(STORAGE)
  p.set_content(HTML,wait_until='load');p.wait_for_function('window.__afterfire !== undefined');p.wait_for_timeout(90)
+ p.locator('[data-setting=classic]').click()
  return p
 def tab(p,key):
  s=state(p)
@@ -134,7 +135,7 @@ def main():
   p=setup(browser,1024,768,False);p.locator('[data-action=start]').click();p.keyboard.press('s');assert '导出存档' in p.locator('#toast').inner_text();assert 'visible' in p.locator('#toast').get_attribute('class');p.close()
   checks.append('denied localStorage produces a visible, actionable export-save fallback');browser.close()
   assert not errors,errors
-  report={'version':'0.2.0','build_sha256':hashlib.sha256(RAW.encode()).hexdigest(),'browser':'system Chromium / headless','rendering':'exact inline release via set_content; test-API opt-in only','storage':'explicit in-memory adapter; denial checked separately; native persistence is a separate test','ui_commands':len(commands),'campaigns':finals,'checks':checks,'render_timing':timing,'page_errors':errors,'screenshots':screens}
+  report={'version':json.loads((ROOT/'package.json').read_text())['version'],'build_sha256':hashlib.sha256(RAW.encode()).hexdigest(),'browser':'system Chromium / headless','rendering':'exact inline release via set_content; test-API opt-in only','storage':'explicit in-memory adapter; denial checked separately; native persistence is a separate test','ui_commands':len(commands),'campaigns':finals,'checks':checks,'render_timing':timing,'page_errors':errors,'screenshots':screens}
   (OUT/'browser-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');(OUT/'browser-actions.json').write_text(json.dumps(commands,ensure_ascii=False,indent=2)+'\n')
   print('BROWSER PASS',json.dumps(report,ensure_ascii=False),flush=True)
 if __name__=='__main__':

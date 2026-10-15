@@ -161,7 +161,7 @@ namespace Afterfire {
     const list:Contract[]=[
       {id:base+1,kind:'service',target:service.id,title:`让${service.name}重新运转`,brief:`提升 1 级${PROJECTS[service.demand].short}，并让当地民心达到 53%。`,goal:service.levels[service.demand]+1,progress:0,baseline:0,deadline:52,reward:18,status:'offer'},
       {id:base+2,kind:round%2===0?'road':'delivery',target:road.id,title:round%2===0?'山路不再是边界':'两次如约而至',brief:round%2===0?`提升${road.name} 1 级道路，保持补给通畅。`:'完成两次援助运输。保护车队比派出车队更重要。',goal:round%2===0?road.levels.road+1:2,progress:0,baseline:0,deadline:48,reward:round%2===0?17:25,status:'offer'},
-      {id:base+3,kind:round%2===0?'dialogue':'protect',target:road.id,title:round%2===0?'让一个村庄放下武器':'十二周没有枪声',brief:round%2===0?`在${road.name}完成地方调解，并使民心 ≥45%、武装 <10。`:`让${service.name}民心 ≥53%、武装 <3、通补给，连续维持 12 周。`,goal:round%2===0?1:12,progress:0,baseline:0,deadline:60,reward:22,status:'offer'}
+      {id:base+3,kind:round%2===0?'dialogue':'protect',target:road.id,title:round%2===0?(s.theatre?'为居民争取局部停火':'让一个村庄放下武器'):'十二周没有枪声',brief:round%2===0?`在${road.name}完成${s.theatre?'接触协调':'地方调解'}，并使民心 ≥45%、${s.theatre?'敌方兵力':'武装'} <10。`:`让${service.name}民心 ≥53%、武装 <3、通补给，连续维持 12 周。`,goal:round%2===0?1:12,progress:0,baseline:0,deadline:60,reward:22,status:'offer'}
     ];
     if(list[2].kind==='protect')list[2].target=service.id;
     if(s.scenario==='volcano'&&round===0&&s.week<s.eruptionAt-7){list[2]={id:base+3,kind:'shelter',target:9,title:'在灰烬落下之前',brief:'在冷泉建成至少 1 级安置设施，并在预警时疏散至 90%。',goal:1,progress:0,baseline:0,deadline:s.eruptionAt-1,reward:24,status:'offer'};}

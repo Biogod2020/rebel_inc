@@ -29,7 +29,7 @@ namespace Afterfire {
   export interface GameEvent { id:string; title:string; body:string; choices:EventChoice[]; }
   export interface Snapshot { week:number; support:number; reputation:number; rebels:number; money:number; stable:number; }
   export interface State {
-    version:1; campaign?:Campaign; seed:number; rng:number; scenario:Scenario; governor:Governor; difficulty:Difficulty;
+    version:1; campaign?:Campaign; theatre?:Theatre; seed:number; rng:number; scenario:Scenario; governor:Governor; difficulty:Difficulty;
     week:number; money:number; reputation:number; corruption:number; inflation:number;
     policies:Record<PolicyKind,number>; districts:District[]; units:Unit[]; hq:number;
     nextUnit:number; paused:boolean; speed:number; event:GameEvent|null;

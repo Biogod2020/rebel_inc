@@ -121,7 +121,7 @@ namespace Afterfire {
           const count=d.terrain==='city'?32:d.terrain==='town'?17:5;
           for(let i=0;i<count;i++){
             const col=i%6,row=Math.floor(i/6),x=d.x+(col-2.5)*8+row*2,y=d.y-8+(row-2)*8+(col%2)*2;
-            const w=d.terrain==='city'?3.4+rand(rng)*1.6:3+rand(rng)*1.2,h=d.terrain==='city'?5+rand(rng)*5:3+rand(rng)*3,roof=rand(rng)<.55?'#bd795b':'#658a84';
+            const w=d.terrain==='city'?3.4+rand(rng)*1.6:3+rand(rng)*1.2,h=d.terrain==='city'?(this.state.theatre?12+rand(rng)*19:5+rand(rng)*5):3+rand(rng)*3,roof=rand(rng)<.55?'#bd795b':'#658a84';
             objects.push({y,draw:()=>house(c,x,y,w,h,roof)});
           }
         }
@@ -136,8 +136,8 @@ namespace Afterfire {
       for(const d of this.state.districts){pathPoly(c,d.polygon);c.strokeStyle='rgba(242,234,199,.25)';c.lineWidth=.75;c.setLineDash([2,4]);c.stroke();c.setLineDash([]);}
       pathPoly(c,LAND);c.strokeStyle='#b9be97';c.lineWidth=1.5;c.stroke();
       if(this.state.scenario==='volcano')this.volcano(c,false);
-      c.textAlign='center';c.font='italic 13px Georgia,serif';c.fillStyle='rgba(220,226,202,.38)';c.save();c.translate(1005,487);c.rotate(-1.12);c.fillText('T h e   G r e y   S e a',0,0);c.restore();
-      c.font='italic 11px Georgia,serif';c.fillStyle='rgba(47,66,49,.45)';c.fillText('N O R T H E R N   H I G H L A N D S',575,96);c.fillText('H E L A N   B A S I N',408,617);
+      c.textAlign='center';c.font='italic 13px Georgia,serif';c.fillStyle='rgba(220,226,202,.38)';c.save();c.translate(1005,487);c.rotate(-1.12);c.fillText(this.state.theatre?'近 海 · 架 空 水 域':'T h e   G r e y   S e a',0,0);c.restore();
+      c.font='italic 11px Georgia,serif';c.fillStyle='rgba(47,66,49,.45)';c.fillText(this.state.theatre?'北 部 前 沿 / NORTHERN SECTOR':'N O R T H E R N   H I G H L A N D S',575,96);c.fillText(this.state.theatre?'城 市 与 工 业 走 廊':'H E L A N   B A S I N',408,617);
     }
     private volcano(c:CanvasRenderingContext2D,hot:boolean):void {
       const d=this.state.districts[3],x=d.x,y=d.y-10;
@@ -173,7 +173,7 @@ namespace Afterfire {
       }
       const contract=s.campaign?.contracts.find(o=>o.status==='active');
       if(contract){const d=s.districts[contract.target];c.save();c.translate(d.x+24,d.y-36);c.rotate(Math.PI/4);c.fillStyle='#dfb565';c.fillRect(-5,-5,10,10);c.strokeStyle='#ffebbb';c.lineWidth=1;c.strokeRect(-5,-5,10,10);c.restore();}
-      this.drawMissions(c,fraction);this.drawLabels(c);this.drawUnits(c,fraction);this.drawPreview(c);
+      this.drawTheatre(c);this.drawMissions(c,fraction);this.drawLabels(c);this.drawUnits(c,fraction);this.drawPreview(c);
       if(s.scenario==='volcano'){
         const hot=s.districts.some(d=>d.hazard>0),d=s.districts[3];
         for(let j=0;j<(hot?13:5);j++){const t=(this.time*.07+j*.17)%1;circle(c,d.x+5+t*48+Math.sin(t*7+j)*7,d.y-54-t*(hot?120:75),3+t*(hot?23:13),`rgba(220,221,200,${(hot?.2:.12)*(1-t)})`);}
@@ -247,6 +247,25 @@ namespace Afterfire {
         c.save();c.translate(x,y);c.fillStyle=m.stalled?'#bd6b47':'#d8b572';c.strokeStyle='#fbebc1';c.lineWidth=1;c.beginPath();c.roundRect(-9,-6,18,12,3);c.fill();c.stroke();
         if(m.kind==='convoy'){circle(c,-5,7,2,'#2f4d48');circle(c,5,7,2,'#2f4d48');c.fillStyle='#4a6b60';c.fillRect(3,-4,4,5);}else{c.strokeStyle='#476358';line(c,{x:-4,y:0},{x:4,y:0});line(c,{x:0,y:-4},{x:0,y:4});}c.restore();
       }
+    }
+    private drawTheatre(c:CanvasRenderingContext2D):void {
+      const s=this.state,t=s.theatre;if(!t)return;
+      // Geographically abstract railway; every leg follows an existing adjacency edge.
+      const rail=t.assets.find(a=>a.kind==='rail')!,factory=t.assets.find(a=>a.kind==='factory')!;
+      const route=findPath(s,rail.at,factory.at);
+      if(route){c.save();c.strokeStyle='#394b49';c.lineWidth=5;c.beginPath();c.moveTo(s.districts[rail.at].x,s.districts[rail.at].y);route.forEach(id=>c.lineTo(s.districts[id].x,s.districts[id].y));c.stroke();c.strokeStyle='#d5c6a4';c.lineWidth=3;c.setLineDash([1,6]);c.stroke();c.restore();}
+      for(const a of t.assets){const d=s.districts[a.at],x=d.x-37,y=d.y-30,online=assetEfficiency(s,a)>40;
+        c.save();c.translate(x,y);c.fillStyle=online?'#183e45':'#773f39';c.strokeStyle=a.work?'#e9c895':online?'#bdd5c7':'#e9a792';c.lineWidth=1.4;c.beginPath();c.roundRect(-13,-14,26,27,4);c.fill();c.stroke();c.strokeStyle='#eee1be';c.lineWidth=1.3;
+        if(a.kind==='grid'){c.beginPath();c.moveTo(2,-10);c.lineTo(-6,1);c.lineTo(0,1);c.lineTo(-1,8);c.lineTo(7,-3);c.lineTo(1,-3);c.closePath();c.stroke();}
+        else if(a.kind==='rail'){c.strokeRect(-7,-8,14,11);line(c,{x:-5,y:6},{x:5,y:6});line(c,{x:-6,y:8},{x:-3,y:3});line(c,{x:6,y:8},{x:3,y:3});}
+        else if(a.kind==='factory'){c.beginPath();c.moveTo(-8,7);c.lineTo(-8,-3);c.lineTo(-2,0);c.lineTo(-2,-4);c.lineTo(4,-1);c.lineTo(4,-9);c.lineTo(8,-9);c.lineTo(8,7);c.closePath();c.stroke();}
+        else{line(c,{x:0,y:-4},{x:0,y:8});line(c,{x:-5,y:8},{x:5,y:8});c.beginPath();c.arc(0,-5,7,.25,Math.PI-.25);c.stroke();circle(c,0,-5,2,'#eee1be');}
+        c.fillStyle='#183537';c.fillRect(-11,16,22,3);c.fillStyle=online?'#bcceaf':'#e9a792';c.fillRect(-11,16,22*a.integrity/100,3);
+        if(a.work){c.strokeStyle='#e9c895';c.setLineDash([3,3]);c.lineDashOffset=-this.time*3;c.strokeRect(-17,-18,34,36);c.setLineDash([]);}c.restore();
+        this.label(c,ASSETS[a.kind].short,x,y-19,9,false,'#f3dfc2');
+      }
+      // Front markers represent fictional edge incursions, never civilian districts as political enemies.
+      if(s.week>=12)for(const id of THEATRES[t.key].fronts){const d=s.districts[id];c.save();c.translate(d.x,d.y-48);c.fillStyle='#b56e59';shape(c,[[-6,-5],[6,-5],[0,3]],'#e5b397');c.restore();}
     }
     private drawPreview(c:CanvasRenderingContext2D):void {
       if(this.selectedUnit===null||this.hover<0)return;const s=this.state,u=s.units.find(x=>x.id===this.selectedUnit);if(!u||!active(u)||u.at===this.hover)return;

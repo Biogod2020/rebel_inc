@@ -51,8 +51,8 @@ namespace Afterfire {
     const def=UNIT_DEFS[kind];const cost=recruitCost(s,kind);
     if(s.money<cost)return fail('资金不足');
     s.money-=cost;s.spentMilitary+=cost;
-    const id=s.nextUnit++;s.units.push({id,name:`${kind==='coalition'?'联援':kind==='national'?'国民':'工兵'} ${String(id).padStart(2,'0')}`,kind,at:s.hq,path:[],leg:0,legTotal:0,hp:100,supply:100,training:Math.max(1,def.train-(kind==='national'?s.policies.training*2:0)),contract:kind==='coalition'?96:99999,stance:'protect',experience:0});
-    addLog(s,`${def.name}进入训练，完成后在河岚城部署。`);return ok('招募成功；训练期间仍需维护经费。');
+    const id=s.nextUnit++;s.units.push({id,name:unitName(s,kind,id),kind,at:s.hq,path:[],leg:0,legTotal:0,hp:100,supply:100,training:Math.max(1,def.train-(kind==='national'?s.policies.training*2:0)),contract:kind==='coalition'?96:99999,stance:'protect',experience:0});
+    addLog(s,`${unitTitle(s,kind)}进入训练，完成后在${s.districts[s.hq].name}部署。`);return ok('招募成功；训练期间仍需维护经费。');
   }
   export function moveUnit(s:State,unitId:number,to:number):Result {
     const u=s.units.find(x=>x.id===unitId);if(!u||!s.districts[to])return fail('找不到部队或目的地');
@@ -90,6 +90,7 @@ namespace Afterfire {
   }
   export function startPeace(s:State):Result {
     if(s.negotiating)return fail('和谈已经启动');
+    if(s.theatre?.readiness==='mobilized')return fail('先从强化动员调整为有限动员或常态防御');
     if(s.week<48)return fail('第 48 周后才能启动正式和谈');
     if(s.policies.diplomacy<1)return fail('需要先启动「调解与复员」');
     if(support(s)<48)return fail('人口加权民心需达到 48%');
@@ -99,6 +100,7 @@ namespace Afterfire {
     addLog(s,'多方停火对话启动。和平需要安全与民生共同支撑。','good');return ok('和谈开始。继续提高民心，减少战火。');
   }
   export function eventFor(s:State):GameEvent {
+    if(s.theatre)return theatreEvent(s);
     const events:GameEvent[]=[
       {id:'aid',title:'援助不是没有条件的',body:'外部援助方提出一批重建资金，但希望优先保障城市。偏远村落的代表要求公开分配规则。',choices:[{text:'接受定向援助',detail:'资金 +22；城市民心 +3，山地与林地民心 −3',cost:0,effect:'aid_city'},{text:'坚持公开分配',detail:'资金 +12；全区民心 +2，腐败 −2',cost:0,effect:'aid_fair'}]},
       {id:'contract',title:'一张异常的工程账单',body:'地方承包商的报价明显高于实际用料。立即调查会扰乱工程进度，但放任它会损害整个重建计划。',choices:[{text:'独立调查',detail:'支出 $8；腐败 −12，声望 +2',cost:8,effect:'audit'},{text:'公开重新招标',detail:'全区工程进度 −2；腐败 −6',cost:0,effect:'retender'},{text:'暂缓处理',detail:'腐败 +8；本期不影响施工',cost:0,effect:'ignore'}]},
@@ -114,6 +116,7 @@ namespace Afterfire {
     if(s.money<c.cost)return fail('资金不足，请选择不需要额外资金的方案');
     s.money-=c.cost;s.spentCivil+=c.cost;
     const all=(n:number)=>s.districts.forEach(d=>d.support=clamp(d.support+n));
+    if(s.theatre&&c.effect.startsWith('cn_'))theatreEventEffect(s,c.effect);
     switch(c.effect) {
       case 'aid_city':s.money+=22;s.districts.forEach(d=>d.support=clamp(d.support+(d.terrain==='city'?3:['mountain','forest'].includes(d.terrain)?-3:0)));break;
       case 'aid_fair':s.money+=12;all(2);s.corruption=clamp(s.corruption-2);break;
@@ -129,23 +132,30 @@ namespace Afterfire {
       case 'demob':s.peace=clamp(s.peace+(s.negotiating?12:0));s.districts.forEach(d=>d.rebels*=.88);break;
       case 'wait':s.peace=clamp(s.peace+(s.negotiating?3:0));{const d=s.districts.filter(x=>x.terrain==='mountain'&&x.hazard<=0).sort((a,b)=>a.support-b.support)[0];if(d)d.rebels+=8;}break;
     }
-    addLog(s,`${s.event.title}：${c.text}。`,'info');s.event=null;s.eventIndex++;s.nextEvent=s.week+28;s.paused=false;return ok('决策已执行。');
+    addLog(s,`${s.event.title}：${c.text}。`,'info');s.event=null;s.eventIndex++;s.nextEvent=s.week+(s.theatre?20:28);s.paused=false;return ok('决策已执行。');
   }
   function snapshot(s:State):void {s.history.push({week:s.week,support:support(s),reputation:s.reputation,rebels:totalRebels(s),money:s.money,stable:stableShare(s)});s.history=s.history.slice(-110);}
   function startInsurgency(s:State):void {
+    if(s.theatre){theatreStartEnemy(s);return;}
     const ids=s.scenario==='corridor'?[0,13,20]:[2,5,12];
     for(const id of ids){const d=s.districts[id];d.camp=true;d.rebels=12*difficulty(s);}
     addLog(s,'偏远地区出现有组织武装。保护城镇和交通节点，不要让主力陷在群山中。','bad');s.mood='武装开始活动。部队先守人口中心，再协同推进。';
   }
-  function monthly(s:State):void {
+  /** Project the recurring four-week balance; excludes one-off grants and purchases. */
+  export function budgetProjection(s:State):{income:number;upkeep:number;repayment:number;net:number} {
     const jobs=s.districts.reduce((a,d)=>a+(!controlled(d)&&d.hazard<=0?d.levels.jobs*.65:0),0);
     const cooperative=hasUpgrade(s,'cooperative')?s.districts.reduce((a,d)=>a+(d.supplied&&!controlled(d)&&d.terrain!=='city'?d.levels.jobs*.8:0),0):0;
-    const income=16+stableCount(s)*.65+jobs+cooperative+(s.difficulty==='relaxed'?3:0);
-    const upkeep=s.units.reduce((a,u)=>a+UNIT_DEFS[u.kind].upkeep*(s.campaign?.doctrine==='rebuild'?1.15:1),0);
+    const income=(16+stableCount(s)*.65+jobs+cooperative+(s.difficulty==='relaxed'?3:0))*theatreRevenue(s);
+    const upkeep=s.units.reduce((a,u)=>a+UNIT_DEFS[u.kind].upkeep*(s.campaign?.doctrine==='rebuild'?1.15:1),0)+theatreUpkeep(s);
+    const repayment=Math.min(6,s.theatre?.debt??0);
+    return {income,upkeep,repayment,net:income-upkeep-repayment};
+  }
+  function monthly(s:State):void {
+    const {income,upkeep}=budgetProjection(s);
     s.lastIncome=income;s.lastUpkeep=upkeep;
     s.money+=income-upkeep;
     if(s.money<0){s.reputation=clamp(s.reputation-4);s.money=0;addLog(s,'经费不足，军政服务中断，声望受损。','bad');}
-    snapshot(s);
+    theatreMonthly(s);snapshot(s);
   }
   function unitsTick(s:State):void {
     const removed=new Set<number>();
@@ -183,7 +193,7 @@ namespace Afterfire {
       const local=s.units.filter(u=>active(u)&&u.at===d.id&&!u.path.length);
       if(!local.length||d.rebels<.5||d.hazard>0||isTruce(s,d.id))continue;
       const adjacent=s.units.filter(u=>active(u)&&!u.path.length&&d.neighbors.includes(u.at)&&u.kind!=='engineer');
-      const strength=(u:Unit)=>UNIT_DEFS[u.kind].power*(.4+.6*u.hp/100)*(.25+.75*u.supply/100)*(u.kind==='national'?1+s.policies.training*.22:1)*(u.stance==='protect'?.82:u.stance==='assault'?1.23:1)*(1+u.experience*.002);
+      const strength=(u:Unit)=>UNIT_DEFS[u.kind].power*theatreCombat(s)*(.4+.6*u.hp/100)*(.25+.75*u.supply/100)*(u.kind==='national'?1+s.policies.training*.22:1)*(u.stance==='protect'?.82:u.stance==='assault'?1.23:1)*(1+u.experience*.002);
       const attack=local.reduce((a,u)=>a+strength(u),0)+adjacent.reduce((a,u)=>a+strength(u)*.28,0);
       const terrain=d.terrain==='mountain'?.56:d.terrain==='forest'?.75:1;
       const before=d.rebels,kills=Math.min(d.rebels,attack*terrain*.53*(.85+rand(s)*.3));
@@ -204,7 +214,7 @@ namespace Afterfire {
       const local=s.units.filter(u=>active(u)&&u.at===d.id&&!u.path.length);
       const engineer=local.some(u=>u.kind==='engineer');
       if(d.project&&d.hazard<=0&&!controlled(d)) {
-        const speed=(hasUpgrade(s,'works')?1.15:1)*(hasUpgrade(s,'precision')?.93:1)*(s.governor==='engineer'?1.3:1)*(1+s.policies.logistics*.2)*(1-s.corruption*.006)*(d.supplied?1:.22)*(engineer?1.7:1)*(1+d.levels.road*.12)*(d.terrain==='mountain'?.7:1)*(d.rebels>2?.4:1);
+        const speed=theatreWorks(s)*(hasUpgrade(s,'works')?1.15:1)*(hasUpgrade(s,'precision')?.93:1)*(s.governor==='engineer'?1.3:1)*(1+s.policies.logistics*.2)*(1-s.corruption*.006)*(d.supplied?1:.22)*(engineer?1.7:1)*(1+d.levels.road*.12)*(d.terrain==='mountain'?.7:1)*(d.rebels>2?.4:1);
         d.project.progress+=speed;
         if(d.project.progress>=d.project.total) {
           const kind=d.project.kind;d.levels[kind]++;d.project=null;s.completed++;
@@ -231,6 +241,7 @@ namespace Afterfire {
     }
   }
   function enemyTick(s:State):void {
+    if(s.theatre){theatreEnemyTick(s);return;}
     if(s.week<12)return;
     const factor=difficulty(s)*(s.negotiating?Math.max(.4,1-s.peace/160):1);
     for(const d of s.districts) {
@@ -289,6 +300,7 @@ namespace Afterfire {
     }
   }
   function outcomeTick(s:State):void {
+    if(s.theatre){theatreOutcome(s);if(s.outcome!=='playing')snapshot(s);return;}
     const held=s.districts.filter(controlled);const uncontrolledPop=held.reduce((a,d)=>a+d.population,0)/population(s);
     const stagnation=s.week>96?Math.max(0,.13-stableShare(s)*.003):0;
     const lost=held.length*.035+uncontrolledPop*.9+stagnation+(s.corruption>48?(s.corruption-48)*.006:0);
@@ -313,7 +325,7 @@ namespace Afterfire {
     if(s.week===12)startInsurgency(s);
     hazardsTick(s);updateSupply(s);unitsTick(s);combatTick(s);
     s.units=s.units.filter(u=>{if(u.hp>0)return true;s.losses++;s.reputation=clamp(s.reputation-8);addLog(s,`${u.name}失去战斗力，已退出行动。`,'bad');return false;});
-    civilTick(s);enemyTick(s);updateSupply(s);campaignTick(s);
+    civilTick(s);enemyTick(s);updateSupply(s);campaignTick(s);theatreTick(s);
     if(s.week%4===0)monthly(s);outcomeTick(s);
     if(s.week>=s.nextEvent&&s.outcome==='playing'){s.event=eventFor(s);s.paused=true;}
   }
@@ -351,8 +363,8 @@ namespace Afterfire {
     s.stableEver=Array.isArray(x.stableEver)?[...new Set(x.stableEver.filter(n=>Number.isInteger(n)&&!!s.districts[n]))]:[];
     s.logs=Array.isArray(x.logs)?x.logs.slice(0,75).filter(l=>finite(l.week,0,360)&&typeof l.text==='string'&&['good','bad','warn','info'].includes(l.type)).map(l=>({...l,text:l.text.slice(0,240)})):[];
     s.history=Array.isArray(x.history)?x.history.slice(-110).filter(h=>['week','support','reputation','rebels','money','stable'].every(k=>finite((h as unknown as Record<string,number>)[k],0,1e8))):[];
-    s.event=x.event?eventFor(s):null;s.paused=true;s.speed=1;
+    s.paused=true;s.speed=1;
     if(!['playing','victory','defeat'].includes(x.outcome))throw new Error('结局数据损坏');s.outcome=x.outcome;s.endReason=typeof x.endReason==='string'?x.endReason.slice(0,240):'';
-    restoreCampaign(s,x.campaign);updateSupply(s);return s;
+    restoreCampaign(s,x.campaign);restoreTheatre(s,x.theatre);s.event=x.event?eventFor(s):null;updateSupply(s);return s;
   }
 }
